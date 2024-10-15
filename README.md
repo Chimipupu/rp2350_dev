@@ -45,7 +45,7 @@ https://github.com/earlephilhower/arduino-pico/releases/download/global/package_
 
 ## 🔰RP2350とは？🔰
 <div align="center">
-<img width="200" src="https://assets.raspberrypi.com/static/chips-a126ba53c50bb160d65210696edf8ad9.png">
+<img width="500" src="https://cdn.discordapp.com/attachments/1291907929154392076/1295883998849011773/image.png?ex=67104585&is=670ef405&hm=72f56fe434ee1dc00928c103a50b59b196bce581a9b153f881c50017a785f3a3&">
 </div>
 
 Raspberry Piの **ARM Cortex-M33 x2コア と RISC-V x2コア** を搭載したマイコン🥳
