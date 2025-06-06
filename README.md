@@ -13,7 +13,6 @@ RP2350でARM Cortex-M33の基礎研究を目的とした個人開発リポジト
 - Pico SDK ... Ver2.1.1
 - ARM CMSIS-DSPライブラリ ... Ver(TODO)
 
-
 ## 成果物（予定）
 
 - (TODO)評価用F/W設計書

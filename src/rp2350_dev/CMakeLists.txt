@@ -35,7 +35,9 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(rp2350_dev rp2350_dev.c )
+add_executable(rp2350_dev
+            rp2350_dev.c
+            )
 
 pico_set_program_name(rp2350_dev "rp2350_dev")
 pico_set_program_version(rp2350_dev "0.1")
