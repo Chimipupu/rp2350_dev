@@ -26,7 +26,7 @@ void blink_pin_forever(PIO pio, uint sm, uint offset, uint pin, uint freq) {
  */
 int64_t alarm_callback(alarm_id_t id, void *user_data)
 {
-    printf("Timer 2000ms!\r\n");
+   // NOP
     return 0;
 }
 

@@ -2,12 +2,12 @@
 #include "pico/version.h"
 #include <math.h>
 #include "pico/time.h"
+#include "pico/stdlib.h"
+#include "hardware/clocks.h"
 #include <stdarg.h>
+#include "dbg_com.h"
 
 static void pico_sdk_version_print(void);
-static void floating_point_test(void);
-static double calculate_pi_gauss_legendre(int iterations);
-static void measure_execution_time(void (*func)(void), const char* func_name, ...);
 
 static void pico_sdk_version_print(void)
 {
@@ -17,7 +17,7 @@ static void pico_sdk_version_print(void)
         PICO_SDK_VERSION_REVISION);
 }
 
-static void floating_point_test(void)
+void floating_point_test(void)
 {
     float a = 3.14159f;
     float b = 2.71828f;
@@ -30,7 +30,7 @@ static void floating_point_test(void)
     printf("Division: %.5f / %.5f = %.5f\n", a, b, a / b);
 }
 
-static double calculate_pi_gauss_legendre(int iterations)
+double calculate_pi_gauss_legendre(int iterations)
 {
     double a = 1.0;
     double b = 1.0 / sqrt(2.0);
@@ -53,7 +53,7 @@ static double calculate_pi_gauss_legendre(int iterations)
 }
 
 // 円周率計算用のラッパー関数
-static void pi_calculation_wrapper(void)
+void pi_calculation_wrapper(void)
 {
     for (int i = 1; i <= 5; i++) {
         double pi = calculate_pi_gauss_legendre(i);
@@ -68,7 +68,7 @@ static void pi_calculation_wrapper(void)
  * @param func_name 関数名（表示用）
  * @param ... 関数に渡す引数（可変長）
  */
-static void measure_execution_time(void (*func)(void), const char* func_name, ...)
+void measure_execution_time(void (*func)(void), const char* func_name, ...)
 {
     uint64_t start_time = time_us_64();
     func();
@@ -84,7 +84,7 @@ void app_main(void)
 {
     pico_sdk_version_print();
 
-#if defined(PICO_RP2040) && !defined(PICO_RP2350)
+    #if defined(PICO_RP2040) && !defined(PICO_RP2350)
     printf("MCU:\tRP2040\n");
 #elif !defined(PICO_RP2040) && defined(PICO_RP2350)
     printf("MCU:\tRP2350\n");
@@ -93,12 +93,10 @@ void app_main(void)
     printf("System Clock:\t%d MHz\n", clock_get_hz(clk_sys) / 1000000);
     printf("USB Clock:\t%d MHz\n", clock_get_hz(clk_usb) / 1000000);
 
-    // 浮動小数点演算テスト
-    measure_execution_time(floating_point_test, "floating_point_test");
+    dbg_com_init();
 
-    // ガウス・ルジャンドル法による円周率計算
-    printf("\nCalculating Pi using Gauss-Legendre algorithm:\n");
-    measure_execution_time(pi_calculation_wrapper, "pi_calculation");
-
-    sleep_ms(1000);
+    while(1)
+    {
+        dbg_com_process();
+    }
 }

@@ -38,6 +38,7 @@ pico_sdk_init()
 add_executable(rp2350_dev
             rp2350_dev.c
             app_main.c
+            dbg_com.c
             )
 
 pico_set_program_name(rp2350_dev "rp2350_dev")
