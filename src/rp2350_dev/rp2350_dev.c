@@ -1,6 +1,6 @@
 #include "rp2350_dev.h"
+#include "app_main.h"
 
-// Data will be copied from src to dst
 const char src[] = "Hello, world! (from DMA)";
 char dst[count_of(src)];
 
@@ -113,9 +113,6 @@ int main()
 
     while (true)
     {
-        printf("Hello, world!\n");
-        printf("System Clock Frequency is %d Hz\n", clock_get_hz(clk_sys));
-        printf("USB Clock Frequency is %d Hz\n", clock_get_hz(clk_usb));
-        sleep_ms(1000);
+        app_main();
     }
 }
