@@ -1,5 +1,6 @@
 #include "rp2350_dev.h"
 #include "app_main.h"
+#include "pico/multicore.h"
 
 const char src[] = "Hello, world! (from DMA)";
 char dst[count_of(src)];
@@ -30,9 +31,37 @@ int64_t alarm_callback(alarm_id_t id, void *user_data)
     return 0;
 }
 
+/**
+ * @brief CPU Core0のメイン関数
+ * 
+ */
+void core_0_main(void)
+{
+    while(1)
+    {
+        app_core_0_main();
+    }
+}
+
+
+/**
+ * @brief CPU Core1のメイン関数
+ * 
+ */
+void core_1_main(void)
+{
+    while(1)
+    {
+        app_core_1_main();
+    }
+}
+
 int main()
 {
     stdio_init_all();
+
+    // CPU Core1を起動
+    multicore_launch_core1(core_1_main);
 
     // SPI初期化(@1MHz)
     spi_init(SPI_PORT, 1000*1000);
@@ -113,6 +142,6 @@ int main()
 
     while (true)
     {
-        app_main();
+        core_0_main();
     }
 }

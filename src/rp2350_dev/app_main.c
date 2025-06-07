@@ -1,11 +1,12 @@
 #include "app_main.h"
-#include "pico/version.h"
+#include "dbg_com.h"
+#include <stdarg.h>
 #include <math.h>
+#include "pico/version.h"
 #include "pico/time.h"
 #include "pico/stdlib.h"
 #include "hardware/clocks.h"
-#include <stdarg.h>
-#include "dbg_com.h"
+#include "pico/multicore.h"
 
 static void pico_sdk_version_print(void);
 
@@ -77,14 +78,29 @@ void measure_execution_time(void (*func)(void), const char* func_name, ...)
 }
 
 /**
- * @brief アプリメイン
+ * @brief CPU Core0のアプリメイン関数
  * 
  */
-void app_main(void)
+void app_core_0_main(void)
+{
+    uint32_t core_num = get_core_num();
+
+    while(1)
+    {
+        printf("CPU Core: %d\n", core_num);
+        sleep_ms(1000);
+    }
+}
+
+/**
+ * @brief CPU Core1のアプリメイン関数
+ * 
+ */
+void app_core_1_main(void)
 {
     pico_sdk_version_print();
 
-    #if defined(PICO_RP2040) && !defined(PICO_RP2350)
+#if defined(PICO_RP2040) && !defined(PICO_RP2350)
     printf("MCU:\tRP2040\n");
 #elif !defined(PICO_RP2040) && defined(PICO_RP2350)
     printf("MCU:\tRP2350\n");
@@ -95,8 +111,13 @@ void app_main(void)
 
     dbg_com_init();
 
+    uint32_t core_num = get_core_num();
+
     while(1)
     {
-        dbg_com_process();
+        // dbg_com_process();
+
+        printf("CPU Core: %d\n", core_num);
+        sleep_ms(2000);
     }
 }

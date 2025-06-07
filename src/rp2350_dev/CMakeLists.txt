@@ -53,7 +53,9 @@ pico_enable_stdio_usb(rp2350_dev 1)
 
 # Add the standard library to the build
 target_link_libraries(rp2350_dev
-        pico_stdlib)
+        pico_stdlib
+        pico_multicore
+        )
 
 # Add the standard include files to the build
 target_include_directories(rp2350_dev PRIVATE
