@@ -50,7 +50,7 @@ pico_generate_pio_header(rp2350_dev ${CMAKE_CURRENT_LIST_DIR}/blink.pio)
 # 【コンパルオプション】
 # 浮動小数はH/WのFPUを使用(-mfloat-abi=hard)
 # 浮動小数はS/W(-mfloat-abi=softfp)
-add_compile_options(-mfloat-abi=softfp)
+add_compile_options(-mfloat-abi=hard)
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(rp2350_dev 0)

@@ -184,3 +184,112 @@ typedef struct {
 4. 引数の数チェック
 5. コマンド実行
 6. 結果表示
+
+## 6. ビルドシステム仕様
+
+### 6.1 開発環境
+- CMake 3.13以上
+- C言語標準: C11
+- C++言語標準: C++17
+- Pico SDK: 2.1.1
+- ツールチェーン: 14_2_Rel1
+- picotool: 2.1.1
+
+### 6.2 ビルド設定
+```cmake
+# コンパイルオプション
+- 浮動小数点演算: H/Wの倍精度FPU（-mfloat-abi=hard）
+- 標準出力: USB経由 (UART無効)
+- コンパイルコマンドのエクスポート有効
+
+# リンクライブラリ
+- pico_stdlib
+- pico_multicore
+- hardware_spi
+- hardware_i2c
+- hardware_dma
+- hardware_pio
+- hardware_interp
+- hardware_timer
+- hardware_watchdog
+- hardware_clocks
+```
+
+### 6.3 ターゲット設定
+- ボード: pico2
+- プロジェクト名: rp2350_dev
+- バージョン: 0.1
+
+## 7. ハードウェア初期化仕様
+
+### 7.1 通信インターフェース初期化
+
+#### 7.1.1 SPI設定
+```c
+- クロック周波数: 1MHz
+- ピン設定:
+  - MISO: GPIO_FUNC_SPI
+  - CS: GPIO_FUNC_SIO (出力)
+  - SCK: GPIO_FUNC_SPI
+  - MOSI: GPIO_FUNC_SPI
+```
+
+#### 7.1.2 I2C設定
+```c
+- クロック周波数: 400KHz
+- ピン設定:
+  - SDA: GPIO_FUNC_I2C (プルアップ有効)
+  - SCL: GPIO_FUNC_I2C (プルアップ有効)
+```
+
+#### 7.1.3 UART設定
+```c
+- ボーレート: 115200bps
+- フォーマット: 8N1
+- ピン設定:
+  - TX: GPIO_FUNC_UART
+  - RX: GPIO_FUNC_UART
+```
+
+### 7.2 DMA設定
+```c
+- チャンネル: 未使用チャンネルを自動選択
+- 転送サイズ: 8ビット
+- モード: ブロッキング
+- 設定:
+  - 読み出しアドレスインクリメント: 有効
+  - 書き込みアドレスインクリメント: 有効
+```
+
+### 7.3 PIO設定
+```c
+- 使用PIO: pio0
+- プログラム: blink_program
+- ピン設定:
+  - デフォルトLEDピンまたはGPIO6
+  - 周波数: 3Hz
+```
+
+### 7.4 割り込み設定
+```c
+- タイマー割り込み: 2000ms間隔
+- 補間器設定: デフォルト設定
+```
+
+### 7.5 WDT(ウォッチドッグタイマー)設定
+```c
+- 状態: 無効化（デバッグ用）
+- 設定値:
+  - タイムアウト: 100ms
+  - デバッグ時一時停止: 有効
+```
+
+### 7.6 マルチコア設定
+```c
+- CPU Core0: メインアプリケーション実行
+- CPU Core1: デバッグコマンドモニター実行
+- 起動シーケンス:
+  1. CPU Core0を初期化
+  2. CPU Core1を起動
+  3. 各コアで独立したメインループ実行
+```

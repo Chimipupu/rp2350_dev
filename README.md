@@ -1,4 +1,4 @@
- # RP2350の性能評価
+# RP2350の性能評価
 
 RP2350の評価用F/Wの個人開発リポジトリ
 
@@ -11,9 +11,37 @@ RP2350の評価用F/Wの個人開発リポジトリ
 『S/W』
 
 - Pico SDK ... Ver2.1.1
-- ARM CMSIS-DSPライブラリ ... TODO
+
+## 概要
+
+### システム構成
+- マルチコア構成（CPU Core0, Core1）
+  - CPU Core0: メインアプリケーション実行
+  - CPU Core1: デバッグコマンドモニター実行
+- 通信インターフェース
+  - SPI: 1MHz, 8bit
+  - I2C: 400KHz
+  - UART: 115200bps, 8N1
+- その他ハードウェア機能
+  - DMA: 8bit転送
+  - PIO: LED制御（3Hz）
+  - タイマー割り込み: 2000ms
+  - WDT: デバッグ時無効
+
+### ビルド構成
+- コンパイラ設定
+  - C言語: C11
+  - C++: C++17
+  - 浮動小数点演算: H/Wの倍精度FPU（-mfloat-abi=hard）
+- 標準出力: USB経由（UART無効）
+- リンクライブラリ
+  - pico_stdlib
+  - pico_multicore
+  - hardware_spi/i2c/dma/pio/interp/timer/watchdog/clocks
 
 ## 実装内容
+
+F/Wの詳細は[設計書🔗](/doc/設計書/pj_rp2350.md)を確認すること
 
 ### app_main 🚀
 - 📊 整数演算テスト
