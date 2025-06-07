@@ -87,8 +87,8 @@ void app_core_0_main(void)
 
     while(1)
     {
-        printf("CPU Core: %d\n", core_num);
-        sleep_ms(1000);
+        // printf("CPU Core: %d\n", core_num);
+        // sleep_ms(1000);
     }
 }
 
@@ -111,13 +111,14 @@ void app_core_1_main(void)
 
     dbg_com_init();
 
-    uint32_t core_num = get_core_num();
+    // uint32_t core_num = get_core_num();
 
     while(1)
     {
-        // dbg_com_process();
-
+        dbg_com_process();
+#if 0
         printf("CPU Core: %d\n", core_num);
         sleep_ms(2000);
+#endif
     }
 }

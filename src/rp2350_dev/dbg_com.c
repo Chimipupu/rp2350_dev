@@ -4,8 +4,17 @@
 #include <stdio.h>
 #include <string.h>
 #include "hardware/clocks.h"
-#include "hardware/watchdog.h"
 #include <stdlib.h>
+#include "hardware/watchdog.h"
+
+static void dbg_com_init_msg(void);
+static void cmd_help(void);
+static void cmd_ver(void);
+static void cmd_clock(void);
+static void cmd_fp_test(void);
+static void cmd_pi_calc(const dbg_cmd_args_t* p_args);
+static void cmd_rst(void);
+static void cmd_unknown(void);
 
 // コマンドテーブル
 static const dbg_cmd_info_t s_cmd_table[] = {
@@ -21,6 +30,70 @@ static const dbg_cmd_info_t s_cmd_table[] = {
 // コマンドバッファ
 static char s_cmd_buffer[DBG_CMD_MAX_LEN];
 static int32_t s_cmd_index = 0;
+
+static void dbg_com_init_msg(void)
+{
+    printf("\nDebug Command Monitor for RP2350 Ver 0.1\n");
+    printf("Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)\n");
+    printf("Type 'help' for available commands\n");
+}
+
+static void cmd_help(void)
+{
+    dbg_com_init_msg();
+
+    printf("\nAvailable commands:\n");
+    for (int32_t i = 0; s_cmd_table[i].p_cmd_str != NULL; i++) {
+        printf("  %-10s - %s\n", s_cmd_table[i].p_cmd_str, s_cmd_table[i].p_description);
+    }
+}
+
+static void cmd_ver(void)
+{
+    printf("Pico SDK version: %d.%d.%d\n",
+        PICO_SDK_VERSION_MAJOR,
+        PICO_SDK_VERSION_MINOR,
+        PICO_SDK_VERSION_REVISION);
+}
+
+static void cmd_clock(void)
+{
+    printf("System Clock:\t%d MHz\n", clock_get_hz(clk_sys) / 1000000);
+    printf("USB Clock:\t%d MHz\n", clock_get_hz(clk_usb) / 1000000);
+}
+
+static void cmd_fp_test(void)
+{
+    measure_execution_time(floating_point_test, "floating_point_test");
+}
+
+static void cmd_pi_calc(const dbg_cmd_args_t* p_args)
+{
+    int32_t iterations = 3;
+    if (p_args->argc > 1) {
+        iterations = atoi(p_args->p_argv[1]);
+        if (iterations <= 0) {
+            printf("Error: Invalid iteration count. Must be positive.\n");
+            return;
+        }
+    }
+    printf("\nCalculating Pi using Gauss-Legendre algorithm (%d iterations):\n", iterations);
+    for (int32_t i = 1; i <= iterations; i++) {
+        double pi = calculate_pi_gauss_legendre(i);
+        printf("Iteration %d: π ≈ %.15f\n", i, pi);
+    }
+}
+
+static void cmd_rst(void)
+{
+    printf("Resetting system...\n");
+    watchdog_reboot(0, 0, 0);   // WDTで即時リセット
+}
+
+static void cmd_unknown(void)
+{
+    printf("Unknown command. Type 'help' for available commands.\n");
+}
 
 /**
  * @brief 文字列をトークンに分割する
@@ -47,9 +120,7 @@ static int32_t split_string(char* p_str, dbg_cmd_args_t* p_args)
  */
 void dbg_com_init(void)
 {
-    printf("\nDebug Command Monitor\n");
-    printf("Type 'help' for available commands\n");
-    printf("> ");
+    cmd_help();
 }
 
 /**
@@ -85,52 +156,31 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
 {
     switch (cmd) {
         case CMD_HELP:
-            printf("\nAvailable commands:\n");
-            for (int32_t i = 0; s_cmd_table[i].p_cmd_str != NULL; i++) {
-                printf("  %-10s - %s\n", s_cmd_table[i].p_cmd_str, s_cmd_table[i].p_description);
-            }
+            cmd_help();
             break;
 
         case CMD_VER:
-            printf("Pico SDK version: %d.%d.%d\n",
-                PICO_SDK_VERSION_MAJOR,
-                PICO_SDK_VERSION_MINOR,
-                PICO_SDK_VERSION_REVISION);
+            cmd_ver();
             break;
 
         case CMD_CLOCK:
-            printf("System Clock:\t%d MHz\n", clock_get_hz(clk_sys) / 1000000);
-            printf("USB Clock:\t%d MHz\n", clock_get_hz(clk_usb) / 1000000);
+            cmd_clock();
             break;
 
         case CMD_FP_TEST:
-            measure_execution_time(floating_point_test, "floating_point_test");
+            cmd_fp_test();
             break;
 
-        case CMD_PI_CALC: {
-            int32_t iterations = 3;
-            if (p_args->argc > 1) {
-                iterations = atoi(p_args->p_argv[1]);
-                if (iterations <= 0) {
-                    printf("Error: Invalid iteration count. Must be positive.\n");
-                    break;
-                }
-            }
-            printf("\nCalculating Pi using Gauss-Legendre algorithm (%d iterations):\n", iterations);
-            for (int32_t i = 1; i <= iterations; i++) {
-                double pi = calculate_pi_gauss_legendre(i);
-                printf("Iteration %d: π ≈ %.15f\n", i, pi);
-            }
+        case CMD_PI_CALC:
+            cmd_pi_calc(p_args);
             break;
-        }
 
         case CMD_RST:
-            printf("Resetting system...\n");
-            watchdog_reboot(0, 0, 0);   // WDTで即時リセット
+            cmd_rst();
             break;
 
         case CMD_UNKNOWN:
-            printf("Unknown command. Type 'help' for available commands.\n");
+            cmd_unknown();
             break;
     }
     printf("> ");
