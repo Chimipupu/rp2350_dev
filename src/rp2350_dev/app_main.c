@@ -18,10 +18,190 @@ static void pico_sdk_version_print(void)
         PICO_SDK_VERSION_REVISION);
 }
 
+void int_add_test(void)
+{
+    volatile uint32_t val, i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val += 1;
+    }
+}
+
+void int_sub_test(void)
+{
+    volatile uint32_t i = 0;
+    volatile uint32_t val = TEST_LOOP_CNT;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val -= 1;
+    }
+}
+
+void int_mul_test(void)
+{
+    volatile uint32_t i = 0;
+    volatile uint32_t val = 1;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val * 1;
+    }
+}
+
+void int_div_test(void)
+{
+    volatile uint32_t i = 0;
+    volatile uint32_t val = 1;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val / 1;
+    }
+}
+
+void float_add_test(void)
+{
+    volatile float val = 0.0f;
+    volatile float inc = 1.0f;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val + inc;
+    }
+}
+
+void float_sub_test(void)
+{
+    volatile float val = TEST_LOOP_CNT;
+    volatile float dec = 1.0f;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val - dec;
+    }
+}
+
+void float_mul_test(void)
+{
+    volatile float val = 1.0f;
+    volatile float mul = 1.0f;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val * mul;
+    }
+}
+
+void float_div_test(void)
+{
+    volatile float val = 1.0f;
+    volatile float div = 1.0f;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val / div;
+    }
+}
+
+void double_add_test(void)
+{
+    volatile double val = 0.0;
+    volatile double inc = 1.0;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val + inc;
+    }
+}
+
+void double_sub_test(void)
+{
+    volatile double val = TEST_LOOP_CNT;
+    volatile double dec = 1.0;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val - dec;
+    }
+}
+
+void double_mul_test(void)
+{
+    volatile double val = 1.0;
+    volatile double mul = 1.0;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val * mul;
+    }
+}
+
+void double_div_test(void)
+{
+    volatile double val = 1.0;
+    volatile double div = 1.0;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val / div;
+    }
+}
+
+void trig_functions_test(void)
+{
+    volatile double angle = 45.0;  // 45 degrees
+    volatile double rad = angle * M_PI / 180.0;  // convert to radians
+
+    printf("\nTrigonometric Functions Test:\n");
+    printf("Angle: %.1f degrees (%.6f radians)\n", angle, rad);
+    printf("sin(%.1f°) = %.6f\n", angle, sin(rad));
+    printf("cos(%.1f°) = %.6f\n", angle, cos(rad));
+    printf("tan(%.1f°) = %.6f\n", angle, tan(rad));
+}
+
+void atan2_test(void)
+{
+    volatile double x = 1.0;
+    volatile double y = 1.0;
+
+    printf("\nAtan2 Test:\n");
+    printf("atan2(%.1f, %.1f) = %.6f radians (%.1f degrees)\n",
+           y, x, atan2(y, x), atan2(y, x) * 180.0 / M_PI);
+}
+
+void tan_355_226_test(void)
+{
+    volatile double result = tan(355.0 / 226.0);
+
+    printf("\nTan(355/226) Test:\n");
+    printf("tan(355/226) = %.6f\n", result);
+}
+
+void inverse_sqrt_test(void)
+{
+    volatile double numbers[] = {2.0, 3.0, 4.0, 5.0};
+    volatile int count = sizeof(numbers) / sizeof(numbers[0]);
+
+    printf("\nInverse Square Root Test:\n");
+    for (int i = 0; i < count; i++) {
+        printf("1/sqrt(%.1f) = %.6f\n", numbers[i], 1.0 / sqrt(numbers[i]));
+    }
+}
+
 void floating_point_test(void)
 {
-    float a = 3.14159f;
-    float b = 2.71828f;
+    volatile float a = 3.14159f;
+    volatile float b = 2.71828f;
 
     printf("\nFloating Point Arithmetic Test:\n");
     printf("a = %.5f, b = %.5f\n", a, b);
@@ -33,10 +213,10 @@ void floating_point_test(void)
 
 double calculate_pi_gauss_legendre(int iterations)
 {
-    double a = 1.0;
-    double b = 1.0 / sqrt(2.0);
-    double t = 0.25;
-    double p = 1.0;
+    volatile double a = 1.0;
+    volatile double b = 1.0 / sqrt(2.0);
+    volatile double t = 0.25;
+    volatile double p = 1.0;
 
     for (int i = 0; i < iterations; i++) {
         double a_next = (a + b) / 2.0;
@@ -71,10 +251,10 @@ void pi_calculation_wrapper(void)
  */
 void measure_execution_time(void (*func)(void), const char* func_name, ...)
 {
-    uint64_t start_time = time_us_64();
+    volatile uint32_t start_time = time_us_32();
     func();
-    uint64_t end_time = time_us_64();
-    printf("proc time %s: %llu us\n", func_name, end_time - start_time);
+    volatile uint32_t end_time = time_us_32();
+    printf("proc time %s: %u us\n", func_name, end_time - start_time);
 }
 
 /**

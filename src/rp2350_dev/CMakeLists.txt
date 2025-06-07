@@ -47,6 +47,11 @@ pico_set_program_version(rp2350_dev "0.1")
 # Generate PIO header
 pico_generate_pio_header(rp2350_dev ${CMAKE_CURRENT_LIST_DIR}/blink.pio)
 
+# 【コンパルオプション】
+# 浮動小数はH/WのFPUを使用(-mfloat-abi=hard)
+# 浮動小数はS/W(-mfloat-abi=softfp)
+add_compile_options(-mfloat-abi=softfp)
+
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(rp2350_dev 0)
 pico_enable_stdio_usb(rp2350_dev 1)

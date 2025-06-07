@@ -13,8 +13,12 @@ typedef enum {
     CMD_HELP,       // ヘルプ表示
     CMD_VER,        // バージョン表示
     CMD_CLOCK,      // クロック情報表示
-    CMD_FP_TEST,    // 浮動小数点演算テスト
+    CMD_AT_TEST,    // int/float/double四則演算テスト
     CMD_PI_CALC,    // 円周率計算
+    CMD_TRIG,       // 三角関数テスト
+    CMD_ATAN2,      // atan2テスト
+    CMD_TAN355,     // tan(355/226)テスト
+    CMD_ISQRT,      // 逆平方根テスト
     CMD_RST,        // リセット
     CMD_UNKNOWN     // 不明なコマンド
 } dbg_cmd_t;
