@@ -10,7 +10,7 @@
 // コマンド履歴
 static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];
 static uint8_t s_history_count = 0;  // コマンド履歴の数
-static uint8_t s_history_pos = -1;   // 現在の履歴位置（-1は最新）
+static int8_t s_history_pos = -1;    // 現在の履歴位置（-1は最新）
 
 static void dbg_com_init_msg(void);
 static void cmd_help(void);
@@ -281,7 +281,6 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
             cmd_unknown();
             break;
     }
-    printf("> ");
 }
 
 /**
@@ -309,6 +308,7 @@ void dbg_com_process(void)
                 dbg_com_execute_cmd(cmd, &args);
             }
             s_cmd_index = 0;
+            printf("> ");
         } else {
             printf("\n> ");
         }
@@ -335,7 +335,7 @@ void dbg_com_process(void)
                     printf("%s", s_cmd_buffer);
                 }
             } else if (c == KEY_DOWN) {  // キーボードの下矢印
-                if (s_history_pos > -1) {
+                if (s_history_pos >= 0) {
                     // コマンド履歴の現在の入力バッファをクリア
                     while (s_cmd_index > 0) {
                         printf("\b \b");
@@ -343,7 +343,7 @@ void dbg_com_process(void)
                     }
                     // 履歴を1つ新しいものに
                     s_history_pos--;
-                    if (s_history_pos == -1) {
+                    if (s_history_pos < 0) {
                         s_cmd_index = 0;
                     } else {
                         strcpy(s_cmd_buffer, s_cmd_history[s_history_pos]);
