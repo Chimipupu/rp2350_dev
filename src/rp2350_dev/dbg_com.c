@@ -7,6 +7,8 @@
 #include "pico/version.h"
 #include "hardware/clocks.h"
 #include "hardware/watchdog.h"
+#include "hardware/timer.h"
+#include "pico/time.h"
 
 // コマンド履歴
 static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];
@@ -25,6 +27,7 @@ static void cmd_trig(void);
 static void cmd_atan2(void);
 static void cmd_tan355(void);
 static void cmd_isqrt(void);
+static void cmd_timer(const dbg_cmd_args_t* p_args);
 
 // コマンドテーブル
 static const dbg_cmd_info_t s_cmd_table[] = {
@@ -37,6 +40,7 @@ static const dbg_cmd_info_t s_cmd_table[] = {
     {"atan2",   CMD_ATAN2,   "Run atan2 test", 0, 0},
     {"tan355",  CMD_TAN355,  "Run tan(355/226) test", 0, 0},
     {"isqrt",   CMD_ISQRT,   "Run 1/sqrt(x) test", 0, 0},
+    {"timer",   CMD_TIMER,   "Set timer alarm (seconds)", 0, 1},
     {"rst",     CMD_RST,     "Reboot", 0, 0},
     {NULL,      CMD_UNKNOWN, NULL, 0, 0}
 };
@@ -44,6 +48,44 @@ static const dbg_cmd_info_t s_cmd_table[] = {
 // コマンドバッファ
 static char s_cmd_buffer[DBG_CMD_MAX_LEN];
 static int32_t s_cmd_index = 0;
+
+// タイマー状態
+static timer_state_t s_timer_state[TIMER_MAX_ALARMS] = {0};
+static uint8_t s_available_orders[TIMER_MAX_ALARMS] = {1, 2, 3, 4};  // 利用可能な登録順序
+static uint8_t s_available_count = TIMER_MAX_ALARMS;  // 利用可能な登録順序の数
+
+// 利用可能な登録順序を昇順にソート
+static void sort_available_orders(void) {
+    for (int i = 0; i < s_available_count - 1; i++) {
+        for (int j = 0; j < s_available_count - i - 1; j++) {
+            if (s_available_orders[j] > s_available_orders[j + 1]) {
+                uint8_t temp = s_available_orders[j];
+                s_available_orders[j] = s_available_orders[j + 1];
+                s_available_orders[j + 1] = temp;
+            }
+        }
+    }
+}
+
+// タイマーコールバック関数
+static int64_t timer_callback(alarm_id_t id, void *user_data) {
+    // 対応するタイマーを探して状態を更新
+    for (int i = 0; i < TIMER_MAX_ALARMS; i++) {
+        if (s_timer_state[i].alarm_id == id) {
+            printf("\nTimer #%d (alarm as #%d) alarm!\n", 
+                   i + 1, s_timer_state[i].reg_order);
+            // 登録順序を再利用可能なリストに戻す
+            s_available_orders[s_available_count++] = s_timer_state[i].reg_order;
+            sort_available_orders();  // 利用可能な登録順序を昇順にソート
+            s_timer_state[i].is_running = false;
+            s_timer_state[i].alarm_id = 0;
+            s_timer_state[i].reg_order = 0;
+            break;
+        }
+    }
+    printf("> ");
+    return 0;  // 繰り返しなし
+}
 
 static void dbg_com_init_msg(void)
 {
@@ -160,6 +202,74 @@ static void cmd_isqrt(void)
     printf("\nInverse Square Root Test:\n");
     measure_execution_time(inverse_sqrt_test, "inverse_sqrt_test");
     printf("Test completed: 1/sqrt(x) for x = 2.0, 3.0, 4.0, 5.0\n");
+}
+
+// タイマーコマンド処理
+static void cmd_timer(const dbg_cmd_args_t* p_args)
+{
+    if (p_args->argc > 1) {
+        int32_t seconds = atoi(p_args->p_argv[1]);
+        if (seconds <= 0) {
+            printf("Error: Invalid timer duration. Must be positive.\n");
+            return;
+        }
+        if (seconds > TIMER_MAX_SECONDS) {
+            printf("Error: Timer duration exceeds maximum of %d seconds.\n", TIMER_MAX_SECONDS);
+            return;
+        }
+
+        // 空いているタイマースロットを探す
+        int free_slot = -1;
+        for (int i = 0; i < TIMER_MAX_ALARMS; i++) {
+            if (!s_timer_state[i].is_running) {
+                free_slot = i;
+                break;
+            }
+        }
+
+        if (free_slot == -1) {
+            printf("Error: All %d hardware timers are in use.\n", TIMER_MAX_ALARMS);
+            return;
+        }
+
+        // アラームを設定（マイクロ秒単位）
+        uint64_t delay_us = seconds * 1000000ULL;
+        alarm_id_t alarm_id = add_alarm_in_us(delay_us, timer_callback, NULL, true);
+        if (alarm_id > 0) {
+            s_timer_state[free_slot].is_running = true;
+            s_timer_state[free_slot].start_time = time_us_32();
+            s_timer_state[free_slot].duration = delay_us;
+            s_timer_state[free_slot].alarm_id = alarm_id;
+            // 利用可能な登録順序から最小のものを使用
+            s_timer_state[free_slot].reg_order = s_available_orders[0];
+            // 使用した登録順序を削除し、残りを前に詰める
+            for (int i = 0; i < s_available_count - 1; i++) {
+                s_available_orders[i] = s_available_orders[i + 1];
+            }
+            s_available_count--;
+            printf("Timer #%d (alarm as #%d) set for %d seconds.\n", 
+                   free_slot + 1, s_timer_state[free_slot].reg_order, seconds);
+        } else {
+            printf("Error: Failed to set timer.\n");
+        }
+    } else {
+        // 引数なしの場合は現在のタイマー状態を表示
+        bool any_running = false;
+        for (int i = 0; i < TIMER_MAX_ALARMS; i++) {
+            if (s_timer_state[i].is_running) {
+                uint32_t elapsed = time_us_32() - s_timer_state[i].start_time;
+                uint32_t remaining = (elapsed < s_timer_state[i].duration) ?
+                                    (s_timer_state[i].duration - elapsed) : 0;
+                printf("Timer #%d (alarm as #%d): %u seconds remaining.\n",
+                        i + 1, s_timer_state[i].reg_order,
+                       (remaining + 500000) / 1000000);  // 四捨五入
+                any_running = true;
+            }
+        }
+        if (!any_running) {
+            printf("No timers are running.\n");
+        }
+    }
 }
 
 /**
@@ -281,6 +391,10 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
 
         case CMD_ISQRT:
             cmd_isqrt();
+            break;
+
+        case CMD_TIMER:
+            cmd_timer(p_args);
             break;
 
         case CMD_RST:
