@@ -180,7 +180,6 @@ void atan2_test(void)
 void tan_355_226_test(void)
 {
     volatile double result;
-
     result = tan(355.0 / 226.0);
 }
 
@@ -215,15 +214,6 @@ double calculate_pi_gauss_legendre(int iterations)
     }
 
     return (a + b) * (a + b) / (4.0 * t);
-}
-
-// 円周率計算用のラッパー関数
-void pi_calculation_wrapper(void)
-{
-    for (int i = 1; i <= 5; i++) {
-        double pi = calculate_pi_gauss_legendre(i);
-        printf("Iteration %d: π ≈ %.15f\n", i, pi);
-    }
 }
 
 /**

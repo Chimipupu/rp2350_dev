@@ -9,6 +9,9 @@
 #define DBG_CMD_MAX_ARGS 4 // コマンドの最大引数数
 #define CMD_HISTORY_MAX 16 // コマンド履歴の最大数
 
+// 期待値: tan(355/226)
+#define TAN_355_226_EXPECTED -7497258.18532
+
 // キーボードのコード定義
 #define KEY_ESC         27    // ESCキー
 #define KEY_BACKSPACE   127   // バックスペースキー

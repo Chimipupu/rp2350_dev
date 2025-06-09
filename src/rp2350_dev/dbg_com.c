@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 #include "pico/version.h"
 #include "hardware/clocks.h"
 #include "hardware/watchdog.h"
@@ -99,6 +100,8 @@ static void cmd_at_test(void)
 static void cmd_pi_calc(const dbg_cmd_args_t* p_args)
 {
     int32_t iterations = 3;
+    volatile double pi;
+
     if (p_args->argc > 1) {
         iterations = atoi(p_args->p_argv[1]);
         if (iterations <= 0) {
@@ -108,8 +111,10 @@ static void cmd_pi_calc(const dbg_cmd_args_t* p_args)
     }
     printf("\nCalculating Pi using Gauss-Legendre algorithm (%d iterations):\n", iterations);
     for (int32_t i = 1; i <= iterations; i++) {
-        double pi = calculate_pi_gauss_legendre(i);
-        printf("Iteration %d: π ≈ %.15f\n", i, pi);
+        volatile uint32_t start_time = time_us_32();
+        pi = calculate_pi_gauss_legendre(i);
+        volatile uint32_t end_time = time_us_32();
+        printf("Iteration %d: π ≈ %.15f (proc time: %u us)\n", i, pi, end_time - start_time);
     }
 }
 
@@ -141,8 +146,13 @@ static void cmd_atan2(void)
 static void cmd_tan355(void)
 {
     printf("\nTan(355/226) Test:\n");
+    double result = tan(355.0 / 226.0);
+    printf("Expected: %.5f\n", TAN_355_226_EXPECTED);
+    printf("Calculated: %.5f\n", result);
+    printf("Difference: %.5f (%.2f%%)\n", 
+           result - TAN_355_226_EXPECTED,
+           ((result - TAN_355_226_EXPECTED) / TAN_355_226_EXPECTED) * 100.0);
     measure_execution_time(tan_355_226_test, "tan_355_226_test");
-    printf("Test completed: tan(355/226)\n");
 }
 
 static void cmd_isqrt(void)
