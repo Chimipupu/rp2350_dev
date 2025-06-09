@@ -161,54 +161,38 @@ void trig_functions_test(void)
 {
     volatile double angle = 45.0;  // 45 degrees
     volatile double rad = angle * M_PI / 180.0;  // convert to radians
+    volatile double sin_val, cos_val, tan_val;
 
-    printf("\nTrigonometric Functions Test:\n");
-    printf("Angle: %.1f degrees (%.6f radians)\n", angle, rad);
-    printf("sin(%.1f°) = %.6f\n", angle, sin(rad));
-    printf("cos(%.1f°) = %.6f\n", angle, cos(rad));
-    printf("tan(%.1f°) = %.6f\n", angle, tan(rad));
+    sin_val = sin(rad);
+    cos_val = cos(rad);
+    tan_val = tan(rad);
 }
 
 void atan2_test(void)
 {
     volatile double x = 1.0;
     volatile double y = 1.0;
+    volatile double result;
 
-    printf("\nAtan2 Test:\n");
-    printf("atan2(%.1f, %.1f) = %.6f radians (%.1f degrees)\n",
-           y, x, atan2(y, x), atan2(y, x) * 180.0 / M_PI);
+    result = atan2(y, x);
 }
 
 void tan_355_226_test(void)
 {
-    volatile double result = tan(355.0 / 226.0);
+    volatile double result;
 
-    printf("\nTan(355/226) Test:\n");
-    printf("tan(355/226) = %.6f\n", result);
+    result = tan(355.0 / 226.0);
 }
 
 void inverse_sqrt_test(void)
 {
     volatile double numbers[] = {2.0, 3.0, 4.0, 5.0};
     volatile int count = sizeof(numbers) / sizeof(numbers[0]);
+    volatile double result;
 
-    printf("\nInverse Square Root Test:\n");
     for (int i = 0; i < count; i++) {
-        printf("1/sqrt(%.1f) = %.6f\n", numbers[i], 1.0 / sqrt(numbers[i]));
+        result = 1.0 / sqrt(numbers[i]);
     }
-}
-
-void floating_point_test(void)
-{
-    volatile float a = 3.14159f;
-    volatile float b = 2.71828f;
-
-    printf("\nFloating Point Arithmetic Test:\n");
-    printf("a = %.5f, b = %.5f\n", a, b);
-    printf("Addition: %.5f + %.5f = %.5f\n", a, b, a + b);
-    printf("Subtraction: %.5f - %.5f = %.5f\n", a, b, a - b);
-    printf("Multiplication: %.5f * %.5f = %.5f\n", a, b, a * b);
-    printf("Division: %.5f / %.5f = %.5f\n", a, b, a / b);
 }
 
 double calculate_pi_gauss_legendre(int iterations)

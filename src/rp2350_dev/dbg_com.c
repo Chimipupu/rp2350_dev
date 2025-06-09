@@ -1,10 +1,10 @@
 #include "dbg_com.h"
 #include "app_main.h"
-#include "pico/version.h"
 #include <stdio.h>
 #include <string.h>
-#include "hardware/clocks.h"
 #include <stdlib.h>
+#include "pico/version.h"
+#include "hardware/clocks.h"
 #include "hardware/watchdog.h"
 
 static void dbg_com_init_msg(void);
@@ -121,22 +121,30 @@ static void cmd_unknown(void)
 
 static void cmd_trig(void)
 {
+    printf("\nTrigonometric Functions Test:\n");
     measure_execution_time(trig_functions_test, "trig_functions_test");
+    printf("Test completed: sin(45°), cos(45°), tan(45°)\n");
 }
 
 static void cmd_atan2(void)
 {
+    printf("\nAtan2 Test:\n");
     measure_execution_time(atan2_test, "atan2_test");
+    printf("Test completed: atan2(1.0, 1.0)\n");
 }
 
 static void cmd_tan355(void)
 {
+    printf("\nTan(355/226) Test:\n");
     measure_execution_time(tan_355_226_test, "tan_355_226_test");
+    printf("Test completed: tan(355/226)\n");
 }
 
 static void cmd_isqrt(void)
 {
+    printf("\nInverse Square Root Test:\n");
     measure_execution_time(inverse_sqrt_test, "inverse_sqrt_test");
+    printf("Test completed: 1/sqrt(x) for x = 2.0, 3.0, 4.0, 5.0\n");
 }
 
 /**
