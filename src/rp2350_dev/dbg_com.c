@@ -7,6 +7,11 @@
 #include "hardware/clocks.h"
 #include "hardware/watchdog.h"
 
+// コマンド履歴
+static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];
+static uint8_t s_history_count = 0;  // コマンド履歴の数
+static uint8_t s_history_pos = -1;   // 現在の履歴位置（-1は最新）
+
 static void dbg_com_init_msg(void);
 static void cmd_help(void);
 static void cmd_ver(void);
@@ -168,6 +173,31 @@ static int32_t split_string(char* p_str, dbg_cmd_args_t* p_args)
 }
 
 /**
+ * @brief コマンドを履歴に追加する関数
+ * 
+ * @param p_cmd 追加するコマンド
+ */
+static void add_to_cmd_history(const char* p_cmd)
+{
+    // 履歴を1つずつ下にずらす
+    for (int32_t i = CMD_HISTORY_MAX - 1; i > 0; i--) {
+        strcpy(s_cmd_history[i], s_cmd_history[i - 1]);
+    }
+
+    // 新しいコマンドを追加
+    strncpy(s_cmd_history[0], p_cmd, DBG_CMD_MAX_LEN - 1);
+    s_cmd_history[0][DBG_CMD_MAX_LEN - 1] = '\0';
+
+    // 履歴数を更新（最大値で制限）
+    if (s_history_count < CMD_HISTORY_MAX) {
+        s_history_count++;
+    }
+
+    // 履歴位置をリセット
+    s_history_pos = -1;
+}
+
+/**
  * @brief デバッグコマンドモニターの初期化
  */
 void dbg_com_init(void)
@@ -269,6 +299,9 @@ void dbg_com_process(void)
             s_cmd_buffer[s_cmd_index] = '\0';
             printf("\n");
 
+            // コマンド履歴に入力されたコマンドを追加
+            add_to_cmd_history(s_cmd_buffer);
+
             dbg_cmd_args_t args;
             split_string(s_cmd_buffer, &args);
             if (args.argc > 0) {
@@ -279,10 +312,46 @@ void dbg_com_process(void)
         } else {
             printf("\n> ");
         }
-    } else if (c == '\b' || c == 127) {
+    } else if (c == '\b' || c == KEY_BACKSPACE) {
         if (s_cmd_index > 0) {
             s_cmd_index--;
             printf("\b \b");
+        }
+    } else if (c == KEY_ESC) {  // ESC
+        c = getchar();
+        if (c == KEY_ANSI_ESC) {    // ANSI escape sequence
+            c = getchar();
+            if (c == KEY_UP) {  // キーボードの上矢印
+                if (s_history_pos < s_history_count - 1) {
+                    // 現在の入力バッファをクリア
+                    while (s_cmd_index > 0) {
+                        printf("\b \b");
+                        s_cmd_index--;
+                    }
+                    // コマンド履歴を1つ古いものに
+                    s_history_pos++;
+                    strcpy(s_cmd_buffer, s_cmd_history[s_history_pos]);
+                    s_cmd_index = strlen(s_cmd_buffer);
+                    printf("%s", s_cmd_buffer);
+                }
+            } else if (c == KEY_DOWN) {  // キーボードの下矢印
+                if (s_history_pos > -1) {
+                    // コマンド履歴の現在の入力バッファをクリア
+                    while (s_cmd_index > 0) {
+                        printf("\b \b");
+                        s_cmd_index--;
+                    }
+                    // 履歴を1つ新しいものに
+                    s_history_pos--;
+                    if (s_history_pos == -1) {
+                        s_cmd_index = 0;
+                    } else {
+                        strcpy(s_cmd_buffer, s_cmd_history[s_history_pos]);
+                        s_cmd_index = strlen(s_cmd_buffer);
+                        printf("%s", s_cmd_buffer);
+                    }
+                }
+            }
         }
     } else if (c >= ' ' && c <= '~') {
         s_cmd_buffer[s_cmd_index++] = c;

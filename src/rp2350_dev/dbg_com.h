@@ -7,6 +7,14 @@
 
 #define DBG_CMD_MAX_LEN 32 // コマンドの最大長
 #define DBG_CMD_MAX_ARGS 4 // コマンドの最大引数数
+#define CMD_HISTORY_MAX 16 // コマンド履歴の最大数
+
+// キーボードのコード定義
+#define KEY_ESC         27    // ESCキー
+#define KEY_BACKSPACE   127   // バックスペースキー
+#define KEY_ANSI_ESC    '['   // ANSIエスケープシーケンス
+#define KEY_UP          'A'   // 十字キーの矢印上
+#define KEY_DOWN        'B'   // 十字キーの矢印下
 
 // コマンドの種類
 typedef enum {
