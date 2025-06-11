@@ -14,7 +14,7 @@
 
 // タイマー関連の定数
 #define TIMER_MAX_SECONDS 3600  // 最大1時間
-#define TIMER_MAX_ALARMS 4      // RP2350のハードウェアタイマー数
+#define TIMER_MAX_ALARMS 4      // RP2350のH/Wタイマー数
 
 // キーボードのコード定義
 #define KEY_ESC         27    // ESCキー
@@ -58,7 +58,7 @@ typedef struct {
 typedef struct {
     bool is_running;      // タイマー実行中フラグ
     uint32_t start_time;  // 開始時間
-    uint32_t duration;    // 設定時間（マイクロ秒）
+    uint32_t duration;    // 設定時間（us）
     alarm_id_t alarm_id;  // アラームID
     uint8_t reg_order;    // 登録順序（1から開始）
 } timer_state_t;

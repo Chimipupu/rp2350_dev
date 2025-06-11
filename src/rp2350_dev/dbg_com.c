@@ -204,7 +204,11 @@ static void cmd_isqrt(void)
     printf("Test completed: 1/sqrt(x) for x = 2.0, 3.0, 4.0, 5.0\n");
 }
 
-// タイマーコマンド処理
+/**
+ * @brief タイマーコマンド関数
+ * 
+ * @param p_args コマンド引数の構造体ポインタ
+ */
 static void cmd_timer(const dbg_cmd_args_t* p_args)
 {
     if (p_args->argc > 1) {
@@ -232,7 +236,7 @@ static void cmd_timer(const dbg_cmd_args_t* p_args)
             return;
         }
 
-        // アラームを設定（マイクロ秒単位）
+        // H/Wでアラームを設定（us単位）
         uint64_t delay_us = seconds * 1000000ULL;
         alarm_id_t alarm_id = add_alarm_in_us(delay_us, timer_callback, NULL, true);
         if (alarm_id > 0) {
@@ -247,8 +251,8 @@ static void cmd_timer(const dbg_cmd_args_t* p_args)
                 s_available_orders[i] = s_available_orders[i + 1];
             }
             s_available_count--;
-            printf("Timer #%d (alarm as #%d) set for %d seconds.\n", 
-                   free_slot + 1, s_timer_state[free_slot].reg_order, seconds);
+            printf("Timer #%d (alarm as #%d) set for %d seconds.\n",
+                    free_slot + 1, s_timer_state[free_slot].reg_order, seconds);
         } else {
             printf("Error: Failed to set timer.\n");
         }

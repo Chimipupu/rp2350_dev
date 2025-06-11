@@ -133,7 +133,7 @@ void measure_execution_time(void (*func)(void), const char* func_name, ...);
   - func_name: 関数名（表示用）
   - ...: 可変長引数
 - 戻り値: なし
-- 備考: time_us_32()を使用したマイクロ秒単位の計測
+- 備考: time_us_32()を使用したus単位の計測
 
 ## 4. ソース仕様
 
@@ -220,7 +220,7 @@ typedef struct {
 - プロジェクト名: rp2350_dev
 - バージョン: 0.1
 
-## 7. ハードウェア初期化仕様
+## 7. H/W初期化仕様
 
 ### 7.1 通信インターフェース初期化
 
