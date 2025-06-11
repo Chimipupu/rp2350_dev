@@ -27,6 +27,9 @@
 #define KEY_UP          'A'   // 十字キーの矢印上
 #define KEY_DOWN        'B'   // 十字キーの矢印下
 
+// 【メモリダンプコマンド】
+// 例) mem_dump #00000000 #100
+
 // コマンドの種類
 typedef enum {
     CMD_HELP,       // ヘルプ表示
@@ -40,6 +43,7 @@ typedef enum {
     CMD_ISQRT,      // 逆平方根テスト
     CMD_TIMER,      // タイマーコマンド
     CMD_GPIO,       // GPIO制御
+    CMD_MEM_DUMP,   // メモリダンプ
     CMD_RST,        // リセット
     CMD_UNKNOWN     // 不明なコマンド
 } dbg_cmd_t;
