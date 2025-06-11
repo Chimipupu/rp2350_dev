@@ -5,9 +5,13 @@
 #include <stdint.h>
 #include "rp2350_dev.h"
 
+// コマンド関連のマクロ
 #define DBG_CMD_MAX_LEN 32 // コマンドの最大長
 #define DBG_CMD_MAX_ARGS 4 // コマンドの最大引数数
 #define CMD_HISTORY_MAX 16 // コマンド履歴の最大数
+
+// GPIOの最大ピン番号（RP2350）
+#define GPIO_PIN_NUM_MAX 29
 
 // 期待値: tan(355/226)
 #define TAN_355_226_EXPECTED -7497258.18532
@@ -35,6 +39,7 @@ typedef enum {
     CMD_TAN355,     // tan(355/226)テスト
     CMD_ISQRT,      // 逆平方根テスト
     CMD_TIMER,      // タイマーコマンド
+    CMD_GPIO,       // GPIO制御
     CMD_RST,        // リセット
     CMD_UNKNOWN     // 不明なコマンド
 } dbg_cmd_t;

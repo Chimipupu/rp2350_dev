@@ -9,6 +9,7 @@
 #include "hardware/watchdog.h"
 #include "hardware/timer.h"
 #include "pico/time.h"
+#include "hardware/gpio.h"
 
 // コマンド履歴
 static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];
@@ -28,6 +29,7 @@ static void cmd_atan2(void);
 static void cmd_tan355(void);
 static void cmd_isqrt(void);
 static void cmd_timer(const dbg_cmd_args_t* p_args);
+static void cmd_gpio(const dbg_cmd_args_t* p_args);
 
 // コマンドテーブル
 static const dbg_cmd_info_t s_cmd_table[] = {
@@ -41,6 +43,7 @@ static const dbg_cmd_info_t s_cmd_table[] = {
     {"tan355",  CMD_TAN355,  "Run tan(355/226) test", 0, 0},
     {"isqrt",   CMD_ISQRT,   "Run 1/sqrt(x) test", 0, 0},
     {"timer",   CMD_TIMER,   "Set timer alarm (seconds)", 0, 1},
+    {"gpio",    CMD_GPIO,    "Control GPIO pin (pin, value)", 2, 2},
     {"rst",     CMD_RST,     "Reboot", 0, 0},
     {NULL,      CMD_UNKNOWN, NULL, 0, 0}
 };
@@ -73,7 +76,7 @@ static int64_t timer_callback(alarm_id_t id, void *user_data) {
     for (int i = 0; i < TIMER_MAX_ALARMS; i++) {
         if (s_timer_state[i].alarm_id == id) {
             printf("\nTimer #%d (alarm as #%d) alarm!\n", 
-                   i + 1, s_timer_state[i].reg_order);
+                i + 1, s_timer_state[i].reg_order);
             // 登録順序を再利用可能なリストに戻す
             s_available_orders[s_available_count++] = s_timer_state[i].reg_order;
             sort_available_orders();  // 利用可能な登録順序を昇順にソート
@@ -277,6 +280,46 @@ static void cmd_timer(const dbg_cmd_args_t* p_args)
 }
 
 /**
+ * @brief GPIO制御コマンド関数
+ * 
+ * @param p_args コマンド引数の構造体ポインタ
+ */
+static void cmd_gpio(const dbg_cmd_args_t* p_args)
+{
+    if (p_args->argc != 3) {
+        printf("Error: Invalid number of arguments. Usage: gpio <pin> <value>\n\n");
+        return;
+    }
+
+    // コマンドからGPIOのピン番号とピンの値を取得
+    uint8_t pin = atoi(p_args->p_argv[1]);
+    uint8_t value = atoi(p_args->p_argv[2]);
+
+    // GPIOのピン番号チェック
+    if (pin < 0 || pin > GPIO_PIN_NUM_MAX) {
+        printf("Error: Invalid GPIO pin number. Must be between 0 and %d.\n\n", GPIO_PIN_NUM_MAX);
+        return;
+    }
+
+    // Low/High以外は受け付けない
+    if (value != 0 && value != 1) {
+        printf("Error: Invalid GPIO value. Must be 0 or 1.\n\n");
+        return;
+    }
+
+    // GPIOの初期化と設定
+    gpio_init(pin);
+    gpio_set_dir(pin, GPIO_OUT);
+
+    // GPIO操作の処理時間を計測
+    volatile uint32_t start_time = time_us_32();
+    gpio_put(pin, value);
+    volatile uint32_t end_time = time_us_32();
+
+    printf("GPIO %d set to %d (proc time: %u us)\n\n", pin, value, end_time - start_time);
+}
+
+/**
  * @brief 文字列をトークンに分割する
  * 
  * @param p_str 分割する文字列
@@ -401,6 +444,10 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
             cmd_timer(p_args);
             break;
 
+        case CMD_GPIO:
+            cmd_gpio(p_args);
+            break;
+
         case CMD_RST:
             cmd_rst();
             break;
@@ -421,6 +468,7 @@ void dbg_com_process(void)
     }
 
     int32_t c = getchar();
+    // デリミタでCRかLFが来たらコマンドの受付を終わる
     if (c == '\r' || c == '\n') {
         if (s_cmd_index > 0) {
             s_cmd_buffer[s_cmd_index] = '\0';
