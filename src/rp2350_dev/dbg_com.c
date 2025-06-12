@@ -6,6 +6,7 @@ static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];
 static uint8_t s_history_count = 0;  // コマンド履歴の数
 static int8_t s_history_pos = -1;    // 現在の履歴位置（-1は最新）
 
+static void sort_available_orders(void);
 static void dbg_com_init_msg(void);
 static void cmd_help(void);
 static void cmd_ver(void);
@@ -51,21 +52,9 @@ static timer_state_t s_timer_state[TIMER_MAX_ALARMS] = {0};
 static uint8_t s_available_orders[TIMER_MAX_ALARMS] = {1, 2, 3, 4};  // 利用可能な登録順序
 static uint8_t s_available_count = TIMER_MAX_ALARMS;  // 利用可能な登録順序の数
 
-// 利用可能な登録順序を昇順にソート
-static void sort_available_orders(void) {
-    for (int i = 0; i < s_available_count - 1; i++) {
-        for (int j = 0; j < s_available_count - i - 1; j++) {
-            if (s_available_orders[j] > s_available_orders[j + 1]) {
-                uint8_t temp = s_available_orders[j];
-                s_available_orders[j] = s_available_orders[j + 1];
-                s_available_orders[j + 1] = temp;
-            }
-        }
-    }
-}
-
 // タイマーコールバック関数
-static int64_t timer_callback(alarm_id_t id, void *user_data) {
+static int64_t timer_callback(alarm_id_t id, void *user_data)
+{
     // 対応するタイマーを探して状態を更新
     for (int i = 0; i < TIMER_MAX_ALARMS; i++) {
         if (s_timer_state[i].alarm_id == id) {
@@ -84,11 +73,28 @@ static int64_t timer_callback(alarm_id_t id, void *user_data) {
     return 0;  // 繰り返しなし
 }
 
+// 利用可能な登録順序を昇順にソート
+static void sort_available_orders(void)
+{
+    for (int i = 0; i < s_available_count - 1; i++) {
+        for (int j = 0; j < s_available_count - i - 1; j++) {
+            if (s_available_orders[j] > s_available_orders[j + 1]) {
+                uint8_t temp = s_available_orders[j];
+                s_available_orders[j] = s_available_orders[j + 1];
+                s_available_orders[j + 1] = temp;
+            }
+        }
+    }
+}
+
 static void dbg_com_init_msg(void)
 {
     printf("\nDebug Command Monitor for RP2350 Ver 0.1\n");
     printf("Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)\n");
     printf("Type 'help' for available commands\n");
+#ifdef _WDT_ENABLE_
+    printf("[INFO] Wanning! WDT Enabled: %dms\n", _WDT_OVF_TIME_MS_);
+#endif // _WDT_ENABLE_
 }
 
 static void cmd_help(void)
@@ -328,6 +334,7 @@ static int32_t split_string(char* p_str, dbg_cmd_args_t* p_args)
     while (p_token != NULL && p_args->argc < DBG_CMD_MAX_ARGS) {
         p_args->p_argv[p_args->argc++] = p_token;
         p_token = strtok(NULL, " ");
+        WDT_RST();
     }
 
     return p_args->argc;
@@ -611,6 +618,7 @@ void dbg_com_process(void)
                     while (s_cmd_index > 0) {
                         printf("\b \b");
                         s_cmd_index--;
+                        WDT_RST();
                     }
                     // コマンド履歴を1つ古いものに
                     s_history_pos++;
@@ -624,6 +632,7 @@ void dbg_com_process(void)
                     while (s_cmd_index > 0) {
                         printf("\b \b");
                         s_cmd_index--;
+                        WDT_RST();
                     }
                     // 履歴を1つ新しいものに
                     s_history_pos--;

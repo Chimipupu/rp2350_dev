@@ -13,6 +13,11 @@
 #include "hardware/clocks.h"
 #include "hardware/uart.h"
 
+// #define _WDT_ENABLE_              // WDT有効マクロ
+#ifdef _WDT_ENABLE_
+    #define _WDT_OVF_TIME_MS_    3000 // WDTが鳴く時間(ms)
+#endif // _WDT_ENABLE_
+
 // I2C
 #define I2C_PORT        i2c0
 #define I2C_0_PORT      i2c0

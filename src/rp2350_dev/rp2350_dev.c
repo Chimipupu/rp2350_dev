@@ -22,12 +22,13 @@ void blink_pin_forever(PIO pio, uint sm, uint offset, uint pin, uint freq) {
  * @brief 2000msタイマー割り込みコールバック関数
  * 
  * @param id 
- * @param user_data 
+ * @param p_user_data 
  * @return int64_t 
  */
-int64_t alarm_callback(alarm_id_t id, void *user_data)
+int64_t alarm_callback(alarm_id_t id, void *p_user_data)
 {
-   // NOP
+    NOP();
+
     return 0;
 }
 
@@ -37,12 +38,8 @@ int64_t alarm_callback(alarm_id_t id, void *user_data)
  */
 void core_0_main(void)
 {
-    while(1)
-    {
-        app_core_0_main();
-    }
+    app_core_0_main();
 }
-
 
 /**
  * @brief CPU Core1のメイン関数
@@ -50,10 +47,7 @@ void core_0_main(void)
  */
 void core_1_main(void)
 {
-    while(1)
-    {
-        app_core_1_main();
-    }
+    app_core_1_main();
 }
 
 int main()
@@ -122,23 +116,16 @@ int main()
     // タイマー割り込み @2000ms
     add_alarm_in_ms(2000, alarm_callback, NULL, false);
 
-    // (DEBUG)WDTを有効にするとwatchdog_update()してもリセットされる！謎すぎる、、、
-#if 0
-    // Watchdog example code
+#ifdef _WDT_ENABLE_
     if (watchdog_caused_reboot()) {
         printf("Rebooted by Watchdog!\n");
-        // Whatever action you may take if a watchdog caused a reboot
     }
 
-    // Enable the watchdog, requiring the watchdog to be updated every 100ms or the chip will reboot
-    // second arg is pause on debug which means the watchdog will pause when stepping through code
-    watchdog_enable(100, 1);
+    watchdog_enable(_WDT_OVF_TIME_MS_, 1);
+    WDT_RST();
+#endif // _WDT_ENABLE_
 
-    // You need to call this function at least more often than the 100ms in the enable call to prevent a reboot
-    watchdog_update();
-#endif
-
-    printf("System Clock Frequency is %d Hz\n", clock_get_hz(clk_sys));
+printf("System Clock Frequency is %d Hz\n", clock_get_hz(clk_sys));
     printf("USB Clock Frequency is %d Hz\n", clock_get_hz(clk_usb));
 
     // UART初期化(@115200bps,8N1)
@@ -147,8 +134,5 @@ int main()
     gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
     uart_puts(UART_ID, " Hello, UART!\n");
 
-    while (true)
-    {
-        core_0_main();
-    }
+    core_0_main();
 }

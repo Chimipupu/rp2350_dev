@@ -1,6 +1,7 @@
 #ifndef APP_MAIN_H
 #define APP_MAIN_H
 
+#include "rp2350_dev.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>
@@ -13,6 +14,21 @@
 
 // 四則演算の回数（整数、float,double）100万回
 #define TEST_LOOP_CNT 1000000
+
+// NOP
+static inline void NOP(void)
+{
+    __asm__ __volatile__("nop");
+}
+
+static inline void WDT_RST(void)
+{
+#ifdef _WDT_ENABLE_
+        watchdog_update();
+#else
+        NOP();
+#endif // _WDT_ENABLE_
+}
 
 void app_core_0_main(void);
 void app_core_1_main(void);
