@@ -1,9 +1,19 @@
 #ifndef DBG_COM_H
 #define DBG_COM_H
 
+#include "rp2350_dev.h"
 #include <stdio.h>
 #include <stdint.h>
-#include "rp2350_dev.h"
+#include <string.h>
+#include <stdlib.h>
+#include <math.h>
+#include "pico/version.h"
+#include "hardware/clocks.h"
+#include "hardware/watchdog.h"
+#include "hardware/timer.h"
+#include "pico/time.h"
+#include "hardware/gpio.h"
+#include "hardware/i2c.h"
 
 // コマンド関連のマクロ
 #define DBG_CMD_MAX_LEN 32 // コマンドの最大長

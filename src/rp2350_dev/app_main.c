@@ -1,12 +1,5 @@
 #include "app_main.h"
 #include "dbg_com.h"
-#include <stdarg.h>
-#include <math.h>
-#include "pico/version.h"
-#include "pico/time.h"
-#include "pico/stdlib.h"
-#include "hardware/clocks.h"
-#include "pico/multicore.h"
 
 static void pico_sdk_version_print(void);
 
@@ -225,8 +218,10 @@ void i2c_slave_scan(uint8_t port)
 {
     int32_t ret = 0xFF;
     uint8_t addr, dummy = 0x00;
+    uint8_t slave_count = 0;
+    uint8_t slave_addr_buf[128] = {0};
 
-    // 使用するI2Cポートを選択
+    memset(&slave_addr_buf[0], 0x00, sizeof(slave_addr_buf));
     i2c_inst_t *i2c_port = (port == 0) ? I2C_0_PORT : I2C_1_PORT;
 
     // 7bitのI2Cスレーブアドレス(0x00～0x7F)をスキャン
@@ -241,6 +236,8 @@ void i2c_slave_scan(uint8_t port)
         ret = i2c_write_blocking(i2c_port, addr, &dummy, 1, false);
         if (ret >= 0) {
             printf(" * ");
+            slave_addr_buf[slave_count] = addr;
+            slave_count++;
         } else {
             printf(" - ");
         }
@@ -249,7 +246,12 @@ void i2c_slave_scan(uint8_t port)
             printf("\n");
         }
     }
-    printf("\nI2C Scan complete!\n");
+
+    printf("\nI2C Scan complete! (Slave:%d", slave_count);
+    for (uint8_t i = 0; i < slave_count; i++) {
+        printf(", 0x%02X", slave_addr_buf[i]);
+    }
+    printf(")\n");
 }
 
 /**

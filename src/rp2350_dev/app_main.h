@@ -2,6 +2,14 @@
 #define APP_MAIN_H
 
 #include <stdint.h>
+#include <string.h>
+#include <stdarg.h>
+#include <math.h>
+#include "pico/version.h"
+#include "pico/time.h"
+#include "pico/stdlib.h"
+#include "hardware/clocks.h"
+#include "pico/multicore.h"
 
 // 四則演算の回数（整数、float,double）100万回
 #define TEST_LOOP_CNT 1000000

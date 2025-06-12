@@ -1,16 +1,5 @@
 #include "dbg_com.h"
 #include "app_main.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
-#include "pico/version.h"
-#include "hardware/clocks.h"
-#include "hardware/watchdog.h"
-#include "hardware/timer.h"
-#include "pico/time.h"
-#include "hardware/gpio.h"
-#include "hardware/i2c.h"
 
 // コマンド履歴
 static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];
@@ -39,17 +28,17 @@ static const dbg_cmd_info_t s_cmd_table[] = {
     {"help",    CMD_HELP,    "Show this help message", 0, 0},
     {"ver",     CMD_VER,     "Show version information", 0, 0},
     {"clock",   CMD_CLOCK,   "Show clock information", 0, 0},
+    {"rst",     CMD_RST,     "Reboot", 0, 0},
+    {"mem_dump", CMD_MEM_DUMP, "Dump memory contents (address, length)", 2, 2},
+    {"i2c",     CMD_I2C,     "I2C control (port, command)", 2, 2},
+    {"gpio",    CMD_GPIO,    "Control GPIO pin (pin, value)", 2, 2},
+    {"timer",   CMD_TIMER,   "Set timer alarm (seconds)", 0, 1},
     {"at",      CMD_AT_TEST, "int/float/double arithmetic test", 0, 0},
     {"pi",      CMD_PI_CALC, "Calculate pi using Gauss-Legendre", 0, 1},
     {"trig",    CMD_TRIG,    "Run sin,cos,tan functions test", 0, 0},
     {"atan2",   CMD_ATAN2,   "Run atan2 test", 0, 0},
     {"tan355",  CMD_TAN355,  "Run tan(355/226) test", 0, 0},
     {"isqrt",   CMD_ISQRT,   "Run 1/sqrt(x) test", 0, 0},
-    {"timer",   CMD_TIMER,   "Set timer alarm (seconds)", 0, 1},
-    {"gpio",    CMD_GPIO,    "Control GPIO pin (pin, value)", 2, 2},
-    {"mem_dump", CMD_MEM_DUMP, "Dump memory contents (address, length)", 2, 2},
-    {"i2c",     CMD_I2C,     "I2C control (port, command)", 2, 2},
-    {"rst",     CMD_RST,     "Reboot", 0, 0},
     {NULL,      CMD_UNKNOWN, NULL, 0, 0}
 };
 
