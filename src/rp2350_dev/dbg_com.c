@@ -10,6 +10,7 @@
 #include "hardware/timer.h"
 #include "pico/time.h"
 #include "hardware/gpio.h"
+#include "hardware/i2c.h"
 
 // コマンド履歴
 static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];
@@ -31,6 +32,7 @@ static void cmd_isqrt(void);
 static void cmd_timer(const dbg_cmd_args_t* p_args);
 static void cmd_gpio(const dbg_cmd_args_t* p_args);
 static void cmd_mem_dump(const dbg_cmd_args_t* p_args);
+static void cmd_i2c(const dbg_cmd_args_t* p_args);
 
 // コマンドテーブル
 static const dbg_cmd_info_t s_cmd_table[] = {
@@ -46,6 +48,7 @@ static const dbg_cmd_info_t s_cmd_table[] = {
     {"timer",   CMD_TIMER,   "Set timer alarm (seconds)", 0, 1},
     {"gpio",    CMD_GPIO,    "Control GPIO pin (pin, value)", 2, 2},
     {"mem_dump", CMD_MEM_DUMP, "Dump memory contents (address, length)", 2, 2},
+    {"i2c",     CMD_I2C,     "I2C control (port, command)", 2, 2},
     {"rst",     CMD_RST,     "Reboot", 0, 0},
     {NULL,      CMD_UNKNOWN, NULL, 0, 0}
 };
@@ -454,6 +457,10 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
             cmd_mem_dump(p_args);
             break;
 
+        case CMD_I2C:
+            cmd_i2c(p_args);
+            break;
+
         case CMD_RST:
             cmd_rst();
             break;
@@ -537,6 +544,37 @@ static void cmd_mem_dump(const dbg_cmd_args_t* p_args)
     // 処理時間を計測終了
     volatile uint32_t end_time = time_us_32();
     printf("\nMemory dump completed (proc time: %u us)\n", end_time - start_time);
+}
+
+/**
+ * @brief I2Cスキャンコマンド関数
+ * 
+ * @param p_args コマンド引数の構造体ポインタ
+ */
+static void cmd_i2c(const dbg_cmd_args_t* p_args)
+{
+    if (p_args->argc != 3) {
+        printf("Error: Invalid number of arguments. Usage: i2c <port> <command>\n");
+        printf("Commands:\n");
+        printf("  s - Scan I2C bus for devices\n");
+        return;
+    }
+
+    // I2Cポート番号を取得
+    uint8_t port = atoi(p_args->p_argv[1]);
+    if (port != 0 && port != 1) {
+        printf("Error: Only I2C ports 0 and 1 are supported.\n");
+        return;
+    }
+
+    const char* cmd = p_args->p_argv[2];
+
+    // I2Cのポートスキャン
+    if (strcmp(cmd, "s") == 0) {
+        i2c_slave_scan(port);
+    } else {
+        printf("Error: Unknown I2C command '%s'\n", cmd);
+    }
 }
 
 /**

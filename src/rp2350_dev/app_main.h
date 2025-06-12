@@ -8,6 +8,7 @@
 
 void app_core_0_main(void);
 void app_core_1_main(void);
+void i2c_slave_scan(uint8_t i2c_port);
 void measure_execution_time(void (*p_func)(void), const char* p_func_name, ...);
 double calculate_pi_gauss_legendre(int iterations);
 void trig_functions_test(void);

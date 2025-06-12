@@ -44,6 +44,7 @@ typedef enum {
     CMD_TIMER,      // タイマーコマンド
     CMD_GPIO,       // GPIO制御
     CMD_MEM_DUMP,   // メモリダンプ
+    CMD_I2C,        // I2C制御
     CMD_RST,        // リセット
     CMD_UNKNOWN     // 不明なコマンド
 } dbg_cmd_t;

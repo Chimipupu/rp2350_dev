@@ -72,12 +72,19 @@ int main()
     gpio_set_dir(PIN_CS, GPIO_OUT);
     gpio_put(PIN_CS, 1);
 
-    // I2C初期化(@400KHz)
-    i2c_init(I2C_PORT, 400*1000);
-    gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
-    gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
-    gpio_pull_up(I2C_SDA);
-    gpio_pull_up(I2C_SCL);
+    // I2C0初期化 (@100KHz)
+    i2c_init(I2C_0_PORT, 100 * 1000);
+    gpio_set_function(I2C_0_SDA, GPIO_FUNC_I2C);
+    gpio_set_function(I2C_0_SCL, GPIO_FUNC_I2C);
+    gpio_pull_up(I2C_0_SDA);
+    gpio_pull_up(I2C_0_SCL);
+
+    // I2C1初期化 (@100KHz)
+    i2c_init(I2C_1_PORT, 100 * 1000);
+    gpio_set_function(I2C_1_SDA, GPIO_FUNC_I2C);
+    gpio_set_function(I2C_1_SCL, GPIO_FUNC_I2C);
+    gpio_pull_up(I2C_1_SDA);
+    gpio_pull_up(I2C_1_SCL);
 
     // DMA初期化(@8bit ブロッキング)
     int chan = dma_claim_unused_channel(true);

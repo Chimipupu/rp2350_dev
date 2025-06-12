@@ -217,6 +217,42 @@ double calculate_pi_gauss_legendre(int iterations)
 }
 
 /**
+ * @brief i2Cスレーブデバイスのスキャン関数
+ * 
+ * @param port I2Cポート番号 (0 or 1)
+ */
+void i2c_slave_scan(uint8_t port)
+{
+    int32_t ret = 0xFF;
+    uint8_t addr, dummy = 0x00;
+
+    // 使用するI2Cポートを選択
+    i2c_inst_t *i2c_port = (port == 0) ? I2C_0_PORT : I2C_1_PORT;
+
+    // I2Cバスを0x00～0xFFまでスレーブをスキャン
+    printf("Scanning I2C%d bus...\n", port);
+    printf("       0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F\n");
+    for (addr = 0; addr <= 0x77; addr++)
+    {
+        if ((addr & 0x0F) == 0) {
+            printf("0x%02X: ", addr & 0xF0);
+        }
+
+        ret = i2c_write_blocking(i2c_port, addr, &dummy, 1, false);
+        if (ret >= 0) {
+            printf(" * ");
+        } else {
+            printf(" - ");
+        }
+
+        if ((addr & 0x0F) == 0x0F) {
+            printf("\n");
+        }
+    }
+    printf("\nI2C Scan complete!\n");
+}
+
+/**
  * @brief 関数の実行時間を計測する
  * 
  * @param func 計測対象の関数ポインタ
