@@ -229,10 +229,10 @@ void i2c_slave_scan(uint8_t port)
     // 使用するI2Cポートを選択
     i2c_inst_t *i2c_port = (port == 0) ? I2C_0_PORT : I2C_1_PORT;
 
-    // I2Cバスを0x00～0xFFまでスレーブをスキャン
+    // 7bitのI2Cスレーブアドレス(0x00～0x7F)をスキャン
     printf("Scanning I2C%d bus...\n", port);
     printf("       0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F\n");
-    for (addr = 0; addr <= 0x77; addr++)
+    for (addr = 0; addr <= 0x7F; addr++)
     {
         if ((addr & 0x0F) == 0) {
             printf("0x%02X: ", addr & 0xF0);
