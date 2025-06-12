@@ -25,7 +25,7 @@ RP2350の評価用F/Wの個人開発リポジトリ
   - CPU Core1: デバッグコマンドモニター実行
 - 通信インターフェース
   - SPI: 1MHz, 8bit
-  - I2C: 400KHz
+  - I2C: 100KHz
   - UART: 115200bps, 8N1
 - その他H/W機能
   - DMA: 8bit転送
@@ -55,27 +55,47 @@ F/Wの詳細は[設計書🔗](/doc/設計書/pj_rp2350.md)を確認すること
 
   ```shell
   > help
+
   Debug Command Monitor for RP2350 Ver 0.1
   Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
   Type 'help' for available commands
 
   Available commands:
-    help      - Show this help message
-    ver       - Show version information
-    clock     - Show clock information
-    at        - int/float/double arithmetic test
-    pi        - Calculate pi using Gauss-Legendre
-    trig      - Run sin,cos,tan functions test
-    atan2     - Run atan2 test
-    tan355    - Run tan(355/226) test
-    isqrt     - Run 1/sqrt(x) test
-    timer     - Set timer alarm (seconds)
-    gpio      - Control GPIO pin (pin, value)
-    mem_dump  - Dump memory contents (address, length)
-    rst       - Reboot
+    help       - Show this help message
+    ver        - Show version information
+    clock      - Show clock information
+    rst        - Reboot
+    mem_dump   - Dump memory contents (address, length)
+    reg        - Register read/write: reg #addr r|w bits [#val]
+    i2c        - I2C control (port, command)
+    gpio       - Control GPIO pin (pin, value)
+    timer      - Set timer alarm (seconds)
+    at         - int/float/double arithmetic test
+    pi         - Calculate pi using Gauss-Legendre
+    trig       - Run sin,cos,tan functions test
+    atan2      - Run atan2 test
+    tan355     - Run tan(355/226) test
+    isqrt      - Run 1/sqrt(x) test
   ```
 
-- `mem_dump <address> <length>`
+- `reg <#Addr> <R/W> <Bits> <#Val>` - レジスタのR/W
+  - `#Addr`: 32bitアドレス 例) #20000000
+  - `R/W`: `r`読み取り、`w`書き込み
+  - `Bits`: `8`8bit、`16`16bit、`32`32bit
+  - `#Val`: ※`R/W`が`w`のときのみ有効
+
+  <div align="center">
+    <img width="500" src="/doc/スクショ/reg_cmd_write_verify_ok_ver1.0.png">
+  </div>
+
+  ```shell
+  > reg #20000000 w 8 #AB
+  [REG] Write 8bit @ 0x20000000 = 0xAB
+  > reg #20000000 r 8
+  [REG] Read 8bit @ 0x20000000 = 0xAB
+  ```
+
+- `mem_dump <address> <length>` - メモリダンプ
   - メモリダンプ（開始アドレス、長さ）
 
   ```shell
@@ -99,7 +119,6 @@ F/Wの詳細は[設計書🔗](/doc/設計書/pj_rp2350.md)を確認すること
 
   Memory dump completed (proc time: 7541 us)
   ```
-
 
 - `i2c <port> <mode>` - I2C通信制御
   - port: `0` (I2C0) or `1` (I2C1)

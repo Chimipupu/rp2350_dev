@@ -23,6 +23,7 @@ static void cmd_timer(const dbg_cmd_args_t* p_args);
 static void cmd_gpio(const dbg_cmd_args_t* p_args);
 static void cmd_mem_dump(const dbg_cmd_args_t* p_args);
 static void cmd_i2c(const dbg_cmd_args_t* p_args);
+static void cmd_reg(const dbg_cmd_args_t* p_args);
 
 // コマンドテーブル
 static const dbg_cmd_info_t s_cmd_table[] = {
@@ -31,6 +32,7 @@ static const dbg_cmd_info_t s_cmd_table[] = {
     {"clock",   CMD_CLOCK,   "Show clock information", 0, 0},
     {"rst",     CMD_RST,     "Reboot", 0, 0},
     {"mem_dump", CMD_MEM_DUMP, "Dump memory contents (address, length)", 2, 2},
+    {"reg",     CMD_REG,     "Register read/write: reg #addr r|w bits [#val]", 3, 4},
     {"i2c",     CMD_I2C,     "I2C control (port, command)", 2, 2},
     {"gpio",    CMD_GPIO,    "Control GPIO pin (pin, value)", 2, 2},
     {"timer",   CMD_TIMER,   "Set timer alarm (seconds)", 0, 1},
@@ -52,11 +54,67 @@ static timer_state_t s_timer_state[TIMER_MAX_ALARMS] = {0};
 static uint8_t s_available_orders[TIMER_MAX_ALARMS] = {1, 2, 3, 4};  // 利用可能な登録順序
 static uint8_t s_available_count = TIMER_MAX_ALARMS;  // 利用可能な登録順序の数
 
+static int32_t split_str(char* p_str, dbg_cmd_args_t* p_args);
+
+// コマンド引数を分割して解析
+static int32_t split_str(char* p_str, dbg_cmd_args_t* p_args)
+{
+    char* p_token;
+    char* p_next = p_str;
+    char* p_end = p_str + strlen(p_str);
+
+    p_args->argc = 0;
+#ifdef DEBUG_DBG_COM
+    printf("[DEBUG] : Input string = '%s'\n", p_str);  // 入力文字列の確認
+#endif // DEBUG_DBG_COM
+
+    while (p_next < p_end && p_args->argc < DBG_CMD_MAX_ARGS)
+    {
+        // スペースをスキップ
+        while (*p_next == ' ' && p_next < p_end)
+        {
+            p_next++;
+        }
+        if (p_next >= p_end) break;
+
+        // トークンの開始位置を記録
+        p_token = p_next;
+
+        // 次のスペースまたは文字列末尾まで移動
+        while (*p_next != ' ' && p_next < p_end)
+        {
+            p_next++;
+        }
+
+        // 文字列を終端
+        if (*p_next == ' ') {
+            *p_next++ = '\0';
+        }
+
+#ifdef DEBUG_DBG_COM
+        printf("[DEBUG] : Next token = '%s'\n", p_token);
+#endif // DEBUG_DBG_COM
+        p_args->p_argv[p_args->argc++] = p_token;
+        WDT_RST();
+    }
+
+#ifdef DEBUG_DBG_COM
+    printf("[DEBUG] : argc = %d\n", p_args->argc);
+    for (int i = 0; i < p_args->argc; i++)
+    {
+        printf("[DEBUG] : argv[%d] = %s\n", i, p_args->p_argv[i]);
+    }
+#endif // DEBUG_DBG_COM
+
+    return p_args->argc;
+}
+
 // タイマーコールバック関数
 static int64_t timer_callback(alarm_id_t id, void *user_data)
 {
     // 対応するタイマーを探して状態を更新
-    for (int i = 0; i < TIMER_MAX_ALARMS; i++) {
+    for (int i = 0; i < TIMER_MAX_ALARMS; i++)
+    {
         if (s_timer_state[i].alarm_id == id) {
             printf("\nTimer #%d (alarm as #%d) alarm!\n", 
                 i + 1, s_timer_state[i].reg_order);
@@ -69,15 +127,19 @@ static int64_t timer_callback(alarm_id_t id, void *user_data)
             break;
         }
     }
+
     printf("> ");
+
     return 0;  // 繰り返しなし
 }
 
 // 利用可能な登録順序を昇順にソート
 static void sort_available_orders(void)
 {
-    for (int i = 0; i < s_available_count - 1; i++) {
-        for (int j = 0; j < s_available_count - i - 1; j++) {
+    for (int i = 0; i < s_available_count - 1; i++)
+    {
+        for (int j = 0; j < s_available_count - i - 1; j++)
+        {
             if (s_available_orders[j] > s_available_orders[j + 1]) {
                 uint8_t temp = s_available_orders[j];
                 s_available_orders[j] = s_available_orders[j + 1];
@@ -320,27 +382,6 @@ static void cmd_gpio(const dbg_cmd_args_t* p_args)
 }
 
 /**
- * @brief 文字列をトークンに分割する
- * 
- * @param p_str 分割する文字列
- * @param p_args 引数構造体
- * @return int32_t トークンの数
- */
-static int32_t split_string(char* p_str, dbg_cmd_args_t* p_args)
-{
-    p_args->argc = 0;
-    char* p_token = strtok(p_str, " ");
-
-    while (p_token != NULL && p_args->argc < DBG_CMD_MAX_ARGS) {
-        p_args->p_argv[p_args->argc++] = p_token;
-        p_token = strtok(NULL, " ");
-        WDT_RST();
-    }
-
-    return p_args->argc;
-}
-
-/**
  * @brief コマンドを履歴に追加する関数
  * 
  * @param p_cmd 追加するコマンド
@@ -461,6 +502,10 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
             cmd_rst();
             break;
 
+        case CMD_REG:
+            cmd_reg(p_args);
+            break;
+
         case CMD_UNKNOWN:
             cmd_unknown();
             break;
@@ -574,10 +619,66 @@ static void cmd_i2c(const dbg_cmd_args_t* p_args)
 }
 
 /**
+ * @brief レジスタR/Wコマンド関数
+ * 
+ * @param p_args コマンド引数の構造体ポインタ
+ */
+static void cmd_reg(const dbg_cmd_args_t* p_args)
+{
+    uint32_t wval = 0;
+    uint32_t val = 0;
+    uint32_t addr = 0;
+    uint32_t rval = 0;
+
+    if (p_args->argc != 4 && p_args->argc != 5) {
+        printf("Error: Usage: reg #ADDR r|w BITS [#VAL]\n");
+        printf("  e.g. reg #F000FF00 r 8\n");
+        printf("  e.g. reg #F000FF00 w 32 #FFDC008F\n");
+        return;
+    }
+
+    if (sscanf(p_args->p_argv[1], "#%x", &addr) != 1) {
+        printf("Error: Invalid address format. Use #HEX (e.g. #F000FF00)\n");
+        return;
+    }
+    char rw = p_args->p_argv[2][0];
+    int bits = atoi(p_args->p_argv[3]);
+    if (!(bits == 8 || bits == 16 || bits == 32)) {
+        printf("Error: Bit width must be 8, 16, or 32\n");
+        return;
+    }
+    if (rw == 'r') { // 読み取り
+        if (p_args->argc != 4) {
+            printf("Error: Read usage: reg #ADDR r BITS\n");
+            return;
+        }
+        // app_main.hのマクロを使用
+        if (bits == 8) val = REG_READ_BYTE(0, addr);
+        else if (bits == 16) val = REG_READ_WORD(0, addr);
+        else if (bits == 32) val = REG_READ_DWORD(0, addr);
+        printf("[REG] Read %dbit @ 0x%08X = 0x%0*X\n", bits, addr, bits / 4, val);
+    } else if (rw == 'w') { // 書き込み
+        sscanf(p_args->p_argv[4], "#%x", &wval);
+        if (bits == 8) {
+            REG_WRITE_BYTE(0, addr, (uint8_t)wval);
+        } else if (bits == 16) {
+            REG_WRITE_WORD(0, addr, (uint16_t)wval);
+        } else if (bits == 32) {
+            REG_WRITE_DWORD(0, addr, (uint32_t)wval);
+        }
+        printf("[REG] Write %dbit @ 0x%08X = 0x%0*X\n", bits, addr, bits / 4, wval);
+        } else {
+        printf("Error: 2nd arg must be 'r' or 'w'\n");
+    }
+}
+
+/**
  * @brief デバッグコマンドモニターのメイン処理
  */
 void dbg_com_process(void)
 {
+    dbg_cmd_args_t args;
+
     if (s_cmd_index >= DBG_CMD_MAX_LEN - 1) {
         s_cmd_index = 0;
     }
@@ -592,8 +693,7 @@ void dbg_com_process(void)
             // コマンド履歴に入力されたコマンドを追加
             add_to_cmd_history(s_cmd_buffer);
 
-            dbg_cmd_args_t args;
-            split_string(s_cmd_buffer, &args);
+            split_str(s_cmd_buffer, &args);
             if (args.argc > 0) {
                 dbg_cmd_t cmd = dbg_com_parse_cmd(args.p_argv[0], &args);
                 dbg_com_execute_cmd(cmd, &args);

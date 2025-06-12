@@ -15,9 +15,11 @@
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
 
+// #define DEBUG_DBG_COM      // デバッグ用
+
 // コマンド関連のマクロ
 #define DBG_CMD_MAX_LEN 32 // コマンドの最大長
-#define DBG_CMD_MAX_ARGS 4 // コマンドの最大引数数
+#define DBG_CMD_MAX_ARGS 5 // コマンドの最大引数数
 #define CMD_HISTORY_MAX 16 // コマンド履歴の最大数
 
 // GPIOの最大ピン番号（RP2350）
@@ -53,8 +55,9 @@ typedef enum {
     CMD_ISQRT,      // 逆平方根テスト
     CMD_TIMER,      // タイマーコマンド
     CMD_GPIO,       // GPIO制御
-    CMD_MEM_DUMP,   // メモリダンプ
     CMD_I2C,        // I2C制御
+    CMD_MEM_DUMP,   // メモリダンプ
+    CMD_REG,   // レジスタ操作8/16/32bit
     CMD_RST,        // リセット
     CMD_UNKNOWN     // 不明なコマンド
 } dbg_cmd_t;
