@@ -25,6 +25,8 @@
 // 四則演算の回数（整数、float,double）100万回
 #define TEST_LOOP_CNT 1000000
 
+void core_0_main(void);
+void core_1_main(void);
 void pico_sdk_version_print(void);
 void i2c_slave_scan(uint8_t i2c_port);
 void measure_execution_time(void (*p_func)(void), const char* p_func_name, ...);

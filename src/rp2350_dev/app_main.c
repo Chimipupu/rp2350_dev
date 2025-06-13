@@ -9,6 +9,8 @@
  * 
  */
 #include "app_main.h"
+#include "app_cpu_core_0.h"
+#include "app_cpu_core_1.h"
 #include "dbg_com.h"
 #include "rp2350_dev.h"
 
@@ -276,4 +278,22 @@ void measure_execution_time(void (*func)(void), const char* func_name, ...)
     func();
     volatile uint32_t end_time = time_us_32();
     printf("proc time %s: %u us\n", func_name, end_time - start_time);
+}
+
+/**
+ * @brief CPU Core0のメイン関数
+ * 
+ */
+void core_0_main(void)
+{
+    app_core_0_main();
+}
+
+/**
+ * @brief CPU Core1のメイン関数
+ * 
+ */
+void core_1_main(void)
+{
+    app_core_1_main();
 }

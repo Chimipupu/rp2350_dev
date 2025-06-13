@@ -10,8 +10,7 @@
  */
 #include "rp2350_dev.h"
 #include "app_main.h"
-#include "app_cpu_core_0.h"
-#include "app_cpu_core_1.h"
+#include "pico/multicore.h"
 
 const char src[] = "Hello, world! (from DMA)";
 char dst[count_of(src)];
@@ -41,24 +40,6 @@ int64_t alarm_callback(alarm_id_t id, void *p_user_data)
     NOP();
 
     return 0;
-}
-
-/**
- * @brief CPU Core0のメイン関数
- * 
- */
-void core_0_main(void)
-{
-    app_core_0_main();
-}
-
-/**
- * @brief CPU Core1のメイン関数
- * 
- */
-void core_1_main(void)
-{
-    app_core_1_main();
 }
 
 int main()
