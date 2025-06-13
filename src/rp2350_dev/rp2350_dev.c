@@ -1,6 +1,17 @@
+/**
+ * @file rp2350_dev.c
+ * @author Chimipupu(https://github.com/Chimipupu)
+ * @brief Pico SDK生成ファイル
+ * @version 0.1
+ * @date 2025-06-13
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #include "rp2350_dev.h"
 #include "app_main.h"
-#include "pico/multicore.h"
+#include "app_cpu_core_0.h"
+#include "app_cpu_core_1.h"
 
 const char src[] = "Hello, world! (from DMA)";
 char dst[count_of(src)];

@@ -37,6 +37,8 @@ pico_sdk_init()
 
 add_executable(rp2350_dev
             rp2350_dev.c
+            app_cpu_core_0.c
+            app_cpu_core_1.c
             app_main.c
             dbg_com.c
             )

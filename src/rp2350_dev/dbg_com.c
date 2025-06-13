@@ -1,3 +1,13 @@
+/**
+ * @file dbg_com.c
+ * @author Chimipupu(https://github.com/Chimipupu)
+ * @brief デバッグモニタのアプリ
+ * @version 0.1
+ * @date 2025-06-13
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #include "dbg_com.h"
 #include "app_main.h"
 

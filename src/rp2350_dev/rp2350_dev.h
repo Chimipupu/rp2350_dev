@@ -1,6 +1,17 @@
+/**
+ * @file rp2350_dev.h
+ * @author Chimipupu(https://github.com/Chimipupu)
+ * @brief Pico SDK生成ファイル
+ * @version 0.1
+ * @date 2025-06-13
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #ifndef RP2350_DEV_H
 #define RP2350_DEV_H
 
+#include "common.h"
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/spi.h"

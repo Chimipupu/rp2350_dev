@@ -1,6 +1,17 @@
+/**
+ * @file dbg_com.h
+ * @author Chimipupu(https://github.com/Chimipupu)
+ * @brief デバッグモニタのヘッダ
+ * @version 0.1
+ * @date 2025-06-13
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #ifndef DBG_COM_H
 #define DBG_COM_H
 
+#include "common.h"
 #include "rp2350_dev.h"
 #include <stdio.h>
 #include <stdint.h>
