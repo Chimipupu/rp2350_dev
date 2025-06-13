@@ -1,57 +1,50 @@
 # RP2350の性能評価
 
-RP2350の評価用F/Wの個人開発リポジトリ
-
-<div align="center">
-  <img width="500" src="/doc/スクショ/rp2350_dev_dbgcom_ver1.0.png">
-</div>
+- RP2350の評価用F/Wの個人開発リポジトリ
 
 ## 開発環境
 
-『H/W』
+### H/W
 
-- Raspberry Pi Pico 2
+<div align="center">
+  <img width="500" src="/doc/写真/rp2350_dev_env_20250613.png">
+</div>
 
-『S/W』
+- 基板 ... 型番:`Raspberry Pi Pico 2`
+- マイコン ... 型番:`RP2350`
+  - CPU ... `Arm Cortex-M33` x2コア(※デュアルコアCPU)
+  - ROM ... 4MB
+  - RAM ... 520KB
+
+- I2Cスレーブ
+  - `OLED液晶` ... 型番:`SSD1306` ※アドレス:0x3C
+  - `湿温度センサ` ... 型番:`BME280` ※アドレス:0x76
+  - `RTC` ... 型番:DS3231 ※アドレス:0x68
+
+### S/W
 
 - Pico SDK ... Ver2.1.1
+  - コンパイラ設定
+    - C言語: C11
+    - C++: C++17
+    - 浮動小数点演算: H/Wの倍精度FPU（-mfloat-abi=hard）
+  - 標準出力: USB経由（UART無効）
+  - リンクライブラリ
+    - pico_stdlib
+    - pico_multicore
+    - hardware_spi/i2c/dma/pio/interp/timer/watchdog/clocks
 
-## 概要
-
-### システム構成
-
-- マルチコア構成（CPU Core0, Core1）
-  - CPU Core0: メインアプリケーション実行
-  - CPU Core1: デバッグコマンドモニター実行
-- 通信インターフェース
-  - SPI: 1MHz, 8bit
-  - I2C: 100KHz
-  - UART: 115200bps, 8N1
-- その他H/W機能
-  - DMA: 8bit転送
-  - PIO: LED制御（3Hz）
-  - タイマー割り込み: 2000ms
-  - WDT: デバッグ時無効
-
-### ビルド構成
-
-- コンパイラ設定
-  - C言語: C11
-  - C++: C++17
-  - 浮動小数点演算: H/Wの倍精度FPU（-mfloat-abi=hard）
-- 標準出力: USB経由（UART無効）
-- リンクライブラリ
-  - pico_stdlib
-  - pico_multicore
-  - hardware_spi/i2c/dma/pio/interp/timer/watchdog/clocks
-
-## 実装内容
+## F/W
 
 F/Wの詳細は[設計書🔗](/doc/設計書/pj_rp2350.md)を確認すること
 
 ### コマンド一覧
 
 - `help` - コマンド一覧表示
+
+<div align="center">
+  <img width="500" src="/doc/写真/rp2350_dev_dbgcom_ver1.0.png">
+</div>
 
   ```shell
   > help
@@ -85,7 +78,7 @@ F/Wの詳細は[設計書🔗](/doc/設計書/pj_rp2350.md)を確認すること
   - `#Val`: ※`R/W`が`w`のときのみ有効
 
   <div align="center">
-    <img width="500" src="/doc/スクショ/reg_cmd_write_verify_ok_ver1.0.png">
+    <img width="500" src="/doc/写真/reg_cmd_write_verify_ok_ver1.0.png">
   </div>
 
   ```shell
@@ -125,7 +118,7 @@ F/Wの詳細は[設計書🔗](/doc/設計書/pj_rp2350.md)を確認すること
   - mode: `s` 7bitスレーブアドレス（0x00~0x7F）をすべてスキャン
 
   <div align="center">
-    <img width="500" src="/doc/スクショ/i2c_scan_ver1.0.png">
+    <img width="500" src="/doc/写真/i2c_scan_ver1.0.png">
   </div>
 
   ```shell
@@ -135,13 +128,13 @@ F/Wの詳細は[設計書🔗](/doc/設計書/pj_rp2350.md)を確認すること
   0x00:  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
   0x10:  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
   0x20:  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-  0x30:  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+  0x30:  -  -  -  -  -  -  -  -  -  -  -  -  *  -  -  -
   0x40:  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
   0x50:  -  -  -  -  -  -  -  *  -  -  -  -  -  -  -  -
   0x60:  -  -  -  -  -  -  -  -  *  -  -  -  -  -  -  -
   0x70:  -  -  -  -  -  -  *  -  -  -  -  -  -  -  -  -
 
-  I2C Scan complete! (Slave:3, 0x57, 0x68, 0x76)
+  I2C Scan complete! (Slave:4, 0x3C, 0x57, 0x68, 0x76)
   ```
 
 - `gpio <pin> <value>` - GPIO制御（ピン番号、値）
