@@ -58,6 +58,7 @@ typedef enum {
     CMD_HELP,       // ヘルプ表示
     CMD_VER,        // バージョン表示
     CMD_SYSTEM,     // システム情報表示
+    CMD_RND,        // 真性乱数をH/WのTRANGで生成,
     CMD_AT_TEST,    // int/float/double四則演算テスト
     CMD_PI_CALC,    // 円周率計算
     CMD_TRIG,       // 三角関数テスト
@@ -68,7 +69,7 @@ typedef enum {
     CMD_GPIO,       // GPIO制御
     CMD_I2C,        // I2C制御
     CMD_MEM_DUMP,   // メモリダンプ
-    CMD_REG,   // レジスタ操作8/16/32bit
+    CMD_REG,        // レジスタ操作8/16/32bit
     CMD_RST,        // リセット
     CMD_UNKNOWN     // 不明なコマンド
 } dbg_cmd_t;

@@ -11,6 +11,7 @@
 #include "dbg_com.h"
 #include "app_main.h"
 #include "pcb_def.h"
+#include "mcu_util.h"
 
 // コマンド履歴
 static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];
@@ -24,6 +25,7 @@ static void cmd_ver(void);
 static void cmd_system(void);
 static void cmd_at_test(void);
 static void cmd_pi_calc(const dbg_cmd_args_t* p_args);
+static void cmd_rnd(const dbg_cmd_args_t* p_args);
 static void cmd_rst(void);
 static void cmd_unknown(void);
 static void cmd_trig(void);
@@ -41,6 +43,7 @@ static const dbg_cmd_info_t s_cmd_table[] = {
     {"help",    CMD_HELP,    "Show this help message", 0, 0},
     {"ver",     CMD_VER,     "Show F/W version", 0, 0},
     {"sys",     CMD_SYSTEM,  "Show system information", 0, 0},
+    {"rnd",     CMD_RND,   "Generate true random numbers using TRNG", 0, 1},
     {"rst",     CMD_RST,     "Reboot", 0, 0},
     {"mem_dump", CMD_MEM_DUMP, "Dump memory contents (address, length)", 2, 2},
     {"reg",     CMD_REG,     "Register read/write: reg #addr r|w bits [#val]", 3, 4},
@@ -277,6 +280,37 @@ static void cmd_pi_calc(const dbg_cmd_args_t* p_args)
         volatile uint32_t end_time = time_us_32();
         printf("Iteration %d: π ≈ %.15f (proc time: %u us)\n", i, pi, end_time - start_time);
     }
+}
+
+static void cmd_rnd(const dbg_cmd_args_t* p_args)
+{
+    int32_t i, count;
+
+    if (p_args->argc < 2 || p_args->argc > 2) {
+        printf("Usage: rnd <count>\n");
+        return;
+    }
+
+    count = atoi(p_args->p_argv[1]);
+    uint32_t rand_buf[count];
+    memset(rand_buf, 0, sizeof(rand_buf));
+    if (count <= 0) {
+        printf("Error: Invalid count. Must be positive.\n");
+        return;
+    }
+
+    // TRNGで真性乱数を生成
+    printf("\nTRANG gen random num cnt:%d\n", count);
+    trang_gen_rand_num_u32(rand_buf, count);
+
+#if 1
+    for (i = 0; i < count; i++)
+    {
+        printf("[DEBUG]generated rand num(%d): %u\n", i, rand_buf[i]);
+    }
+#endif
+
+    printf("\n");
 }
 
 static void cmd_rst(void)
@@ -560,7 +594,11 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
             cmd_reg(p_args);
             break;
 
-        case CMD_UNKNOWN:
+        case CMD_RND:
+            cmd_rnd(p_args);
+            break;
+
+            case CMD_UNKNOWN:
             cmd_unknown();
             break;
     }

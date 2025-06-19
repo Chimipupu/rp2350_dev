@@ -41,10 +41,11 @@ add_executable(rp2350_dev
             app_cpu_core_1.c
             app_main.c
             dbg_com.c
+            mcu_util.c
             )
 
 pico_set_program_name(rp2350_dev "rp2350_dev")
-pico_set_program_version(rp2350_dev "0.1")
+pico_set_program_version(rp2350_dev "0.1.0")
 
 # Generate PIO header
 pico_generate_pio_header(rp2350_dev ${CMAKE_CURRENT_LIST_DIR}/blink.pio)
@@ -62,6 +63,7 @@ pico_enable_stdio_usb(rp2350_dev 1)
 target_link_libraries(rp2350_dev
         pico_stdlib
         pico_multicore
+        pico_rand
         )
 
 # Add the standard include files to the build

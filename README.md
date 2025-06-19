@@ -46,6 +46,7 @@
 - [HELP](#help) - コマンド一覧表示
 - [VER](#ver) - ファームウェアバージョン表示
 - [SYS](#sys) - システム情報表示
+- [RND](#rnd) - 真性乱数をH/WのTRANGで生成
 - [RST](#rst) - システムリセット
 - [MEM_DUMP](#mem_dump) - メモリダンプ
 - [REG](#reg) - レジスタR/W
@@ -78,6 +79,7 @@
     help       - Show this help message
     ver        - Show F/W version
     sys        - Show system information
+    rnd        - Generate true random numbers using TRNG
     rst        - Reboot
     mem_dump   - Dump memory contents (address, length)
     reg        - Register read/write: reg #addr r|w bits [#val]
@@ -101,7 +103,7 @@
   - `#Val`: ※`R/W`が`w`のときのみ有効
 
   <div align="center">
-    <img width="500" src="/doc/写真/reg_cmd_write_verify_ok_ver1.0.png">
+    <img width="800" src="/doc/写真/reg_cmd_write_verify_ok_ver1.0.png">
   </div>
 
   ```shell
@@ -186,10 +188,28 @@
   Timer #1 (alarm as #1): 3 seconds remaining.
   ```
 
+#### RND
+
+- `rnd` - 真性乱数生成
+  - 真性乱数をH/WのTRANGで生成
+
+<div align="center">
+  <img width="500" src="/doc/写真/rnd_cmd_ver0.1.0.png">
+</div>
+
+  ```shell
+  > rnd 3
+
+  TRANG gen random num cnt:3
+  [DEBUG]generated rand num(0): 1780349305
+  [DEBUG]generated rand num(1): 3947560575
+  [DEBUG]generated rand num(2): 1790515031
+  ```
+
 #### RST
 
 - `rst` - システムリセット
-  - ⚡ リセット機能
+  - リセット機能
     - ウォッチドッグタイマーによる即時リセット
 
   ```shell
