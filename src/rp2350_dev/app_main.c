@@ -14,6 +14,62 @@
 #include "dbg_com.h"
 #include "pcb_def.h"
 
+/**
+ * @brief メモリダンプ(16進HEX & Ascii)
+ * 
+ * @param dump_addr ダンプするメモリの32bitアドレス
+ * @param dump_size ダンプするサイズ(Byte)
+ */
+void show_mem_dump(uint32_t dump_addr, uint32_t dump_size)
+{
+    printf("\n[Memory Dump '(addr:0x%04X)]\n", dump_addr);
+
+    // ヘッダー行を表示
+    printf("Address  ");
+    for (int i = 0; i < 16; i++)
+    {
+        printf("%02X ", i);
+    }
+    printf("| ASCII\n");
+    printf("-------- ");
+    for (int i = 0; i < 16; i++)
+    {
+        printf("---");
+    }
+    printf("| ------\n");
+
+    // 16バイトずつダンプ
+    for (uint32_t offset = 0; offset < dump_size; offset += 16)
+    {
+        printf("%08X: ", dump_addr + offset);
+
+        // 16バイト分のデータを表示
+        for (int i = 0; i < 16; i++)
+        {
+            if (offset + i < dump_size) {
+                uint8_t data = *((volatile uint8_t*)(dump_addr + offset + i));
+                printf("%02X ", data);
+            } else {
+                printf("   ");
+            }
+        }
+
+        // ASCII表示
+        printf("| ");
+        for (int i = 0; i < 16; i++)
+        {
+            if (offset + i < dump_size) {
+                uint8_t data = *((volatile uint8_t*)(dump_addr + offset + i));
+                // 表示可能なASCII文字のみ表示
+                printf("%c", (data >= 32 && data <= 126) ? data : '.');
+            } else {
+                printf(" ");  // データがない場合は空白を表示
+            }
+        }
+        printf("\n");
+    }
+}
+
 void pico_sdk_version_print(void)
 {
     printf("Pico SDK version: %d.%d.%d\n",

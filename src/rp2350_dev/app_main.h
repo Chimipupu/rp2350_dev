@@ -29,6 +29,7 @@
 // 四則演算の回数（整数、float,double）100万回
 #define TEST_LOOP_CNT 1000000
 
+void show_mem_dump(uint32_t dump_addr, uint32_t dump_size);
 void core_0_main(void);
 void core_1_main(void);
 void pico_sdk_version_print(void);

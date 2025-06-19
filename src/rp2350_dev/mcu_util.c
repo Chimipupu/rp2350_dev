@@ -37,20 +37,21 @@ void trang_gen_rand_num_u32(uint32_t *p_rand_buf, uint32_t gen_num_cnt)
  */
 void sha256_padding(const uint8_t *p_src_buf, size_t len, uint8_t *p_dst_buf, size_t *p_out_len)
 {
-    size_t total_len = len + 1 + 8; // データ + 0x80 + 64bitの長さ
+    size_t total_len = len + 1 + 8;
     size_t pad_len = (64 - (total_len % 64)) % 64;
-    *p_out_len = len + 1 + pad_len + 8;
+    size_t padded_len = len + 1 + pad_len + 8;
+    uint64_t bit_len = (uint64_t)len * 8;
 
-    uint64_t bit_len = len * 8;
-
-    // 元データコピー
     memcpy(p_dst_buf, p_src_buf, len);
-
-    // パディング開始のおまじない(0x80)をデータの最後に追加
     p_dst_buf[len] = 0x80;
-
-    // 0パディング（必要な長さ分）
     memset(p_dst_buf + len + 1, 0, pad_len);
+
+    size_t bit_len_pos = len + 1 + pad_len;
+    for (int i = 0; i < 8; i++) {
+        p_dst_buf[bit_len_pos + 7 - i] = (uint8_t)(bit_len >> (i * 8));
+    }
+
+    *p_out_len = padded_len;
 }
 
 /**

@@ -293,8 +293,8 @@ static void cmd_sha(const dbg_cmd_args_t* p_args)
     uint8_t hash_buf[64 * 2];
     size_t padding_len;
 
-    memset(hash_buf, 0, sizeof(padding_buf));
-    memset(padding_buf, 0, sizeof(hash_buf));
+    memset(hash_buf, 0, sizeof(hash_buf));
+    memset(padding_buf, 0, sizeof(padding_buf));
 #endif
 
     if (p_args->argc < 2 || p_args->argc > 2) {
@@ -303,21 +303,20 @@ static void cmd_sha(const dbg_cmd_args_t* p_args)
     }
 
     printf("\nSHA-256 Hash Calc(H/W)\n");
-
-#if 1
     printf("\nCalc str : %s\n", msg);
     // SHA-256のパディング処理
     sha256_padding((const uint8_t *)msg, strlen(msg), padding_buf, &padding_len);
-#endif
+    show_mem_dump((uint32_t)padding_buf, 64);
 
     // SHA-256のハッシュ値を計算
     hardware_calc_sha256((const uint8_t *)padding_buf, padding_len, hash_buf);
-    printf("SHA-256 Hash : ");
+    printf("\nSHA-256 Hash : ");
     for (size_t i = 0; i < 32; ++i)
     {
         printf("%02X", hash_buf[i]);
     }
     printf("\n");
+    show_mem_dump((uint32_t)hash_buf, 64);
 }
 
 static void cmd_rnd(const dbg_cmd_args_t* p_args)
@@ -653,70 +652,28 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
  */
 static void cmd_mem_dump(const dbg_cmd_args_t* p_args)
 {
+    uint32_t addr;
+    uint32_t length;
+
     if (p_args->argc != 3) {
         printf("Error: Invalid number of arguments. Usage: mem_dump <address> <length>\n");
         return;
     }
 
     // アドレスを16進数文字列から数値に変換
-    uint32_t addr;
     if (sscanf(p_args->p_argv[1], "#%x", &addr) != 1) {
         printf("Error: Invalid address format. Use hexadecimal with # prefix (e.g., #F0000000)\n");
         return;
     }
 
     // 長さを16進数文字列から数値に変換
-    uint32_t length;
     if (sscanf(p_args->p_argv[2], "#%x", &length) != 1) {
         printf("Error: Invalid length format. Use hexadecimal with # prefix (e.g., #10)\n");
         return;
     }
 
-    // メモリダンプの処理時間を計測開始
     volatile uint32_t start_time = time_us_32();
-
-    // ヘッダー行を表示
-    printf("Address  ");
-    for (int i = 0; i < 16; i++) {
-        printf("%02X ", i);
-    }
-    printf("| ASCII\n");
-    printf("-------- ");
-    for (int i = 0; i < 16; i++) {
-        printf("---");
-    }
-    printf("| ------\n");
-
-    // 16バイトずつダンプ
-    for (uint32_t offset = 0; offset < length; offset += 16) {
-        // アドレス表示
-        printf("%08X: ", addr + offset);
-
-        // 16バイト分のデータを表示
-        for (int i = 0; i < 16; i++) {
-            if (offset + i < length) {
-                uint8_t data = *((volatile uint8_t*)(addr + offset + i));
-                printf("%02X ", data);
-            } else {
-                printf("   ");  // データがない場合は空白を表示
-            }
-        }
-
-        // ASCII表示
-        printf("| ");
-        for (int i = 0; i < 16; i++) {
-            if (offset + i < length) {
-                uint8_t data = *((volatile uint8_t*)(addr + offset + i));
-                // 表示可能なASCII文字のみ表示
-                printf("%c", (data >= 32 && data <= 126) ? data : '.');
-            } else {
-                printf(" ");  // データがない場合は空白を表示
-            }
-        }
-        printf("\n");
-    }
-
-    // 処理時間を計測終了
+    show_mem_dump(addr, length);
     volatile uint32_t end_time = time_us_32();
     printf("\nMemory dump completed (proc time: %u us)\n", end_time - start_time);
 }
