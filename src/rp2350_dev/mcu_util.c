@@ -69,27 +69,19 @@ void hardware_calc_sha256(const uint8_t *p_data_buf, size_t len, uint8_t *p_hash
     sha256_set_bswap(true);
     sha256_start();
 
-    for (size_t i = 0; i < len; i += 64)
+    for (size_t i = 0; i < len; i += 4)
     {
         sha256_wait_ready_blocking();
         p_write_addr = (volatile uint32_t *)sha256_get_write_addr();
-        for (size_t j = 0; j < 64; j += 4)
-        {
-            word_val =
-                ((uint32_t)p_data_buf[i + j + 0] << 24) |
-                ((uint32_t)p_data_buf[i + j + 1] << 16) |
-                ((uint32_t)p_data_buf[i + j + 2] << 8)  |
-                ((uint32_t)p_data_buf[i + j + 3] << 0);
-                *p_write_addr = word_val;
-                p_write_addr++;
-        }
+        word_val = ((uint32_t)p_data_buf[i + 0] << 24) |
+                    ((uint32_t)p_data_buf[i + 1] << 16) |
+                    ((uint32_t)p_data_buf[i + 2] << 8) |
+                    ((uint32_t)p_data_buf[i + 3] << 0);
+        *p_write_addr = word_val;
+        p_write_addr++;
     }
 
-#if 0
-    sha256_is_sum_valid();
-#else
     sha256_wait_valid_blocking();
-#endif
 
     // (DEBUG)デバッグしてわかったこと
     // リザルトが「0x6A09E667BB67AE853C6EF372A54FF53A510E527F9B05688C1F83D9AB5BE0CD19」
