@@ -51,14 +51,6 @@ void sha256_padding(const uint8_t *p_src_buf, size_t len, uint8_t *p_dst_buf, si
 
     // 0パディング（必要な長さ分）
     memset(p_dst_buf + len + 1, 0, pad_len);
-
-#if 0
-    // ビット長（8バイト, ビッグエンディアン）
-    for (int i = 0; i < 8; ++i)
-    {
-        p_dst_buf[*p_out_len - 8 + i] = (bit_len >> ((7 - i) * 8)) & 0xFF;
-    }
-#endif
 }
 
 /**
@@ -70,6 +62,7 @@ void sha256_padding(const uint8_t *p_src_buf, size_t len, uint8_t *p_dst_buf, si
  */
 void hardware_calc_sha256(const uint8_t *p_data_buf, size_t len, uint8_t *p_hash_buf)
 {
+    volatile uint32_t word_val;
     volatile uint32_t *p_write_addr;
 
     sha256_set_dma_size(4);
@@ -80,15 +73,19 @@ void hardware_calc_sha256(const uint8_t *p_data_buf, size_t len, uint8_t *p_hash
     {
         sha256_wait_ready_blocking();
         p_write_addr = (volatile uint32_t *)sha256_get_write_addr();
-        const uint8_t *src = p_data_buf + i;
-        volatile uint8_t *dst = (volatile uint8_t *)p_write_addr;
-        for (size_t j = 0; j < 64; ++j)
+        for (size_t j = 0; j < 64; j += 4)
         {
-            dst[j] = src[j];
+            word_val =
+                ((uint32_t)p_data_buf[i + j + 0] << 24) |
+                ((uint32_t)p_data_buf[i + j + 1] << 16) |
+                ((uint32_t)p_data_buf[i + j + 2] << 8)  |
+                ((uint32_t)p_data_buf[i + j + 3] << 0);
+                *p_write_addr = word_val;
+                p_write_addr++;
         }
     }
 
-#if 1
+#if 0
     sha256_is_sum_valid();
 #else
     sha256_wait_valid_blocking();
