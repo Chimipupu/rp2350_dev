@@ -12,7 +12,7 @@
 #define APP_MAIN_H
 
 #include "common.h"
-#include "rp2350_dev.h"
+#include "pcb_def.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>
@@ -21,6 +21,10 @@
 #include "pico/time.h"
 #include "pico/stdlib.h"
 #include "hardware/clocks.h"
+
+#define FW_VERSION_MAJOR    0
+#define FW_VERSION_MINOR    1
+#define FW_VERSION_REVISION 0
 
 // 四則演算の回数（整数、float,double）100万回
 #define TEST_LOOP_CNT 1000000

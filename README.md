@@ -43,23 +43,41 @@
 
 ### コマンド一覧
 
+- [HELP](#help) - コマンド一覧表示
+- [VER](#ver) - ファームウェアバージョン表示
+- [SYS](#sys) - システム情報表示
+- [RST](#rst) - システムリセット
+- [MEM_DUMP](#mem_dump) - メモリダンプ
+- [REG](#reg) - レジスタR/W
+- [I2C](#i2c) - I2C制御
+- [GPIO](#gpio) - GPIO制御
+- [TIMER](#timer) - タイマー設定
+- [AT](#at) - int/float/double四則演算テスト
+- [PI](#pi) - 円周率計算
+- [TRIG](#trig) - 三角関数テスト
+- [ATAN2](#atan2) - atan2テスト
+- [TAN355](#tan355) - tan(355/226)テスト
+- [ISQRT](#isqrt) - 逆平方根テスト
+
+#### HELP
+
 - `help` - コマンド一覧表示
 
 <div align="center">
-  <img width="500" src="/doc/写真/rp2350_dev_dbgcom_ver1.0.png">
+  <img width="500" src="/doc/写真/help_cmd_ver0.1.0.png">
 </div>
 
   ```shell
   > help
 
-  Debug Command Monitor for RP2350 Ver 0.1
+  Debug Command Monitor for RP2350 Ver0.1.0
   Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
   Type 'help' for available commands
 
   Available commands:
     help       - Show this help message
-    ver        - Show version information
-    clock      - Show clock information
+    ver        - Show F/W version
+    sys        - Show system information
     rst        - Reboot
     mem_dump   - Dump memory contents (address, length)
     reg        - Register read/write: reg #addr r|w bits [#val]
@@ -73,6 +91,8 @@
     tan355     - Run tan(355/226) test
     isqrt      - Run 1/sqrt(x) test
   ```
+
+#### REG
 
 - `reg <#Addr> <R/W> <Bits> <#Val>` - レジスタのR/W
   - `#Addr`: 32bitアドレス 例) #20000000
@@ -90,6 +110,8 @@
   > reg #20000000 r 8
   [REG] Read 8bit @ 0x20000000 = 0xAB
   ```
+
+#### MEM_DUMP
 
 - `mem_dump <address> <length>` - メモリダンプ
   - メモリダンプ（開始アドレス、長さ）
@@ -116,6 +138,8 @@
   Memory dump completed (proc time: 7541 us)
   ```
 
+#### I2C
+
 - `i2c <port> <mode>` - I2C通信制御
   - port: `0` (I2C0) or `1` (I2C1)
   - mode: `s` 7bitスレーブアドレス（0x00~0x7F）をすべてスキャン
@@ -140,6 +164,8 @@
   I2C Scan complete! (Slave:4, 0x3C, 0x57, 0x68, 0x76)
   ```
 
+#### GPIO
+
 - `gpio <pin> <value>` - GPIO制御（ピン番号、値）
 
   ```shell
@@ -148,6 +174,8 @@
   > gpio 1 0
   GPIO 1 set to 0 (proc time: 1234 us)
   ```
+
+#### TIMER
 
 - `timer [seconds]` - タイマーアラーム設定（秒単位）
 
@@ -158,6 +186,8 @@
   Timer #1 (alarm as #1): 3 seconds remaining.
   ```
 
+#### RST
+
 - `rst` - システムリセット
   - ⚡ リセット機能
     - ウォッチドッグタイマーによる即時リセット
@@ -167,20 +197,39 @@
   Resetting system...
   ```
 
-- `ver` - SDKバージョン表示
+#### VER
+
+- `ver` - F/Wバージョン表示
 
   ```shell
   > ver
-  Pico SDK version: 2.1.1
+  F/W : Ver 0.1.0
   ```
 
-- `clock` - システムクロック情報表示
+#### SYS
+
+- `sys` - システム情報表示
 
   ```shell
-  > clock
-  System Clock:    133 MHz
-  USB Clock:      48 MHz
+  > sys
+
+  [System Information]
+  Pico SDK version: 2.1.1
+  MCU : RP2350
+  CPU(DualCore) : Arm Cortex-M33
+  RP2350 Flash Size : 4 MB
+  RP2350 RAM Size : 520 KB
+  System Clock : 150 MHz
+  USB Clock : 48 MHz
+  [I2C0] Bit Rate 100000 bps,GPIO 16(SDA), GPIO 17(SCL)
+  [I2C1] Bit Rate 100000 bps,GPIO 18(SDA), GPIO 19(SCL)
+  [SPI0] Bit Rate 1000000 bps,GPIO 9(CS), GPIO 6(SCK), GPIO 8(MISO), GPIO 7(MOSI)
+  [SPI1] Bit Rate 1000000 bps,GPIO 13(CS), GPIO 10(SCK), GPIO 12(MISO), GPIO 11(MOSI)
+  [UART0]Baud Rate 115200 bps, GPIO 0(TX), GPIO 1(RX)
+  [UART1]Baud Rate 115200 bps, GPIO 4(TX), GPIO 5(RX)
   ```
+
+#### AT
 
 - `at` - int/float/double四則演算テスト
 
@@ -205,6 +254,8 @@
   proc time double_div_test: 1234 us
   ```
 
+#### PI
+
 - `pi [iterations]` - 円周率計算（反復回数指定可能）
 
   ```shell
@@ -215,6 +266,8 @@
   Iteration 3: π ≈ 3.141592653589794 (proc time: 1234 us)
   ```
 
+#### TRIG
+
 - `trig` - 三角関数テスト実行
 
   ```shell
@@ -224,6 +277,8 @@
   Test completed: sin(45°), cos(45°), tan(45°)
   ```
 
+#### ATAN2
+
 - `atan2` - atan2関数テスト実行
 
   ```shell
@@ -232,6 +287,8 @@
   proc time atan2_test: 1234 us
   Test completed: atan2(1.0, 1.0)
   ```
+
+#### TAN355
 
 - `tan355` - tan(355/226)テスト実行
 
@@ -243,6 +300,8 @@
   Difference: 0.000000000 (0.00%)
   proc time tan_355_226_test: 1234 us
   ```
+
+#### ISQRT
 
 - `isqrt` - 逆平方根テスト実行
 

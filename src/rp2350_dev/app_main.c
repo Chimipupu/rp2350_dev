@@ -12,7 +12,7 @@
 #include "app_cpu_core_0.h"
 #include "app_cpu_core_1.h"
 #include "dbg_com.h"
-#include "rp2350_dev.h"
+#include "pcb_def.h"
 
 void pico_sdk_version_print(void)
 {

@@ -10,6 +10,7 @@
  */
 #include "dbg_com.h"
 #include "app_main.h"
+#include "pcb_def.h"
 
 // コマンド履歴
 static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];
@@ -20,7 +21,7 @@ static void sort_available_orders(void);
 static void dbg_com_init_msg(void);
 static void cmd_help(void);
 static void cmd_ver(void);
-static void cmd_clock(void);
+static void cmd_system(void);
 static void cmd_at_test(void);
 static void cmd_pi_calc(const dbg_cmd_args_t* p_args);
 static void cmd_rst(void);
@@ -38,8 +39,8 @@ static void cmd_reg(const dbg_cmd_args_t* p_args);
 // コマンドテーブル
 static const dbg_cmd_info_t s_cmd_table[] = {
     {"help",    CMD_HELP,    "Show this help message", 0, 0},
-    {"ver",     CMD_VER,     "Show version information", 0, 0},
-    {"clock",   CMD_CLOCK,   "Show clock information", 0, 0},
+    {"ver",     CMD_VER,     "Show F/W version", 0, 0},
+    {"sys",     CMD_SYSTEM,  "Show system information", 0, 0},
     {"rst",     CMD_RST,     "Reboot", 0, 0},
     {"mem_dump", CMD_MEM_DUMP, "Dump memory contents (address, length)", 2, 2},
     {"reg",     CMD_REG,     "Register read/write: reg #addr r|w bits [#val]", 3, 4},
@@ -161,7 +162,10 @@ static void sort_available_orders(void)
 
 static void dbg_com_init_msg(void)
 {
-    printf("\nDebug Command Monitor for RP2350 Ver 0.1\n");
+    printf("\nDebug Command Monitor for RP2350 Ver%d.%d.%d\n",
+            FW_VERSION_MAJOR,
+            FW_VERSION_MINOR,
+            FW_VERSION_REVISION);
     printf("Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)\n");
     printf("Type 'help' for available commands\n");
 #ifdef _WDT_ENABLE_
@@ -181,16 +185,56 @@ static void cmd_help(void)
 
 static void cmd_ver(void)
 {
-    printf("Pico SDK version: %d.%d.%d\n",
-        PICO_SDK_VERSION_MAJOR,
-        PICO_SDK_VERSION_MINOR,
-        PICO_SDK_VERSION_REVISION);
+    printf("F/W : Ver %d.%d.%d\n",
+            FW_VERSION_MAJOR,
+            FW_VERSION_MINOR,
+            FW_VERSION_REVISION);
 }
 
-static void cmd_clock(void)
+static void cmd_system(void)
 {
-    printf("System Clock:\t%d MHz\n", clock_get_hz(clk_sys) / 1000000);
-    printf("USB Clock:\t%d MHz\n", clock_get_hz(clk_usb) / 1000000);
+    volatile uint32_t sys_clock, usb_clock;
+
+    sys_clock = clock_get_hz(clk_sys) / 1000000;
+    usb_clock = clock_get_hz(clk_usb) / 1000000;
+
+    printf("\n[System Information]\n");
+
+    // Pico SDK
+    printf("Pico SDK version: %d.%d.%d\n",
+            PICO_SDK_VERSION_MAJOR,
+            PICO_SDK_VERSION_MINOR,
+            PICO_SDK_VERSION_REVISION);
+
+    // マイコン
+    printf("MCU : RP2350\n");
+    printf("CPU(DualCore) : Arm Cortex-M33\n");
+
+    // ROM/RAM
+    printf("RP2350 Flash Size : %d MB\n", MCU_FLASH_SIZE);
+    printf("RP2350 RAM Size : %d KB\n", MCU_RAM_SIZE);
+
+    // Clock
+    printf("System Clock : %d MHz\n", sys_clock);
+    printf("USB Clock : %d MHz\n", usb_clock);
+
+    // I2C
+    printf("[I2C0] Bit Rate %d bps,GPIO %d(SDA), GPIO %d(SCL)\n",
+            I2C_BIT_RATE, I2C_0_SDA, I2C_0_SCL);
+    printf("[I2C1] Bit Rate %d bps,GPIO %d(SDA), GPIO %d(SCL)\n",
+            I2C_BIT_RATE, I2C_1_SDA, I2C_1_SCL);
+
+    // SPI
+    printf("[SPI0] Bit Rate %d bps,GPIO %d(CS), GPIO %d(SCK), GPIO %d(MISO), GPIO %d(MOSI)\n",
+            SPI_BIT_RATE, SPI_0_CS, SPI_0_SCK, SPI_0_MISO, SPI_0_MOSI);
+    printf("[SPI1] Bit Rate %d bps,GPIO %d(CS), GPIO %d(SCK), GPIO %d(MISO), GPIO %d(MOSI)\n",
+            SPI_BIT_RATE, SPI_1_CS, SPI_1_SCK, SPI_1_MISO, SPI_1_MOSI);
+
+    // UART
+    printf("[UART0]Baud Rate %d bps, GPIO %d(TX), GPIO %d(RX)\n",
+            UART_BAUD_RATE, UART_0_TX, UART_0_RX);
+    printf("[UART1]Baud Rate %d bps, GPIO %d(TX), GPIO %d(RX)\n",
+            UART_BAUD_RATE, UART_1_TX, UART_1_RX);
 }
 
 static void cmd_at_test(void)
@@ -464,8 +508,8 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
             cmd_ver();
             break;
 
-        case CMD_CLOCK:
-            cmd_clock();
+        case CMD_SYSTEM:
+            cmd_system();
             break;
 
         case CMD_AT_TEST:

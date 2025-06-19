@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2025
  * 
  */
-#include "rp2350_dev.h"
+#include "pcb_def.h"
 #include "app_main.h"
 #include "pico/multicore.h"
 
@@ -50,7 +50,7 @@ int main()
     multicore_launch_core1(core_1_main);
 
     // SPI0初期化(@1MHz)
-    spi_init(SPI_0_PORT, 1000 * 1000);
+    spi_init(SPI_0_PORT, SPI_BIT_RATE);
     gpio_set_function(SPI_0_CS,   GPIO_FUNC_SIO);
     gpio_set_function(SPI_0_SCK,  GPIO_FUNC_SPI);
     gpio_set_function(SPI_0_MISO, GPIO_FUNC_SPI);
@@ -59,7 +59,7 @@ int main()
     gpio_put(SPI_0_CS, 1);
 
     // SPI1初期化(@1MHz)
-    spi_init(SPI_1_PORT, 1000 * 1000);
+    spi_init(SPI_1_PORT, SPI_BIT_RATE);
     gpio_set_function(SPI_1_CS,   GPIO_FUNC_SIO);
     gpio_set_function(SPI_1_SCK,  GPIO_FUNC_SPI);
     gpio_set_function(SPI_1_MISO, GPIO_FUNC_SPI);
@@ -68,14 +68,14 @@ int main()
     gpio_put(SPI_1_CS, 1);
 
     // I2C0初期化 (@100KHz)
-    i2c_init(I2C_0_PORT, 100 * 1000);
+    i2c_init(I2C_0_PORT, I2C_BIT_RATE);
     gpio_set_function(I2C_0_SDA, GPIO_FUNC_I2C);
     gpio_set_function(I2C_0_SCL, GPIO_FUNC_I2C);
     gpio_pull_up(I2C_0_SDA);
     gpio_pull_up(I2C_0_SCL);
 
     // I2C1初期化 (@100KHz)
-    i2c_init(I2C_1_PORT, 100 * 1000);
+    i2c_init(I2C_1_PORT, I2C_BIT_RATE);
     gpio_set_function(I2C_1_SDA, GPIO_FUNC_I2C);
     gpio_set_function(I2C_1_SCL, GPIO_FUNC_I2C);
     gpio_pull_up(I2C_1_SDA);

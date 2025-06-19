@@ -12,7 +12,7 @@
 #define DBG_COM_H
 
 #include "common.h"
-#include "rp2350_dev.h"
+#include "pcb_def.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -57,7 +57,7 @@
 typedef enum {
     CMD_HELP,       // ヘルプ表示
     CMD_VER,        // バージョン表示
-    CMD_CLOCK,      // クロック情報表示
+    CMD_SYSTEM,     // システム情報表示
     CMD_AT_TEST,    // int/float/double四則演算テスト
     CMD_PI_CALC,    // 円周率計算
     CMD_TRIG,       // 三角関数テスト
