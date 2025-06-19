@@ -4,11 +4,6 @@
 
 ## 開発環境
 
-### デバッガ
-
-- [Debugprobe on pico](https://www.raspberrypi.com/documentation/microcontrollers/debug-probe.html)
-  - F/W ... [v2.2.2](https://github.com/raspberrypi/debugprobe/releases/tag/debugprobe-v2.2.2)
-
 ### H/W
 
 <div align="center">
@@ -39,9 +34,12 @@
     - pico_multicore
     - hardware_spi/i2c/dma/pio/interp/timer/watchdog/clocks
 
-## F/W
+### デバッガ
 
-F/Wの詳細は[設計書🔗](/doc/設計書/pj_rp2350.md)を確認すること
+- [Debugprobe on pico](https://www.raspberrypi.com/documentation/microcontrollers/debug-probe.html)
+  - F/W ... [v2.2.2](https://github.com/raspberrypi/debugprobe/releases/tag/debugprobe-v2.2.2)
+
+## 実装内容
 
 ### コマンド一覧
 
