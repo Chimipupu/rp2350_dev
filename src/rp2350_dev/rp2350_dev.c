@@ -49,14 +49,23 @@ int main()
     // CPU Core1を起動
     multicore_launch_core1(core_1_main);
 
-    // SPI初期化(@1MHz)
-    spi_init(SPI_PORT, 1000*1000);
-    gpio_set_function(PIN_MISO, GPIO_FUNC_SPI);
-    gpio_set_function(PIN_CS,   GPIO_FUNC_SIO);
-    gpio_set_function(PIN_SCK,  GPIO_FUNC_SPI);
-    gpio_set_function(PIN_MOSI, GPIO_FUNC_SPI);
-    gpio_set_dir(PIN_CS, GPIO_OUT);
-    gpio_put(PIN_CS, 1);
+    // SPI0初期化(@1MHz)
+    spi_init(SPI_0_PORT, 1000 * 1000);
+    gpio_set_function(SPI_0_CS,   GPIO_FUNC_SIO);
+    gpio_set_function(SPI_0_SCK,  GPIO_FUNC_SPI);
+    gpio_set_function(SPI_0_MISO, GPIO_FUNC_SPI);
+    gpio_set_function(SPI_0_MOSI, GPIO_FUNC_SPI);
+    gpio_set_dir(SPI_0_CS, GPIO_OUT);
+    gpio_put(SPI_0_CS, 1);
+
+    // SPI1初期化(@1MHz)
+    spi_init(SPI_1_PORT, 1000 * 1000);
+    gpio_set_function(SPI_1_CS,   GPIO_FUNC_SIO);
+    gpio_set_function(SPI_1_SCK,  GPIO_FUNC_SPI);
+    gpio_set_function(SPI_1_MISO, GPIO_FUNC_SPI);
+    gpio_set_function(SPI_1_MOSI, GPIO_FUNC_SPI);
+    gpio_set_dir(SPI_1_CS, GPIO_OUT);
+    gpio_put(SPI_1_CS, 1);
 
     // I2C0初期化 (@100KHz)
     i2c_init(I2C_0_PORT, 100 * 1000);
@@ -117,14 +126,20 @@ int main()
     WDT_RST();
 #endif // _WDT_ENABLE_
 
-printf("System Clock Frequency is %d Hz\n", clock_get_hz(clk_sys));
+    printf("System Clock Frequency is %d Hz\n", clock_get_hz(clk_sys));
     printf("USB Clock Frequency is %d Hz\n", clock_get_hz(clk_usb));
 
-    // UART初期化(@115200bps,8N1)
-    uart_init(UART_ID, BAUD_RATE);
-    gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
-    gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
-    uart_puts(UART_ID, " Hello, UART!\n");
+    // UART0初期化(@115200bps,8N1)
+    uart_init(UART_0_PORT, UART_BAUD_RATE);
+    gpio_set_function(UART_0_TX, GPIO_FUNC_UART);
+    gpio_set_function(UART_0_RX, GPIO_FUNC_UART);
+
+    // UART1初期化(@115200bps,8N1)
+    uart_init(UART_1_PORT, UART_BAUD_RATE);
+    gpio_set_function(UART_1_TX, GPIO_FUNC_UART);
+    gpio_set_function(UART_1_RX, GPIO_FUNC_UART);
+
+    uart_puts(UART_0_PORT, " Hello, UART!\n");
 
     core_0_main();
 }

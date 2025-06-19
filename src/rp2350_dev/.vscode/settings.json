@@ -44,5 +44,6 @@
         "rp2350_dev.h": "c",
         "app_cpu_core_0.h": "c",
         "app_main.h": "c"
-    }
+    },
+    "cortex-debug.variableUseNaturalFormat": true
 }
