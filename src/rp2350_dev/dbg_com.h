@@ -58,7 +58,8 @@ typedef enum {
     CMD_HELP,       // ヘルプ表示
     CMD_VER,        // バージョン表示
     CMD_SYSTEM,     // システム情報表示
-    CMD_RND,        // 真性乱数をH/WのTRANGで生成,
+    CMD_RND,        // 真性乱数をH/WのTRANGで生成
+    CMD_SHA,        // H/WでSHA-256のハッシュ値を計算
     CMD_AT_TEST,    // int/float/double四則演算テスト
     CMD_PI_CALC,    // 円周率計算
     CMD_TRIG,       // 三角関数テスト

@@ -26,3 +26,79 @@ void trang_gen_rand_num_u32(uint32_t *p_rand_buf, uint32_t gen_num_cnt)
         }
     }
 }
+
+/**
+ * @brief SHA-256のパディング処理
+ * 
+ * @param p_src_buf 入力データのポインタ
+ * @param len 入力データの長さ（バイト単位）
+ * @param p_dst_buf 出力バッファのポインタ（最低 len + 64 バイト以上必要）
+ * @param p_out_len パディング後の長さを格納するポインタ
+ */
+void sha256_padding(const uint8_t *p_src_buf, size_t len, uint8_t *p_dst_buf, size_t *p_out_len)
+{
+    size_t total_len = len + 1 + 8; // データ + 0x80 + 64bitの長さ
+    size_t pad_len = (64 - (total_len % 64)) % 64;
+    *p_out_len = len + 1 + pad_len + 8;
+
+    uint64_t bit_len = len * 8;
+
+    // 元データコピー
+    memcpy(p_dst_buf, p_src_buf, len);
+
+    // パディング開始のおまじない(0x80)をデータの最後に追加
+    p_dst_buf[len] = 0x80;
+
+    // 0パディング（必要な長さ分）
+    memset(p_dst_buf + len + 1, 0, pad_len);
+
+#if 0
+    // ビット長（8バイト, ビッグエンディアン）
+    for (int i = 0; i < 8; ++i)
+    {
+        p_dst_buf[*p_out_len - 8 + i] = (bit_len >> ((7 - i) * 8)) & 0xFF;
+    }
+#endif
+}
+
+/**
+ * @brief H/WでSHA-256のハッシュ値を計算
+ * 
+ * @param p_data_buf 入力データバッファのポインタ
+ * @param len 入力データ長
+ * @param p_hash_buf ハッシュ値の格納先バッファのポインタ
+ */
+void hardware_calc_sha256(const uint8_t *p_data_buf, size_t len, uint8_t *p_hash_buf)
+{
+    volatile uint32_t *p_write_addr;
+
+    sha256_set_dma_size(4);
+    sha256_set_bswap(true);
+    sha256_start();
+
+    for (size_t i = 0; i < len; i += 64)
+    {
+        sha256_wait_ready_blocking();
+        p_write_addr = (volatile uint32_t *)sha256_get_write_addr();
+        const uint8_t *src = p_data_buf + i;
+        volatile uint8_t *dst = (volatile uint8_t *)p_write_addr;
+        for (size_t j = 0; j < 64; ++j)
+        {
+            dst[j] = src[j];
+        }
+    }
+
+#if 1
+    sha256_is_sum_valid();
+#else
+    sha256_wait_valid_blocking();
+#endif
+
+    // (DEBUG)デバッグしてわかったこと
+    // リザルトが「0x6A09E667BB67AE853C6EF372A54FF53A510E527F9B05688C1F83D9AB5BE0CD19」
+    // -> これはSHA-256の初期化ベクトル（IV）で
+    // リザルトこれがだとまだH/Wがハッシュを計算できてない！
+    sha256_result_t result;
+    sha256_get_result(&result, SHA256_BIG_ENDIAN);
+    memcpy(p_hash_buf, result.bytes, 32);
+}

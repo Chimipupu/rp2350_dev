@@ -43,7 +43,14 @@
         "multicore.h": "c",
         "rp2350_dev.h": "c",
         "app_cpu_core_0.h": "c",
-        "app_main.h": "c"
+        "app_main.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "span": "c",
+        "stdio.h": "c",
+        "mcu_util.h": "c",
+        "cstdint": "c"
     },
-    "cortex-debug.variableUseNaturalFormat": true
+    "cortex-debug.variableUseNaturalFormat": false
 }

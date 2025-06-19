@@ -26,6 +26,7 @@ static void cmd_system(void);
 static void cmd_at_test(void);
 static void cmd_pi_calc(const dbg_cmd_args_t* p_args);
 static void cmd_rnd(const dbg_cmd_args_t* p_args);
+static void cmd_sha(const dbg_cmd_args_t* p_args);
 static void cmd_rst(void);
 static void cmd_unknown(void);
 static void cmd_trig(void);
@@ -40,22 +41,23 @@ static void cmd_reg(const dbg_cmd_args_t* p_args);
 
 // コマンドテーブル
 static const dbg_cmd_info_t s_cmd_table[] = {
-    {"help",    CMD_HELP,    "Show this help message", 0, 0},
-    {"ver",     CMD_VER,     "Show F/W version", 0, 0},
-    {"sys",     CMD_SYSTEM,  "Show system information", 0, 0},
-    {"rnd",     CMD_RND,   "Generate true random numbers using TRNG", 0, 1},
-    {"rst",     CMD_RST,     "Reboot", 0, 0},
-    {"mem_dump", CMD_MEM_DUMP, "Dump memory contents (address, length)", 2, 2},
-    {"reg",     CMD_REG,     "Register read/write: reg #addr r|w bits [#val]", 3, 4},
-    {"i2c",     CMD_I2C,     "I2C control (port, command)", 2, 2},
-    {"gpio",    CMD_GPIO,    "Control GPIO pin (pin, value)", 2, 2},
-    {"timer",   CMD_TIMER,   "Set timer alarm (seconds)", 0, 1},
-    {"at",      CMD_AT_TEST, "int/float/double arithmetic test", 0, 0},
-    {"pi",      CMD_PI_CALC, "Calculate pi using Gauss-Legendre", 0, 1},
-    {"trig",    CMD_TRIG,    "Run sin,cos,tan functions test", 0, 0},
-    {"atan2",   CMD_ATAN2,   "Run atan2 test", 0, 0},
-    {"tan355",  CMD_TAN355,  "Run tan(355/226) test", 0, 0},
-    {"isqrt",   CMD_ISQRT,   "Run 1/sqrt(x) test", 0, 0},
+    {"help",    CMD_HELP,       "Show this help message", 0, 0},
+    {"ver",     CMD_VER,        "Show F/W version", 0, 0},
+    {"sys",     CMD_SYSTEM,     "Show system information", 0, 0},
+    {"rnd",     CMD_RND,        "Generate true random numbers using TRNG", 0, 1},
+    {"sha",     CMD_SHA,        "Calc SHA-256 Hash using H/W Accelerator", 0, 1},
+    {"rst",     CMD_RST,        "Reboot", 0, 0},
+    {"mem_dump", CMD_MEM_DUMP,  "Dump memory contents (address, length)", 2, 2},
+    {"reg",     CMD_REG,        "Register read/write: reg #addr r|w bits [#val]", 3, 4},
+    {"i2c",     CMD_I2C,        "I2C control (port, command)", 2, 2},
+    {"gpio",    CMD_GPIO,       "Control GPIO pin (pin, value)", 2, 2},
+    {"timer",   CMD_TIMER,      "Set timer alarm (seconds)", 0, 1},
+    {"at",      CMD_AT_TEST,    "int/float/double arithmetic test", 0, 0},
+    {"pi",      CMD_PI_CALC,    "Calculate pi using Gauss-Legendre", 0, 1},
+    {"trig",    CMD_TRIG,       "Run sin,cos,tan functions test", 0, 0},
+    {"atan2",   CMD_ATAN2,      "Run atan2 test", 0, 0},
+    {"tan355",  CMD_TAN355,     "Run tan(355/226) test", 0, 0},
+    {"isqrt",   CMD_ISQRT,      "Run 1/sqrt(x) test", 0, 0},
     {NULL,      CMD_UNKNOWN, NULL, 0, 0}
 };
 
@@ -280,6 +282,42 @@ static void cmd_pi_calc(const dbg_cmd_args_t* p_args)
         volatile uint32_t end_time = time_us_32();
         printf("Iteration %d: π ≈ %.15f (proc time: %u us)\n", i, pi, end_time - start_time);
     }
+}
+
+static void cmd_sha(const dbg_cmd_args_t* p_args)
+{
+#if 1
+    // (DEBUG)
+    const char msg[] = "RP2350 H/W SHA-256 TEST";
+    uint8_t padding_buf[64 * 2];
+    uint8_t hash_buf[64 * 2];
+    size_t padding_len;
+
+    memset(hash_buf, 0, sizeof(padding_buf));
+    memset(padding_buf, 0, sizeof(hash_buf));
+#endif
+
+    if (p_args->argc < 2 || p_args->argc > 2) {
+        printf("Usage: sha <data>\n");
+        return;
+    }
+
+    printf("\nSHA-256 Hash Calc(H/W)\n");
+
+#if 1
+    printf("\nCalc str : %s\n", msg);
+    // SHA-256のパディング処理
+    sha256_padding((const uint8_t *)msg, strlen(msg), padding_buf, &padding_len);
+#endif
+
+    // SHA-256のハッシュ値を計算
+    hardware_calc_sha256((const uint8_t *)padding_buf, padding_len, hash_buf);
+    printf("SHA-256 Hash : ");
+    for (size_t i = 0; i < 32; ++i)
+    {
+        printf("%02X", hash_buf[i]);
+    }
+    printf("\n");
 }
 
 static void cmd_rnd(const dbg_cmd_args_t* p_args)
@@ -596,6 +634,10 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
 
         case CMD_RND:
             cmd_rnd(p_args);
+            break;
+
+        case CMD_SHA:
+            cmd_sha(p_args);
             break;
 
             case CMD_UNKNOWN:
