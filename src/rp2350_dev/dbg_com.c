@@ -286,22 +286,26 @@ static void cmd_pi_calc(const dbg_cmd_args_t* p_args)
 
 static void cmd_sha(const dbg_cmd_args_t* p_args)
 {
-#if 1
-    // (DEBUG)
-    // const char msg[] = "RP2350 H/W SHA-256 TEST";    // SHA256期待値「40AEDCA712E82FD6128B6A9AFCA1350ABA27AC1259E92AE3BADE0C0C4FE892E2」
-    const char msg[] = "ABC";                        // SHA256期待値「B5D4045C3F466FA91FE2CC6ABE79232A1A57CDF104F7A26E716E0A1E2789DF78」
-#endif
     uint8_t padding_buf[64 * 2];
     uint8_t hash_buf[64 * 2];
     size_t padding_len;
-
-    memset(hash_buf, 0, sizeof(hash_buf));
-    memset(padding_buf, 0, sizeof(padding_buf));
 
     if (p_args->argc < 2 || p_args->argc > 2) {
         printf("Usage: sha <data>\n");
         return;
     }
+
+    memset(hash_buf, 0, sizeof(hash_buf));
+    memset(padding_buf, 0, sizeof(padding_buf));
+
+#if 1
+    char *msg;
+    msg = p_args->p_argv[1];
+#else
+    // (DEBUG)
+    // const char msg[] = "RP2350 H/W SHA-256 TEST";    // SHA256期待値「40AEDCA712E82FD6128B6A9AFCA1350ABA27AC1259E92AE3BADE0C0C4FE892E2」
+    const char msg[] = "ABC";                        // SHA256期待値「B5D4045C3F466FA91FE2CC6ABE79232A1A57CDF104F7A26E716E0A1E2789DF78」
+#endif
 
     printf("\nSHA-256 Hash Calc(H/W)\n");
     printf("\nCalc str : %s\n", msg);

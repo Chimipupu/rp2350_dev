@@ -47,6 +47,7 @@
 - [VER](#ver) - ファームウェアバージョン表示
 - [SYS](#sys) - システム情報表示
 - [RND](#rnd) - 真性乱数をH/WのTRANGで生成
+- [SHA](#sha) - SHA-256をH/Wで計算
 - [RST](#rst) - システムリセット
 - [MEM_DUMP](#mem_dump) - メモリダンプ
 - [REG](#reg) - レジスタR/W
@@ -80,6 +81,7 @@
     ver        - Show F/W version
     sys        - Show system information
     rnd        - Generate true random numbers using TRNG
+    sha        - Calc SHA-256 Hash using H/W Accelerator
     rst        - Reboot
     mem_dump   - Dump memory contents (address, length)
     reg        - Register read/write: reg #addr r|w bits [#val]
@@ -204,6 +206,41 @@
   [DEBUG]generated rand num(0): 1780349305
   [DEBUG]generated rand num(1): 3947560575
   [DEBUG]generated rand num(2): 1790515031
+  ```
+
+#### SHA
+
+- `sha` - SHA-256
+  - SHA-256をH/Wで計算
+
+<div align="center">
+  <img width="500" src="/doc/写真/sha256_cmd_ver0.1.0.png">
+</div>
+
+  ```shell
+  > sha ABC
+
+  SHA-256 Hash Calc(H/W)
+
+  Calc str : ABC
+
+  [Memory Dump '(addr:0x20080F28)]
+  Address  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F | ASCII
+  -------- ------------------------------------------------| ------
+  20080F28: 41 42 43 80 00 00 00 00 00 00 00 00 00 00 00 00 | ABC.............
+  20080F38: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 | ................
+  20080F48: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 | ................
+  20080F58: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 18 | ................
+
+  SHA-256 Hash : B5D4045C3F466FA91FE2CC6ABE79232A1A57CDF104F7A26E716E0A1E2789DF78
+
+  [Memory Dump '(addr:0x20080EA8)]
+  Address  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F | ASCII
+  -------- ------------------------------------------------| ------
+  20080EA8: B5 D4 04 5C 3F 46 6F A9 1F E2 CC 6A BE 79 23 2A | ...\?Fo....j.y#*
+  20080EB8: 1A 57 CD F1 04 F7 A2 6E 71 6E 0A 1E 27 89 DF 78 | .W.....nqn..'..x
+  20080EC8: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 | ................
+  20080ED8: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 | ................
   ```
 
 #### RST
