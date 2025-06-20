@@ -28,7 +28,7 @@ void trang_gen_rand_num_u32(uint32_t *p_rand_buf, uint32_t gen_num_cnt)
 }
 
 /**
- * @brief SHA-256のパディング処理
+ * @brief SHA-256のパディング処理(FIPS 180-4準拠)
  * 
  * @param p_src_buf 入力データのポインタ
  * @param len 入力データの長さ（バイト単位）
@@ -38,7 +38,8 @@ void trang_gen_rand_num_u32(uint32_t *p_rand_buf, uint32_t gen_num_cnt)
 void sha256_padding(const uint8_t *p_src_buf, size_t len, uint8_t *p_dst_buf, size_t *p_out_len)
 {
     size_t total_len = len + 1 + 8;
-    size_t pad_len = (64 - (total_len % 64)) % 64;
+    size_t rem = (len + 1 + 8) % 64;
+    size_t pad_len = (rem > 0) ? (64 - rem) : 0;
     size_t padded_len = len + 1 + pad_len + 8;
     uint64_t bit_len = (uint64_t)len * 8;
 
@@ -47,7 +48,8 @@ void sha256_padding(const uint8_t *p_src_buf, size_t len, uint8_t *p_dst_buf, si
     memset(p_dst_buf + len + 1, 0, pad_len);
 
     size_t bit_len_pos = len + 1 + pad_len;
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++)
+    {
         p_dst_buf[bit_len_pos + 7 - i] = (uint8_t)(bit_len >> (i * 8));
     }
 
@@ -67,19 +69,24 @@ void hardware_calc_sha256(const uint8_t *p_data_buf, size_t len, uint8_t *p_hash
     volatile uint32_t *p_write_addr;
 
     sha256_set_dma_size(4);
-    sha256_set_bswap(true);
+    sha256_set_bswap(true); // H/Wでエンディング変換
     sha256_start();
 
+    // リトルエンディアンで書き込み
     for (size_t i = 0; i < len; i += 4)
     {
         sha256_wait_ready_blocking();
         p_write_addr = (volatile uint32_t *)sha256_get_write_addr();
-        word_val = ((uint32_t)p_data_buf[i + 0] << 24) |
-                    ((uint32_t)p_data_buf[i + 1] << 16) |
-                    ((uint32_t)p_data_buf[i + 2] << 8) |
-                    ((uint32_t)p_data_buf[i + 3] << 0);
+
+        word_val = 0;
+        for (size_t j = 0; j < 4; j++)
+        {
+            if (i + j < len) {
+                word_val |= ((uint32_t)p_data_buf[i + j]) << (8 * j);
+            }
+        }
+
         *p_write_addr = word_val;
-        p_write_addr++;
     }
 
     sha256_wait_valid_blocking();
