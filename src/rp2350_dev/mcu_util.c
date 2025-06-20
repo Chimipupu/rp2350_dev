@@ -1,7 +1,7 @@
 /**
  * @file mcu_util.c
  * @author Chimipupu(https://github.com/Chimipupu)
- * @brief マイコン依存のユーティリティ
+ * @brief マイコン依存(RP2350)のユーティリティ
  * @version 0.1
  * @date 2025-06-20
  * 

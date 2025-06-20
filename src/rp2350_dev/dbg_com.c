@@ -10,7 +10,6 @@
  */
 #include "dbg_com.h"
 #include "app_main.h"
-#include "pcb_def.h"
 #include "mcu_util.h"
 
 // コマンド履歴

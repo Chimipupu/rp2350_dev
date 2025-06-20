@@ -66,7 +66,7 @@
 - `help` - コマンド一覧表示
 
 <div align="center">
-  <img width="500" src="/doc/写真/help_cmd_ver0.1.0.png">
+  <img width="800" src="/doc/写真/help_cmd_ver0.1.0.png">
 </div>
 
   ```shell

@@ -11,8 +11,7 @@
 #ifndef APP_MAIN_H
 #define APP_MAIN_H
 
-#include "common.h"
-#include "pcb_def.h"
+#include "mcu_util.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>

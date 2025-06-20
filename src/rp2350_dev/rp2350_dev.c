@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2025
  * 
  */
-#include "pcb_def.h"
+#include "mcu_util.h"
 #include "app_main.h"
 #include "pico/multicore.h"
 
@@ -17,7 +17,8 @@ char dst[count_of(src)];
 
 #include "blink.pio.h"
 
-void blink_pin_forever(PIO pio, uint sm, uint offset, uint pin, uint freq) {
+void blink_pin_forever(PIO pio, uint sm, uint offset, uint pin, uint freq)
+{
     blink_program_init(pio, sm, offset, pin);
     pio_sm_set_enabled(pio, sm, true);
 
@@ -49,7 +50,7 @@ int main()
     // CPU Core1を起動
     multicore_launch_core1(core_1_main);
 
-    // SPI0初期化(@1MHz)
+    // SPI0初期化
     spi_init(SPI_0_PORT, SPI_BIT_RATE);
     gpio_set_function(SPI_0_CS,   GPIO_FUNC_SIO);
     gpio_set_function(SPI_0_SCK,  GPIO_FUNC_SPI);
@@ -58,7 +59,7 @@ int main()
     gpio_set_dir(SPI_0_CS, GPIO_OUT);
     gpio_put(SPI_0_CS, 1);
 
-    // SPI1初期化(@1MHz)
+    // SPI1初期化
     spi_init(SPI_1_PORT, SPI_BIT_RATE);
     gpio_set_function(SPI_1_CS,   GPIO_FUNC_SIO);
     gpio_set_function(SPI_1_SCK,  GPIO_FUNC_SPI);
@@ -67,14 +68,14 @@ int main()
     gpio_set_dir(SPI_1_CS, GPIO_OUT);
     gpio_put(SPI_1_CS, 1);
 
-    // I2C0初期化 (@100KHz)
+    // I2C0初期化
     i2c_init(I2C_0_PORT, I2C_BIT_RATE);
     gpio_set_function(I2C_0_SDA, GPIO_FUNC_I2C);
     gpio_set_function(I2C_0_SCL, GPIO_FUNC_I2C);
     gpio_pull_up(I2C_0_SDA);
     gpio_pull_up(I2C_0_SCL);
 
-    // I2C1初期化 (@100KHz)
+    // I2C1初期化
     i2c_init(I2C_1_PORT, I2C_BIT_RATE);
     gpio_set_function(I2C_1_SDA, GPIO_FUNC_I2C);
     gpio_set_function(I2C_1_SCL, GPIO_FUNC_I2C);
@@ -129,12 +130,12 @@ int main()
     printf("System Clock Frequency is %d Hz\n", clock_get_hz(clk_sys));
     printf("USB Clock Frequency is %d Hz\n", clock_get_hz(clk_usb));
 
-    // UART0初期化(@115200bps,8N1)
+    // UART0初期化(8N1)
     uart_init(UART_0_PORT, UART_BAUD_RATE);
     gpio_set_function(UART_0_TX, GPIO_FUNC_UART);
     gpio_set_function(UART_0_RX, GPIO_FUNC_UART);
 
-    // UART1初期化(@115200bps,8N1)
+    // UART1初期化(8N1)
     uart_init(UART_1_PORT, UART_BAUD_RATE);
     gpio_set_function(UART_1_TX, GPIO_FUNC_UART);
     gpio_set_function(UART_1_RX, GPIO_FUNC_UART);

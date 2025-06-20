@@ -11,7 +11,7 @@
 #ifndef APP_CPU_CORE_0_H
 #define APP_CPU_CORE_0_H
 
-#include "common.h"
+#include "mcu_util.h"
 #include "pico/multicore.h"
 
 void app_core_0_main(void);

@@ -11,8 +11,7 @@
 #ifndef DBG_COM_H
 #define DBG_COM_H
 
-#include "common.h"
-#include "pcb_def.h"
+#include "mcu_util.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>

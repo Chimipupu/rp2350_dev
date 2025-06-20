@@ -50,7 +50,8 @@
         "span": "c",
         "stdio.h": "c",
         "mcu_util.h": "c",
-        "cstdint": "c"
+        "cstdint": "c",
+        "dbg_com.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }
