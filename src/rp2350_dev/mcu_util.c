@@ -5,10 +5,11 @@
  * @version 0.1
  * @date 2025-06-20
  * 
- * @copyright Copyright (c) 2025
+ * @copyright Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
  * 
  */
 #include "mcu_util.h"
+#include "mcu_board_def.h"
 
 /**
  * @brief 真性乱数をH/WのTRANGで生成(u32)

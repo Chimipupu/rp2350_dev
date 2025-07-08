@@ -5,12 +5,13 @@
  * @version 0.1
  * @date 2025-06-13
  * 
- * @copyright Copyright (c) 2025
+ * @copyright Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
  * 
  */
 #include "dbg_com.h"
 #include "app_main.h"
 #include "mcu_util.h"
+#include "mcu_board_def.h"
 
 // コマンド履歴
 static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];

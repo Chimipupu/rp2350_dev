@@ -5,13 +5,14 @@
  * @version 0.1
  * @date 2025-06-13
  * 
- * @copyright Copyright (c) 2025
+ * @copyright Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
  * 
  */
 #ifndef APP_MAIN_H
 #define APP_MAIN_H
 
 #include "mcu_util.h"
+#include "mcu_board_def.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>

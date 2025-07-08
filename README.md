@@ -10,16 +10,19 @@
   <img width="500" src="/doc/写真/rp2350_dev_env_20250613.png">
 </div>
 
-- 基板 ... 型番:`Raspberry Pi Pico 2`
+- 基板
+  - [`Raspberry Pi Pico 2`](https://www.raspberrypi.com/products/raspberry-pi-pico-2/)🔗
+  - [`WeActStudio RP2350B`](https://github.com/WeActStudio/WeActStudio.RP2350BCoreBoard)🔗
+
 - マイコン ... 型番:`RP2350`
   - CPU ... `Arm Cortex-M33` x2コア(※デュアルコアCPU)
   - ROM ... 4MB
   - RAM ... 520KB
 
-- I2Cスレーブ
+<!-- - I2Cスレーブ
   - `OLED液晶` ... 型番:`SSD1306` ※アドレス:0x3C
   - `湿温度センサ` ... 型番:`BME280` ※アドレス:0x76
-  - `RTC` ... 型番:DS3231 ※アドレス:0x68
+  - `RTC` ... 型番:DS3231 ※アドレス:0x68 -->
 
 ### S/W
 
