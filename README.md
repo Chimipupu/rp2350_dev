@@ -40,7 +40,7 @@
 ### デバッガ
 
 - [Debugprobe on pico](https://www.raspberrypi.com/documentation/microcontrollers/debug-probe.html)
-  - F/W ... [v2.2.2](https://github.com/raspberrypi/debugprobe/releases/tag/debugprobe-v2.2.2)
+  - F/W ... [v2.2.3](https://github.com/raspberrypi/debugprobe/releases/tag/debugprobe-v2.2.3)
 
 ## 実装内容
 
