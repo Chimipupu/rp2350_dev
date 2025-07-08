@@ -12,6 +12,7 @@
 
 - 基板
   - [`Raspberry Pi Pico 2`](https://www.raspberrypi.com/products/raspberry-pi-pico-2/)🔗
+  - [`Raspberry Pi Pico 2 W`](https://www.raspberrypi.com/products/raspberry-pi-pico-2w)🔗
   - [`WeActStudio RP2350B`](https://github.com/WeActStudio/WeActStudio.RP2350BCoreBoard)🔗
 
 - マイコン ... 型番:`RP2350`

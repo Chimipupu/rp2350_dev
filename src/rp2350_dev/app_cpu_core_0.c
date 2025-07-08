@@ -9,7 +9,7 @@
  * 
  */
 #include "app_cpu_core_0.h"
-
+#include "mcu_board_def.h"
 
 /**
  * @brief CPU Core0のアプリメイン関数
@@ -27,6 +27,12 @@ void app_core_0_main(void)
 #else
         NOP();NOP();NOP();
 #endif
+
+#if defined(MCU_BOARD_PICO2W)
+    cyw43_led_tgl();
+    sleep_ms(1000);
+#endif
+
         WDT_RST;
     }
 }

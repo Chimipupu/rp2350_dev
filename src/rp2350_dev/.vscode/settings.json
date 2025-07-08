@@ -51,7 +51,10 @@
         "stdio.h": "c",
         "mcu_util.h": "c",
         "cstdint": "c",
-        "dbg_com.h": "c"
+        "dbg_com.h": "c",
+        "interp.h": "c",
+        "watchdog.h": "c",
+        "uart.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }

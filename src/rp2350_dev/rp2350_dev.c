@@ -12,6 +12,17 @@
 #include "app_main.h"
 #include "pico/multicore.h"
 
+#if defined(MCU_BOARD_PICO2W)
+#include "pico/cyw43_arch.h"
+static uint8_t s_led_val = 0;
+
+void cyw43_led_tgl(void)
+{
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, s_led_val);
+    s_led_val = !s_led_val;
+}
+#endif
+
 const char src[] = "Hello, world! (from DMA)";
 char dst[count_of(src)];
 
@@ -105,10 +116,10 @@ int main()
     uint offset = pio_add_program(pio, &blink_program);
     printf("Loaded program at %d\n", offset);
 
-#ifdef PICO_DEFAULT_LED_PIN
-    blink_pin_forever(pio, 0, offset, PICO_DEFAULT_LED_PIN, 3);
-#else
-    blink_pin_forever(pio, 0, offset, 6, 3);
+#if defined(MCU_BOARD_PICO2) || defined(MCU_BOARD_WEACTRP2350B)
+    blink_pin_forever(pio, 0, offset, MCU_BOARD_LED_PIN, 1);
+#elif defined(MCU_BOARD_PICO2W)
+    cyw43_arch_init();
 #endif
 
     // 割り込み初期化
