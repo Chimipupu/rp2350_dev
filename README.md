@@ -273,21 +273,23 @@
 
   ```shell
   > sys
-
   [System Information]
   Pico SDK version: 2.1.1
   MCU : RP2350
   CPU(DualCore) : Arm Cortex-M33
-  RP2350 Flash Size : 4 MB
+  PCB : WeActStudio RP2350B
+  RP2350 Flash Size : 16 MB
   RP2350 RAM Size : 520 KB
   System Clock : 150 MHz
   USB Clock : 48 MHz
+  GPIO 25 :On Board LED Pin
+  GPIO 23 :On Board Button Pin
   [I2C0] Bit Rate 100000 bps,GPIO 16(SDA), GPIO 17(SCL)
   [I2C1] Bit Rate 100000 bps,GPIO 18(SDA), GPIO 19(SCL)
   [SPI0] Bit Rate 1000000 bps,GPIO 9(CS), GPIO 6(SCK), GPIO 8(MISO), GPIO 7(MOSI)
   [SPI1] Bit Rate 1000000 bps,GPIO 13(CS), GPIO 10(SCK), GPIO 12(MISO), GPIO 11(MOSI)
-  [UART0]Baud Rate 115200 bps, GPIO 0(TX), GPIO 1(RX)
-  [UART1]Baud Rate 115200 bps, GPIO 4(TX), GPIO 5(RX)
+  [UART0]Baud Rate 921600 bps, GPIO 0(TX), GPIO 1(RX)
+  [UART1]Baud Rate 921600 bps, GPIO 4(TX), GPIO 5(RX)
   ```
 
 #### AT

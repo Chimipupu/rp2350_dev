@@ -29,22 +29,25 @@
 #include "hardware/uart.h"
 
 // #define MCU_BOARD_PICO2                             // Raspberry Pi Pico 2
-#define MCU_BOARD_PICO2W                            // Raspberry Pi Pico 2 W
-// #define MCU_BOARD_WEACTRP2350B                      // WeActStudio RP2350B
+// #define MCU_BOARD_PICO2W                            // Raspberry Pi Pico 2 W
+#define MCU_BOARD_WEACTRP2350B                      // WeActStudio RP2350B
 
 // [基板固有定義]
 #if defined(MCU_BOARD_PICO2W)
 #define MCU_BOARD_LED_PIN    CYW43_WL_GPIO_LED_PIN   // Raspberry Pi Pico 2 WのLEDピン
 void cyw43_led_tgl(void);
 #else
-#define MCU_BOARD_LED_PIN 25                        // LEDピン
+#define MCU_BOARD_LED_PIN    25   // LEDピン
 #endif
 
 #if defined(MCU_BOARD_WEACTRP2350B)
 #define MCU_BOARD_BTN_PIN 23                        // WeActStudio RP2350Bのボタンピン
+#define MCU_FLASH_SIZE    16                        // フラッシュサイズ (16MB)
+#define MCU_PSRAM_SIZE    8                         // PSRAMサイズ (8MB)
+#else
+#define MCU_FLASH_SIZE    4                         // RP2350のフラッシュサイズ (4MB)
 #endif // MCU_BOARD_WEACTRP2350B
 
-#define MCU_FLASH_SIZE    4                         // RP2350のフラッシュサイズ (4MB)
 #define MCU_RAM_SIZE      520                       // RP2350のSRAMサイズ (520KB)
 
 // #define _WDT_ENABLE_                             // WDT有効マクロ

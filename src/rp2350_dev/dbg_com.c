@@ -215,6 +215,15 @@ static void cmd_system(void)
     printf("MCU : RP2350\n");
     printf("CPU(DualCore) : Arm Cortex-M33\n");
 
+    // 基板
+#if defined(MCU_BOARD_PICO2)
+    printf("PCB : Raspberry Pi Pico 2\n");
+#elif defined(MCU_BOARD_PICO2W)
+    printf("PCB : Raspberry Pi Pico 2 W\n");
+#elif defined(MCU_BOARD_WEACTRP2350B)
+    printf("PCB : WeActStudio RP2350B\n");
+#endif
+
     // ROM/RAM
     printf("RP2350 Flash Size : %d MB\n", MCU_FLASH_SIZE);
     printf("RP2350 RAM Size : %d KB\n", MCU_RAM_SIZE);
@@ -222,6 +231,12 @@ static void cmd_system(void)
     // Clock
     printf("System Clock : %d MHz\n", sys_clock);
     printf("USB Clock : %d MHz\n", usb_clock);
+
+    // GPIO
+    printf("GPIO %d :On Board LED Pin\n", MCU_BOARD_LED_PIN);
+#if defined(MCU_BOARD_WEACTRP2350B)
+    printf("GPIO %d :On Board Button Pin\n", MCU_BOARD_BTN_PIN);
+#endif
 
     // I2C
     printf("[I2C0] Bit Rate %d bps,GPIO %d(SDA), GPIO %d(SCL)\n",

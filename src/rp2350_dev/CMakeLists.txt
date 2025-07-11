@@ -23,7 +23,7 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico2_w CACHE STRING "Board type")
+set(PICO_BOARD pimoroni_pga2350 CACHE STRING "Board type")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
@@ -74,18 +74,6 @@ target_include_directories(rp2350_dev PRIVATE
 
 # Add any user requested libraries
 # ※Pico2W以外のRP2350の基板のとき用
-# target_link_libraries(rp2350_dev 
-#         hardware_spi
-#         hardware_i2c
-#         hardware_dma
-#         hardware_pio
-#         hardware_interp
-#         hardware_timer
-#         hardware_watchdog
-#         hardware_clocks
-#         )
-
-# ※Pico2Wのとき用
 target_link_libraries(rp2350_dev 
         hardware_spi
         hardware_i2c
@@ -95,8 +83,20 @@ target_link_libraries(rp2350_dev
         hardware_timer
         hardware_watchdog
         hardware_clocks
-        pico_cyw43_arch_none
         )
+
+# ※Pico2Wのとき用
+# target_link_libraries(rp2350_dev 
+#         hardware_spi
+#         hardware_i2c
+#         hardware_dma
+#         hardware_pio
+#         hardware_interp
+#         hardware_timer
+#         hardware_watchdog
+#         hardware_clocks
+#         pico_cyw43_arch_none
+#         )
 
 pico_add_extra_outputs(rp2350_dev)
 
