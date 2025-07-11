@@ -23,7 +23,7 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pimoroni_pga2350 CACHE STRING "Board type")
+set(PICO_BOARD pico2 CACHE STRING "Board type")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
@@ -37,6 +37,7 @@ pico_sdk_init()
 
 add_executable(rp2350_dev
             rp2350_dev.c
+            drv_neopixel.c
             app_cpu_core_0.c
             app_cpu_core_1.c
             app_main.c
@@ -48,7 +49,10 @@ pico_set_program_name(rp2350_dev "rp2350_dev")
 pico_set_program_version(rp2350_dev "0.1.0")
 
 # Generate PIO header
-pico_generate_pio_header(rp2350_dev ${CMAKE_CURRENT_LIST_DIR}/blink.pio)
+pico_generate_pio_header(rp2350_dev
+                        ${CMAKE_CURRENT_LIST_DIR}/blink.pio
+                        ${CMAKE_CURRENT_LIST_DIR}/neopixel.pio
+                        )
 
 # 【コンパルオプション】
 # 浮動小数はH/WのFPUを使用(-mfloat-abi=hard)
@@ -61,10 +65,10 @@ pico_enable_stdio_usb(rp2350_dev 1)
 
 # Add the standard library to the build
 target_link_libraries(rp2350_dev
-        pico_stdlib
-        pico_multicore
-        pico_rand
-        hardware_sha256
+            pico_stdlib
+            pico_multicore
+            pico_rand
+            hardware_sha256
         )
 
 # Add the standard include files to the build
@@ -74,28 +78,28 @@ target_include_directories(rp2350_dev PRIVATE
 
 # Add any user requested libraries
 # ※Pico2W以外のRP2350の基板のとき用
-target_link_libraries(rp2350_dev 
-        hardware_spi
-        hardware_i2c
-        hardware_dma
-        hardware_pio
-        hardware_interp
-        hardware_timer
-        hardware_watchdog
-        hardware_clocks
+target_link_libraries(rp2350_dev
+            hardware_spi
+            hardware_i2c
+            hardware_dma
+            hardware_pio
+            hardware_interp
+            hardware_timer
+            hardware_watchdog
+            hardware_clocks
         )
 
 # ※Pico2Wのとき用
 # target_link_libraries(rp2350_dev 
-#         hardware_spi
-#         hardware_i2c
-#         hardware_dma
-#         hardware_pio
-#         hardware_interp
-#         hardware_timer
-#         hardware_watchdog
-#         hardware_clocks
-#         pico_cyw43_arch_none
+            # hardware_spi
+            # hardware_i2c
+            # hardware_dma
+            # hardware_pio
+            # hardware_interp
+            # hardware_timer
+            # hardware_watchdog
+            # hardware_clocks
+            # pico_cyw43_arch_none
 #         )
 
 pico_add_extra_outputs(rp2350_dev)

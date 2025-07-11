@@ -39,6 +39,7 @@
     "raspberry-pi-pico.ninjaPath": "${HOME}/.pico-sdk/ninja/v1.12.1/ninja",
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
+        "*.dpf": "yaml",
         "*.html": "html",
         "multicore.h": "c",
         "rp2350_dev.h": "c",
@@ -54,7 +55,8 @@
         "dbg_com.h": "c",
         "interp.h": "c",
         "watchdog.h": "c",
-        "uart.h": "c"
+        "uart.h": "c",
+        "drv_neopixel.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }

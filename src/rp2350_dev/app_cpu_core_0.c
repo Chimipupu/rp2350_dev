@@ -11,28 +11,33 @@
 #include "app_cpu_core_0.h"
 #include "mcu_board_def.h"
 
+#include "drv_neopixel.h"
+static neopixel_t s_neopixel;
+
 /**
  * @brief CPU Core0のアプリメイン関数
  * 
  */
 void app_core_0_main(void)
 {
+    uint8_t cnt;
     uint32_t core_num = get_core_num();
+
+    s_neopixel.led_cnt = 64;
+    s_neopixel.data_pin = 15;
+    drv_neopixel_init(&s_neopixel);
+    drv_neopixel_set_pixel_rgb(&s_neopixel, 0, 128, 0, 0);
 
     while(1)
     {
-#if 0
-        printf("CPU Core: %d\n", core_num);
-        sleep_ms(1000);
-#else
-        NOP();NOP();NOP();
-#endif
-
 #if defined(MCU_BOARD_PICO2W)
     cyw43_led_tgl();
     sleep_ms(1000);
 #endif
-
+        for(cnt = 0; cnt <= s_neopixel.led_cnt; cnt++)
+        {
+            drv_neopixel_set_pixel_rgb(&s_neopixel, cnt, 128, 0, 0);
+        }
         WDT_RST;
     }
 }

@@ -28,9 +28,9 @@
 #include "hardware/clocks.h"
 #include "hardware/uart.h"
 
-// #define MCU_BOARD_PICO2                             // Raspberry Pi Pico 2
+#define MCU_BOARD_PICO2                             // Raspberry Pi Pico 2
 // #define MCU_BOARD_PICO2W                            // Raspberry Pi Pico 2 W
-#define MCU_BOARD_WEACTRP2350B                      // WeActStudio RP2350B
+// #define MCU_BOARD_WEACTRP2350B                      // WeActStudio RP2350B
 
 // [基板固有定義]
 #if defined(MCU_BOARD_PICO2W)
