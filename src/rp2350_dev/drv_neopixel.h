@@ -33,9 +33,21 @@ typedef struct {
 } grb_color_t;
 
 typedef struct {
+    union {
+        uint32_t u32_rgb;
+        struct {
+            uint8_t red;
+            uint8_t green;
+            uint8_t blue;
+        } rgb;
+    } rgb_color;
+} rgb_color_t;
+
+typedef struct {
     uint8_t data_pin;
     uint8_t led_cnt;
-    grb_color_t *p_pixel_grb_buf;
+    rgb_color_t *p_pixel_rgb_buf;
+    // grb_color_t *p_pixel_grb_buf;
 } neopixel_t;
 
 void drv_neopixel_init(neopixel_t *p_neopixel);

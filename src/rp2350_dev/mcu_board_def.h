@@ -40,6 +40,13 @@ void cyw43_led_tgl(void);
 #define MCU_BOARD_LED_PIN    25   // LEDピン
 #endif
 
+#define MCU_BOARD_NEOPIXEL
+#ifdef MCU_BOARD_NEOPIXEL
+#define NEOPIXEL_LED_CNT         8   // NeoPixelの数
+// #define NEOPIXEL_LED_CNT         64  // NeoPixelの数
+#define MCU_BOARD_NEOPIXEL_PIN   15  // NeoPixelのデータピン
+#endif // MCU_BOARD_NEOPIXEL
+
 #if defined(MCU_BOARD_WEACTRP2350B)
 #define MCU_BOARD_BTN_PIN 23                        // WeActStudio RP2350Bのボタンピン
 #define MCU_FLASH_SIZE    16                        // フラッシュサイズ (16MB)
