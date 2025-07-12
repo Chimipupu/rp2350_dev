@@ -68,7 +68,6 @@ void drv_neopixel_clear(neopixel_t *p_neopixel)
         p_neopixel->p_pixel_rgb_buf[i].rgb_color.rgb.green = 0;
         p_neopixel->p_pixel_rgb_buf[i].rgb_color.rgb.blue = 0;
         set_pio_neopixel_show(p_neopixel);
-        p_neopixel->p_pixel_rgb_buf++;
     }
 }
 
@@ -80,7 +79,6 @@ void drv_neopixel_set_all_led_color(neopixel_t *p_neopixel, uint8_t red, uint8_t
         p_neopixel->p_pixel_rgb_buf[i].rgb_color.rgb.green = green;
         p_neopixel->p_pixel_rgb_buf[i].rgb_color.rgb.blue = blue;
         set_pio_neopixel_show(p_neopixel);
-        p_neopixel->p_pixel_rgb_buf++;
     }
 }
 
