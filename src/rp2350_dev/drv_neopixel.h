@@ -22,9 +22,20 @@
 #include "neopixel.pio.h"
 
 typedef struct {
+    union {
+        uint32_t u32_grb;
+        struct {
+            uint8_t green;
+            uint8_t red;
+            uint8_t blue;
+        } grb;
+    } grb_color;
+} grb_color_t;
+
+typedef struct {
     uint8_t data_pin;
     uint8_t led_cnt;
-    uint8_t *p_pixels;
+    grb_color_t *p_pixel_grb_buf;
 } neopixel_t;
 
 void drv_neopixel_init(neopixel_t *p_neopixel);

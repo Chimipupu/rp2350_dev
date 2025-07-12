@@ -26,7 +26,6 @@ void app_core_0_main(void)
     s_neopixel.led_cnt = 64;
     s_neopixel.data_pin = 15;
     drv_neopixel_init(&s_neopixel);
-    drv_neopixel_set_pixel_rgb(&s_neopixel, 0, 128, 0, 0);
 
     while(1)
     {
@@ -34,9 +33,10 @@ void app_core_0_main(void)
     cyw43_led_tgl();
     sleep_ms(1000);
 #endif
-        for(cnt = 0; cnt <= s_neopixel.led_cnt; cnt++)
+        for (cnt = 0; cnt < s_neopixel.led_cnt; cnt++)
         {
-            drv_neopixel_set_pixel_rgb(&s_neopixel, cnt, 128, 0, 0);
+            drv_neopixel_set_pixel_rgb(&s_neopixel, cnt, 0, 128, 0);
+            sleep_ms(100);
         }
         WDT_RST;
     }

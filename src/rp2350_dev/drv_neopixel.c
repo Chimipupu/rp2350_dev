@@ -10,7 +10,7 @@
  */
 #include "drv_neopixel.h"
 
-static void pio_neopixel_begin(PIO pio, uint sm, uint offset,  uint pin);
+static void pio_neopixel_begin(neopixel_t *p_neopixel, PIO pio, uint sm, uint offset,  uint pin);
 static void set_pio_neopixel_show(neopixel_t *p_neopixel);
 
 static PIO s_pio = pio1;
@@ -18,40 +18,33 @@ static uint s_sm = 0;
 static uint s_offset = 0;
 
 // PIO側に初期化を叩く
-static void pio_neopixel_begin(PIO pio, uint sm, uint offset,  uint pin)
+static void pio_neopixel_begin(neopixel_t *p_neopixel, PIO pio, uint sm, uint offset,  uint pin)
 {
     pio_neopixel_init(pio, sm, offset, pin, 800000, false);
-    pio_sm_set_enabled(pio, sm, true);
+    drv_neopixel_clear(p_neopixel);
 }
 
-void set_pio_neopixel_show(neopixel_t *p_neopixel)
+static void set_pio_neopixel_show(neopixel_t *p_neopixel)
 {
-    for (uint8_t i = 0; i < p_neopixel->led_cnt; i++)
-    {
-        uint8_t red_ptr = p_neopixel->p_pixels[i * 3];
-        uint8_t green_ptr = p_neopixel->p_pixels[(i * 3) + 1];
-        uint8_t blue_ptr = p_neopixel->p_pixels[(i * 3) + 2];
-
-        uint32_t color_data = ((uint32_t)(red_ptr) << 8) |
-                            ((uint32_t)(green_ptr) << 16) |
-                            (uint32_t)(blue_ptr);
-
-        pio_sm_put_blocking(s_pio, s_sm, color_data << 8u);
-    }
+    pio_sm_put_blocking(s_pio, s_sm, p_neopixel->p_pixel_grb_buf->grb_color.u32_grb << 8u);
 }
 
 void drv_neopixel_init(neopixel_t *p_neopixel)
 {
+    bool ret = false;
+
     s_offset = pio_add_program(s_pio, &neopixel_program);
-    pio_neopixel_begin(s_pio, 0, s_offset, p_neopixel->data_pin);
+    ret = pio_claim_free_sm_and_add_program_for_gpio_range(&neopixel_program, &s_pio, &s_sm, &s_offset, p_neopixel->data_pin, 1, true);
+    hard_assert(ret);
+    pio_neopixel_begin(p_neopixel, s_pio, s_sm, s_offset, p_neopixel->data_pin);
 }
 
 void drv_neopixel_set_pixel_rgb(neopixel_t *p_neopixel, uint8_t led, uint8_t red, uint8_t green, uint8_t blue)
 {
-    uint8_t *p = &p_neopixel->p_pixels[led * 3];
-    *p++ = red;
-    *p++ = green;
-    *p++ = blue;
+    p_neopixel->p_pixel_grb_buf[led].grb_color.grb.green = green;
+    p_neopixel->p_pixel_grb_buf[led].grb_color.grb.red = red;
+    p_neopixel->p_pixel_grb_buf[led].grb_color.grb.blue = blue;
+    set_pio_neopixel_show(p_neopixel);
 }
 
 void drv_neopixel_set_pixel_color(neopixel_t *p_neopixel, uint8_t led, uint32_t color)
@@ -59,31 +52,39 @@ void drv_neopixel_set_pixel_color(neopixel_t *p_neopixel, uint8_t led, uint32_t 
     // TODO:色指定の状態遷移
 
     // uint8_t *p = &p_neopixel->p_pixels[led * 3];
-    // *p++ = (color >> 16) & 0xFF; // Red
     // *p++ = (color >> 8) & 0xFF;  // Green
+    // *p++ = (color >> 16) & 0xFF; // Red
     // *p++ = color & 0xFF;         // Blue
 }
 
+// 全GRBカラーバッファを初期化
 void drv_neopixel_clear(neopixel_t *p_neopixel)
 {
-    // TODO:Neopixelの消灯
+    for (uint8_t i = 0; i < p_neopixel->led_cnt; i++)
+    {
+        p_neopixel->p_pixel_grb_buf[i].grb_color.grb.green = 0;
+        p_neopixel->p_pixel_grb_buf[i].grb_color.grb.red = 0;
+        p_neopixel->p_pixel_grb_buf[i].grb_color.grb.blue = 0;
+        set_pio_neopixel_show(p_neopixel);
+        p_neopixel->p_pixel_grb_buf++;
+    }
 }
 
 void drv_neopixel_set_all_led_color(neopixel_t *p_neopixel, uint8_t red, uint8_t green, uint8_t blue)
 {
     for (uint8_t i = 0; i < p_neopixel->led_cnt; i++)
     {
-        uint8_t *p = &p_neopixel->p_pixels[i * 3];
-        *p++ = red;
-        *p++ = green;
-        *p++ = blue;
+        p_neopixel->p_pixel_grb_buf[i].grb_color.grb.green = green;
+        p_neopixel->p_pixel_grb_buf[i].grb_color.grb.red = red;
+        p_neopixel->p_pixel_grb_buf[i].grb_color.grb.blue = blue;
+        set_pio_neopixel_show(p_neopixel);
+        p_neopixel->p_pixel_grb_buf++;
     }
 }
 
 uint32_t drv_neopixel_get_pixel_color(neopixel_t *p_neopixel, uint8_t led)
 {
-    uint8_t ofs = led * 3;
-    return ((uint32_t)p_neopixel->p_pixels[ofs] << 16) |
-            ((uint8_t)p_neopixel->p_pixels[ofs + 1] << 8) |
-            ((uint8_t)p_neopixel->p_pixels[ofs + 2]);
+    uint32_t color = 0;
+    color = p_neopixel->p_pixel_grb_buf->grb_color.u32_grb;
+    return color;
 }
