@@ -28,6 +28,7 @@ void app_core_0_main(void)
     s_neopixel.led_cnt = NEOPIXEL_LED_CNT;
     s_neopixel.data_pin = MCU_BOARD_NEOPIXEL_PIN;
     drv_neopixel_init(&s_neopixel);
+    drv_neopixel_set_pixel_rgb(&s_neopixel, 0, 32, 32, 32);
 #endif // MCU_BOARD_NEOPIXEL
 
     while(1)
@@ -37,8 +38,8 @@ void app_core_0_main(void)
         sleep_ms(1000);
 #endif
 
-#ifdef MCU_BOARD_NEOPIXEL
-        drv_neopixel_set_all_led_color(&s_neopixel, 0, 32, 0);
+#if 0
+        drv_neopixel_set_pixel_rgb(&s_neopixel, 0, 32, 32, 32);
 #else
         NOP();NOP();NOP();
 #endif // MCU_BOARD_NEOPIXEL

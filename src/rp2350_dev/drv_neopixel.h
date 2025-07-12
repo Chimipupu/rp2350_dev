@@ -25,9 +25,10 @@ typedef struct {
     union {
         uint32_t u32_grb;
         struct {
-            uint8_t green;
-            uint8_t red;
-            uint8_t blue;
+            uint32_t green      : 8;
+            uint32_t red        : 8;
+            uint32_t blue       : 8;
+            uint32_t reserved   : 8;
         } grb;
     } grb_color;
 } grb_color_t;
@@ -36,9 +37,10 @@ typedef struct {
     union {
         uint32_t u32_rgb;
         struct {
-            uint8_t red;
-            uint8_t green;
-            uint8_t blue;
+            uint32_t red        : 8;
+            uint32_t green      : 8;
+            uint32_t blue       : 8;
+            uint32_t reserved   : 8;
         } rgb;
     } rgb_color;
 } rgb_color_t;
@@ -52,7 +54,7 @@ typedef struct {
 
 void drv_neopixel_init(neopixel_t *p_neopixel);
 void drv_neopixel_set_pixel_rgb(neopixel_t *p_neopixel, uint8_t led, uint8_t red, uint8_t green, uint8_t blue);
-void drv_neopixel_set_pixel_color(neopixel_t *p_neopixel, uint8_t led, uint32_t color);
+// void drv_neopixel_set_pixel_color(neopixel_t *p_neopixel, uint8_t led, uint32_t color);
 void drv_neopixel_clear(neopixel_t *p_neopixel);
 void drv_neopixel_set_all_led_color(neopixel_t *p_neopixel, uint8_t red, uint8_t green, uint8_t blue);
 uint32_t drv_neopixel_get_pixel_color(neopixel_t *p_neopixel, uint8_t led);
