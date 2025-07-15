@@ -116,7 +116,7 @@ int main()
     uint offset = pio_add_program(pio, &blink_program);
     printf("Loaded program at %d\n", offset);
 
-#if defined(MCU_BOARD_PICO2) || defined(MCU_BOARD_WEACTRP2350B)
+#if defined(MCU_BOARD_PICO2) || defined(MCU_BOARD_WEACT_RP2350B)
     // PIOでLチカ
     blink_pin_forever(pio, 0, offset, MCU_BOARD_LED_PIN, 5);
 #elif defined(MCU_BOARD_PICO2W)

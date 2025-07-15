@@ -220,8 +220,12 @@ static void cmd_system(void)
     printf("PCB : Raspberry Pi Pico 2\n");
 #elif defined(MCU_BOARD_PICO2W)
     printf("PCB : Raspberry Pi Pico 2 W\n");
-#elif defined(MCU_BOARD_WEACTRP2350B)
-    printf("PCB : WeActStudio RP2350B\n");
+#elif defined(MCU_BOARD_WEACT_RP2350B)
+    printf("PCB : WeAct RP2350B\n");
+#elif defined(MCU_BOARD_WEACT_RP2350A_V10)
+    printf("PCB : WeAct RP2350A-20\n");
+#elif defined(MCU_BOARD_WEACT_RP2350A_V20)
+    printf("PCB : WeAct RP2350A-V20\n");
 #endif
 
     // ROM/RAM
@@ -234,7 +238,7 @@ static void cmd_system(void)
 
     // GPIO
     printf("GPIO %d :On Board LED Pin\n", MCU_BOARD_LED_PIN);
-#if defined(MCU_BOARD_WEACTRP2350B)
+#if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
     printf("GPIO %d :On Board Button Pin\n", MCU_BOARD_BTN_PIN);
 #endif
 

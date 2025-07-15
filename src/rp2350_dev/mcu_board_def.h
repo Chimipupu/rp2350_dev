@@ -28,9 +28,11 @@
 #include "hardware/clocks.h"
 #include "hardware/uart.h"
 
-#define MCU_BOARD_PICO2                             // Raspberry Pi Pico 2
+// #define MCU_BOARD_PICO2                             // Raspberry Pi Pico 2
 // #define MCU_BOARD_PICO2W                            // Raspberry Pi Pico 2 W
-// #define MCU_BOARD_WEACTRP2350B                      // WeActStudio RP2350B
+#define MCU_BOARD_WEACT_RP2350B                     // WeAct RP2350B
+// #define MCU_BOARD_WEACT_RP2350A_V10                 // WeAct RP2350A-V10
+// #define MCU_BOARD_WEACT_RP2350A_V20                 // WeAct RP2350A-V20
 
 // [基板固有定義]
 #if defined(MCU_BOARD_PICO2W)
@@ -40,27 +42,31 @@ void cyw43_led_tgl(void);
 #define MCU_BOARD_LED_PIN    25   // LEDピン
 #endif
 
-#define MCU_BOARD_NEOPIXEL
-#ifdef MCU_BOARD_NEOPIXEL
-#define NEOPIXEL_LED_CNT         8   // NeoPixelの数
-// #define NEOPIXEL_LED_CNT         64  // NeoPixelの数
-#define MCU_BOARD_NEOPIXEL_PIN   15  // NeoPixelのデータピン
-#endif // MCU_BOARD_NEOPIXEL
+#if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
+#define MCU_BOARD_BTN_PIN 23                        // WeAct RP2350A-V10とWeAct RP2350Bのボタンピン
+#endif // MCU_BOARD_WEACT_RP2350A_V10
 
-#if defined(MCU_BOARD_WEACTRP2350B)
-#define MCU_BOARD_BTN_PIN 23                        // WeActStudio RP2350Bのボタンピン
+// [メモリ関連]
+#if defined(MCU_BOARD_WEACT_RP2350B)
 #define MCU_FLASH_SIZE    16                        // フラッシュサイズ (16MB)
 #define MCU_PSRAM_SIZE    8                         // PSRAMサイズ (8MB)
 #else
 #define MCU_FLASH_SIZE    4                         // RP2350のフラッシュサイズ (4MB)
-#endif // MCU_BOARD_WEACTRP2350B
-
+#endif // MCU_BOARD_WEACT_RP2350B
 #define MCU_RAM_SIZE      520                       // RP2350のSRAMサイズ (520KB)
 
 // #define _WDT_ENABLE_                             // WDT有効マクロ
 #ifdef _WDT_ENABLE_
 #define _WDT_OVF_TIME_MS_ 3000                      // WDTが鳴く時間(ms)
 #endif // _WDT_ENABLE_
+
+// [NeoPixel]
+#define MCU_BOARD_NEOPIXEL
+#ifdef MCU_BOARD_NEOPIXEL
+#define NEOPIXEL_LED_CNT         8   // NeoPixelの数
+// #define NEOPIXEL_LED_CNT         64  // NeoPixelの数
+#define MCU_BOARD_NEOPIXEL_PIN   15  // NeoPixelのデータピン
+#endif // MCU_BOARD_NEOPIXEL
 
 // [I2C関連]
 #define I2C_0_PORT             i2c0
