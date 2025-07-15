@@ -40,6 +40,7 @@ void blink_pin_forever(PIO pio, uint sm, uint offset, uint pin, uint freq)
     pio->txf[sm] = (125000000 / (2 * freq)) - 3;
 }
 
+#ifdef TIMER_ALARM_IRQ_ENABLE
 /**
  * @brief 2000msタイマー割り込みコールバック関数
  * 
@@ -53,6 +54,7 @@ int64_t alarm_callback(alarm_id_t id, void *p_user_data)
 
     return 0;
 }
+#endif // TIMER_ALARM_IRQ_ENABLE
 
 int main()
 {
@@ -128,8 +130,10 @@ int main()
     interp_config cfg = interp_default_config();
     interp_set_config(interp0, 0, &cfg);
 
+#ifdef TIMER_ALARM_IRQ_ENABLE
     // タイマー割り込み @2000ms
     add_alarm_in_ms(2000, alarm_callback, NULL, false);
+#endif // TIMER_ALARM_IRQ_ENABLE
 
 #ifdef _WDT_ENABLE_
     if (watchdog_caused_reboot()) {
@@ -143,17 +147,17 @@ int main()
     printf("System Clock Frequency is %d Hz\n", clock_get_hz(clk_sys));
     printf("USB Clock Frequency is %d Hz\n", clock_get_hz(clk_usb));
 
-    // UART0初期化(8N1)
+    // UART0初期化(115200bps 8N1)
     uart_init(UART_0_PORT, UART_BAUD_RATE);
     gpio_set_function(UART_0_TX, GPIO_FUNC_UART);
     gpio_set_function(UART_0_RX, GPIO_FUNC_UART);
+    uart_puts(UART_0_PORT, "Hello, from UART0!\n");
 
-    // UART1初期化(8N1)
+    // UART1初期化(115200bps 8N1)
     uart_init(UART_1_PORT, UART_BAUD_RATE);
     gpio_set_function(UART_1_TX, GPIO_FUNC_UART);
     gpio_set_function(UART_1_RX, GPIO_FUNC_UART);
-
-    uart_puts(UART_0_PORT, " Hello, UART!\n");
+    uart_puts(UART_1_PORT, "Hello, from UART1!\n");
 
     core_0_main();
 }

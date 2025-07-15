@@ -55,11 +55,6 @@ void cyw43_led_tgl(void);
 #endif // MCU_BOARD_WEACT_RP2350B
 #define MCU_RAM_SIZE      520                       // RP2350のSRAMサイズ (520KB)
 
-// #define _WDT_ENABLE_                             // WDT有効マクロ
-#ifdef _WDT_ENABLE_
-#define _WDT_OVF_TIME_MS_ 3000                      // WDTが鳴く時間(ms)
-#endif // _WDT_ENABLE_
-
 // [NeoPixel]
 #define MCU_BOARD_NEOPIXEL
 #ifdef MCU_BOARD_NEOPIXEL
@@ -67,6 +62,15 @@ void cyw43_led_tgl(void);
 // #define NEOPIXEL_LED_CNT         64  // NeoPixelの数
 #define MCU_BOARD_NEOPIXEL_PIN   15  // NeoPixelのデータピン
 #endif // MCU_BOARD_NEOPIXEL
+
+// [タイマ関連]
+#define TIMER_ALARM_IRQ_ENABLE
+
+// [WDT関連]
+// #define _WDT_ENABLE_                             // WDT有効マクロ
+#ifdef _WDT_ENABLE_
+#define _WDT_OVF_TIME_MS_ 3000                      // WDTが鳴く時間(ms)
+#endif // _WDT_ENABLE_
 
 // [I2C関連]
 #define I2C_0_PORT             i2c0
