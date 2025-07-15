@@ -31,7 +31,7 @@ void app_core_0_main(void)
     memset(s_rgb_buf, 0, sizeof(s_rgb_buf));
     s_neopixel.p_pixel_rgb_buf = &s_rgb_buf[0];
     drv_neopixel_init(&s_neopixel);
-    // drv_neopixel_set_pixel_rgb(&s_neopixel, 0, 32, 32, 32);
+    drv_neopixel_set_all_led_color(&s_neopixel, 32, 32, 32);
 #endif // MCU_BOARD_NEOPIXEL
 
     while(1)
@@ -41,9 +41,10 @@ void app_core_0_main(void)
         sleep_ms(1000);
 #endif
 
-#ifdef MCU_BOARD_NEOPIXEL
+#if 0
         for (uint8_t i = 0; i < s_neopixel.led_cnt; i++)
         {
+            drv_neopixel_set_pixel_rgb(&s_neopixel, i, 32, 32, 32);
             printf("[DEBUG] NeoPixel Buf[%d] = 0x%02X\r\n", i, s_neopixel.p_pixel_rgb_buf[i].rgb_color.u32_rgb);
             WDT_RST;
         }

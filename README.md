@@ -14,10 +14,12 @@
   - [`Raspberry Pi Pico 2`](https://www.raspberrypi.com/products/raspberry-pi-pico-2/)🔗
   - [`Raspberry Pi Pico 2 W`](https://www.raspberrypi.com/products/raspberry-pi-pico-2w)🔗
   - [`WeActStudio RP2350B`](https://github.com/WeActStudio/WeActStudio.RP2350BCoreBoard)🔗
+  - [`WeActStudio RP2350A-V10`](https://github.com/WeActStudio/WeActStudio.RP2350ACoreBoard/tree/main/RP2350A_V10)🔗
+  - [`WeActStudio RP2350A-V20`](https://github.com/WeActStudio/WeActStudio.RP2350ACoreBoard/tree/main/RP2350A_V20)🔗
 
 - マイコン ... 型番:`RP2350`
   - CPU ... `Arm Cortex-M33` x2コア(※デュアルコアCPU)
-  - ROM ... 4MB
+  - ROM ... 4MB or 16MB
   - RAM ... 520KB
 
 <!-- - I2Cスレーブ
@@ -185,7 +187,9 @@
 
 #### TIMER
 
-- `timer [seconds]` - タイマーアラーム設定（秒単位）
+- RP2350のH/Wタイマを4本使用できるコマンド
+
+- `timer [seconds]` - タイマーにアラーム設定（秒単位）
 
   ```shell
   > timer 5
