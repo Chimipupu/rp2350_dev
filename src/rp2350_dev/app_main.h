@@ -52,5 +52,4 @@ void double_add_test(void);
 void double_sub_test(void);
 void double_mul_test(void);
 void double_div_test(void);
-
 #endif // APP_MAIN_H

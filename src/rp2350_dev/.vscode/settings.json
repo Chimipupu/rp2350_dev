@@ -56,7 +56,9 @@
         "interp.h": "c",
         "watchdog.h": "c",
         "uart.h": "c",
-        "drv_neopixel.h": "c"
+        "drv_neopixel.h": "c",
+        "mcu_board_def.h": "c",
+        "random": "c"
     },
     "cortex-debug.variableUseNaturalFormat": true
 }

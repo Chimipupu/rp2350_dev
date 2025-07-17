@@ -1,7 +1,7 @@
 /**
  * @file drv_neopixel.h
  * @author Chimipupu(https://github.com/Chimipupu)
- * @brief NeoPixelドライバヘッダ
+ * @brief NeoPixelドライバヘッダ(PIO経由)
  * @version 0.1
  * @date 2025-07-12
  * 

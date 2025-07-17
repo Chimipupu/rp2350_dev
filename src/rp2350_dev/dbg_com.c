@@ -13,6 +13,9 @@
 #include "mcu_util.h"
 #include "mcu_board_def.h"
 
+#include "drv_neopixel.h"
+extern neopixel_t s_neopixel;
+
 // コマンド履歴
 static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];
 static uint8_t s_history_count = 0;  // コマンド履歴の数
@@ -38,20 +41,22 @@ static void cmd_gpio(const dbg_cmd_args_t* p_args);
 static void cmd_mem_dump(const dbg_cmd_args_t* p_args);
 static void cmd_i2c(const dbg_cmd_args_t* p_args);
 static void cmd_reg(const dbg_cmd_args_t* p_args);
+static void cmd_neopixel(const dbg_cmd_args_t* p_args);
 
 // コマンドテーブル
 static const dbg_cmd_info_t s_cmd_table[] = {
     {"help",    CMD_HELP,       "Show this help message", 0, 0},
     {"ver",     CMD_VER,        "Show F/W version", 0, 0},
     {"sys",     CMD_SYSTEM,     "Show system information", 0, 0},
-    {"rnd",     CMD_RND,        "Generate true random numbers using TRNG", 0, 1},
-    {"sha",     CMD_SHA,        "Calc SHA-256 Hash using H/W Accelerator", 0, 1},
     {"rst",     CMD_RST,        "Reboot", 0, 0},
     {"mem_dump", CMD_MEM_DUMP,  "Dump memory contents (address, length)", 2, 2},
     {"reg",     CMD_REG,        "Register read/write: reg #addr r|w bits [#val]", 3, 4},
     {"i2c",     CMD_I2C,        "I2C control (port, command)", 2, 2},
     {"gpio",    CMD_GPIO,       "Control GPIO pin (pin, value)", 2, 2},
+    {"neopixel", CMD_NEOPIXEL,  "Control NeoPixel (command, args)", 1, 2},
     {"timer",   CMD_TIMER,      "Set timer alarm (seconds)", 0, 1},
+    {"rnd",     CMD_RND,        "Generate true random numbers using TRNG", 0, 1},
+    {"sha",     CMD_SHA,        "Calc SHA-256 Hash using H/W Accelerator", 0, 1},
     {"at",      CMD_AT_TEST,    "int/float/double arithmetic test", 0, 0},
     {"pi",      CMD_PI_CALC,    "Calculate pi using Gauss-Legendre", 0, 1},
     {"trig",    CMD_TRIG,       "Run sin,cos,tan functions test", 0, 0},
@@ -71,6 +76,9 @@ static uint8_t s_available_orders[TIMER_MAX_ALARMS] = {1, 2, 3, 4};  // 利用�
 static uint8_t s_available_count = TIMER_MAX_ALARMS;  // 利用可能な登録順序の数
 
 static int32_t split_str(char* p_str, dbg_cmd_args_t* p_args);
+
+static int get_neopixel_color_from_name(const char* name);
+static int parse_hex_color(const char* str, uint8_t *r, uint8_t *g, uint8_t *b);
 
 // コマンド引数を分割して解析
 static int32_t split_str(char* p_str, dbg_cmd_args_t* p_args)
@@ -663,7 +671,11 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
             cmd_sha(p_args);
             break;
 
-            case CMD_UNKNOWN:
+        case CMD_NEOPIXEL:
+            cmd_neopixel(p_args);
+            break;
+
+        case CMD_UNKNOWN:
             cmd_unknown();
             break;
     }
@@ -781,9 +793,73 @@ static void cmd_reg(const dbg_cmd_args_t* p_args)
         } else if (bits == 32) {
             REG_WRITE_DWORD(0, addr, (uint32_t)wval);
         }
-        printf("[REG] Write %dbit @ 0x%08X = 0x%0*X\n", bits, addr, bits / 4, wval);
-        } else {
-        printf("Error: 2nd arg must be 'r' or 'w'\n");
+            printf("[REG] Write %dbit @ 0x%08X = 0x%0*X\n", bits, addr, bits / 4, wval);
+    } else {
+            printf("Error: 2nd arg must be 'r' or 'w'\n");
+    }
+}
+
+static int get_neopixel_color_from_name(const char* name)
+{
+    if (strcasecmp(name, "black") == 0) return NEOPIXEL_COLOR_BLACK;
+    if (strcasecmp(name, "red") == 0) return NEOPIXEL_COLOR_RED;
+    if (strcasecmp(name, "green") == 0) return NEOPIXEL_COLOR_GREEN;
+    if (strcasecmp(name, "blue") == 0) return NEOPIXEL_COLOR_BLUE;
+    if (strcasecmp(name, "yellow") == 0) return NEOPIXEL_COLOR_YELLOW;
+    if (strcasecmp(name, "cyan") == 0) return NEOPIXEL_COLOR_CYAN;
+    if (strcasecmp(name, "magenta") == 0) return NEOPIXEL_COLOR_MAGENTA;
+    if (strcasecmp(name, "orange") == 0) return NEOPIXEL_COLOR_ORANGE;
+    if (strcasecmp(name, "purple") == 0) return NEOPIXEL_COLOR_PURPLE;
+    if (strcasecmp(name, "pink") == 0) return NEOPIXEL_COLOR_PINK;
+    if (strcasecmp(name, "white") == 0) return NEOPIXEL_COLOR_WHITE;
+    return -1;
+}
+
+static int parse_hex_color(const char* str, uint8_t *r, uint8_t *g, uint8_t *b)
+{
+    if (str == NULL || strlen(str) != 7 || str[0] != '#') return -1;
+    unsigned int rv, gv, bv;
+    if (sscanf(str+1, "%02x%02x%02x", &rv, &gv, &bv) == 3) {
+        *r = (uint8_t)rv;
+        *g = (uint8_t)gv;
+        *b = (uint8_t)bv;
+        return 0;
+    }
+    return -1;
+}
+
+/**
+ * @brief NeoPixel制御コマンド関数
+ * 
+ * @param p_args 
+ */
+static void cmd_neopixel(const dbg_cmd_args_t* p_args)
+{
+    if (p_args->argc < 3) {
+        printf("Usage: neopixel <index> <color|#RRGGBB>\n");
+        return;
+    }
+
+    int idx = atoi(p_args->p_argv[1]);
+
+    if (idx < 1 || idx > s_neopixel.led_cnt) {
+        printf("Error: indexは1～%d\n", s_neopixel.led_cnt);
+        return;
+    }
+
+    const char* color_str = p_args->p_argv[2];
+    int color_enum = get_neopixel_color_from_name(color_str);
+    if (color_enum >= 0) {
+        drv_neopixel_set_pixel_color(&s_neopixel, idx-1, color_enum);
+        printf("NeoPixel[%d] = %s\n", idx, color_str);
+        return;
+    }
+
+    uint8_t r, g, b;
+    if (parse_hex_color(color_str, &r, &g, &b) == 0) {
+        drv_neopixel_set_pixel_rgb(&s_neopixel, idx-1, r, g, b);
+        printf("NeoPixel[%d] = #%02X%02X%02X\n", idx, r, g, b);
+        return;
     }
 }
 

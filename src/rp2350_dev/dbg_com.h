@@ -57,6 +57,13 @@ typedef enum {
     CMD_HELP,       // ヘルプ表示
     CMD_VER,        // バージョン表示
     CMD_SYSTEM,     // システム情報表示
+    CMD_RST,        // リセット
+    CMD_MEM_DUMP,   // メモリダンプ
+    CMD_REG,        // レジスタ操作8/16/32bit
+    CMD_GPIO,       // GPIO制御
+    CMD_I2C,        // I2C制御
+    CMD_NEOPIXEL,   // NeoPixel制御
+    CMD_TIMER,      // タイマーコマンド
     CMD_RND,        // 真性乱数をH/WのTRANGで生成
     CMD_SHA,        // H/WでSHA-256のハッシュ値を計算
     CMD_AT_TEST,    // int/float/double四則演算テスト
@@ -65,12 +72,6 @@ typedef enum {
     CMD_ATAN2,      // atan2テスト
     CMD_TAN355,     // tan(355/226)テスト
     CMD_ISQRT,      // 逆平方根テスト
-    CMD_TIMER,      // タイマーコマンド
-    CMD_GPIO,       // GPIO制御
-    CMD_I2C,        // I2C制御
-    CMD_MEM_DUMP,   // メモリダンプ
-    CMD_REG,        // レジスタ操作8/16/32bit
-    CMD_RST,        // リセット
     CMD_UNKNOWN     // 不明なコマンド
 } dbg_cmd_t;
 

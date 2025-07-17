@@ -1,7 +1,7 @@
 /**
  * @file drv_neopixel.c
  * @author Chimipupu(https://github.com/Chimipupu)
- * @brief NeoPixelドライバ
+ * @brief NeoPixelドライバ(PIO経由)
  * @version 0.1
  * @date 2025-07-12
  * 
@@ -17,11 +17,8 @@ static PIO s_pio = pio1;
 static uint s_sm = 0;
 static uint s_offset = 0;
 
-// PIO側に初期化を叩く
 static void pio_neopixel_begin(neopixel_t *p_neopixel, PIO pio, uint sm, uint offset,  uint pin)
 {
-    // gpio_set_function(pin, GPIO_FUNC_SIO);
-    // gpio_set_dir(pin, GPIO_OUT);
     pio_neopixel_init(pio, sm, offset, pin, 800000, false);
 }
 
@@ -99,7 +96,6 @@ void drv_neopixel_set_pixel_color(neopixel_t *p_neopixel, uint8_t led, uint8_t c
     }
 }
 
-// 全GRBカラーバッファを初期化
 void drv_neopixel_clear(neopixel_t *p_neopixel)
 {
     for (uint8_t i = 0; i < p_neopixel->led_cnt; i++)
@@ -127,7 +123,6 @@ void drv_neopixel_set_all_led_color(neopixel_t *p_neopixel, uint8_t red, uint8_t
 uint32_t drv_neopixel_get_pixel_color(neopixel_t *p_neopixel, uint8_t led)
 {
     uint32_t color = 0;
-    // color = p_neopixel->p_pixel_grb_buf->grb_color.u32_grb;
     color = p_neopixel->p_pixel_grb_buf->grb_color.u32_grb;
     return color;
 }

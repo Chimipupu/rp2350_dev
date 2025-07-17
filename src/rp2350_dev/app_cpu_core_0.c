@@ -11,11 +11,9 @@
 #include "app_cpu_core_0.h"
 #include "mcu_board_def.h"
 
-#ifdef MCU_BOARD_NEOPIXEL
 #include "drv_neopixel.h"
-static neopixel_t s_neopixel;
+neopixel_t s_neopixel;
 static rgb_color_t s_rgb_buf[NEOPIXEL_LED_CNT] = {0};
-#endif // MCU_BOARD_NEOPIXEL
 
 /**
  * @brief CPU Core0のアプリメイン関数
@@ -39,7 +37,7 @@ void app_core_0_main(void)
         cyw43_led_tgl();
         sleep_ms(1000);
 #else
-    #if 1
+    #if 0
             uint8_t r, g, b;
             for (uint8_t i = 0; i < s_neopixel.led_cnt; i++)
             {
