@@ -841,24 +841,24 @@ static void cmd_neopixel(const dbg_cmd_args_t* p_args)
     }
 
     int idx = atoi(p_args->p_argv[1]);
-
-    if (idx < 1 || idx > s_neopixel.led_cnt) {
+    if ((idx < 1) || idx > s_neopixel.led_cnt) {
         printf("Error: indexは1～%d\n", s_neopixel.led_cnt);
         return;
     }
 
+    uint8_t led_idx = (uint8_t)idx;
     const char* color_str = p_args->p_argv[2];
     int color_enum = get_neopixel_color_from_name(color_str);
     if (color_enum >= 0) {
-        drv_neopixel_set_pixel_color(&s_neopixel, idx-1, color_enum);
-        printf("NeoPixel[%d] = %s\n", idx, color_str);
+        drv_neopixel_set_pixel_color(&s_neopixel, led_idx-1, color_enum);
+        printf("NeoPixel[%d] = %s\n", led_idx, color_str);
         return;
     }
 
     uint8_t r, g, b;
     if (parse_hex_color(color_str, &r, &g, &b) == 0) {
-        drv_neopixel_set_pixel_rgb(&s_neopixel, idx-1, r, g, b);
-        printf("NeoPixel[%d] = #%02X%02X%02X\n", idx, r, g, b);
+        drv_neopixel_set_pixel_rgb(&s_neopixel, led_idx-1, r, g, b);
+        printf("NeoPixel[%d] = #%02X%02X%02X\n", led_idx, r, g, b);
         return;
     }
 }

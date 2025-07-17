@@ -24,7 +24,12 @@ static void pio_neopixel_begin(neopixel_t *p_neopixel, PIO pio, uint sm, uint of
 
 static void set_pio_neopixel_show(neopixel_t *p_neopixel)
 {
-    pio_sm_put_blocking(s_pio, s_sm, p_neopixel->p_pixel_grb_buf->grb_color.u32_grb << 8u);
+    uint8_t i;
+
+    for ( i = 0; i < p_neopixel->led_cnt; i++)
+    {
+        pio_sm_put_blocking(s_pio, s_sm, p_neopixel->p_pixel_grb_buf[i].grb_color.u32_grb << 8u);
+    }
 }
 
 void drv_neopixel_init(neopixel_t *p_neopixel)

@@ -60,5 +60,5 @@
         "mcu_board_def.h": "c",
         "random": "c"
     },
-    "cortex-debug.variableUseNaturalFormat": true
+    "cortex-debug.variableUseNaturalFormat": false
 }
