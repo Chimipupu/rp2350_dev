@@ -25,13 +25,12 @@ void app_core_0_main(void)
 {
     uint32_t core_num = get_core_num();
 
-#ifdef MCU_BOARD_NEOPIXEL
+#if 1
     s_neopixel.led_cnt = NEOPIXEL_LED_CNT;
     s_neopixel.data_pin = MCU_BOARD_NEOPIXEL_PIN;
     memset(s_rgb_buf, 0, sizeof(s_rgb_buf));
-    s_neopixel.p_pixel_rgb_buf = &s_rgb_buf[0];
+    s_neopixel.p_pixel_grb_buf = &s_rgb_buf[0];
     drv_neopixel_init(&s_neopixel);
-    drv_neopixel_set_all_led_color(&s_neopixel, 32, 32, 32);
 #endif // MCU_BOARD_NEOPIXEL
 
     while(1)
@@ -39,19 +38,20 @@ void app_core_0_main(void)
 #if defined(MCU_BOARD_PICO2W)
         cyw43_led_tgl();
         sleep_ms(1000);
-#endif
-
-#if 0
-        for (uint8_t i = 0; i < s_neopixel.led_cnt; i++)
-        {
-            drv_neopixel_set_pixel_rgb(&s_neopixel, i, 32, 32, 32);
-            printf("[DEBUG] NeoPixel Buf[%d] = 0x%02X\r\n", i, s_neopixel.p_pixel_rgb_buf[i].rgb_color.u32_rgb);
-            WDT_RST;
-        }
-        sleep_ms(1000);
 #else
-        NOP();NOP();NOP();
-#endif // MCU_BOARD_NEOPIXEL
+    #if 1
+            uint8_t r, g, b;
+            for (uint8_t i = 0; i < s_neopixel.led_cnt; i++)
+            {
+                drv_neopixel_pixel_color_fade(&r, &g, &b);
+                drv_neopixel_set_pixel_rgb(&s_neopixel, i, r, g, b);
+                WDT_RST;
+            }
+            sleep_ms(50);
+    #else
+            NOP();NOP();NOP();
+    #endif
+#endif
         WDT_RST;
     }
 }

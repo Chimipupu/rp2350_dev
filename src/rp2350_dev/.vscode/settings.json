@@ -58,5 +58,5 @@
         "uart.h": "c",
         "drv_neopixel.h": "c"
     },
-    "cortex-debug.variableUseNaturalFormat": false
+    "cortex-debug.variableUseNaturalFormat": true
 }

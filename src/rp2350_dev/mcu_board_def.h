@@ -28,9 +28,9 @@
 #include "hardware/clocks.h"
 #include "hardware/uart.h"
 
-// #define MCU_BOARD_PICO2                             // Raspberry Pi Pico 2
+#define MCU_BOARD_PICO2                             // Raspberry Pi Pico 2
 // #define MCU_BOARD_PICO2W                            // Raspberry Pi Pico 2 W
-#define MCU_BOARD_WEACT_RP2350B                     // WeAct RP2350B
+// #define MCU_BOARD_WEACT_RP2350B                     // WeAct RP2350B
 // #define MCU_BOARD_WEACT_RP2350A_V10                 // WeAct RP2350A-V10
 // #define MCU_BOARD_WEACT_RP2350A_V20                 // WeAct RP2350A-V20
 
@@ -58,7 +58,9 @@ void cyw43_led_tgl(void);
 // [NeoPixel]
 #define MCU_BOARD_NEOPIXEL
 #ifdef MCU_BOARD_NEOPIXEL
-#define NEOPIXEL_LED_CNT         8   // NeoPixelの数
+#define NEOPIXEL_LED_CNT         4   // NeoPixelの数
+// #define NEOPIXEL_LED_CNT         8   // NeoPixelの数
+// #define NEOPIXEL_LED_CNT         16  // NeoPixelの数
 // #define NEOPIXEL_LED_CNT         64  // NeoPixelの数
 #define MCU_BOARD_NEOPIXEL_PIN   15  // NeoPixelのデータピン
 #endif // MCU_BOARD_NEOPIXEL
