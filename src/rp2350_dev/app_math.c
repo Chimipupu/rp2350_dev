@@ -167,18 +167,24 @@ void app_math_prime(uint32_t n)
     printf("\n");
 }
 
+// ガウス・ルジャンドル法で円周率を計算
 void app_math_pi_show(uint32_t n)
 {
-    // ガウス・ルジャンドル法で円周率を計算
     _DI();
     uint32_t start_time = time_us_32();
+    _EI();
+
     double pi = app_math_pi_calc(n);
+
+    _DI();
     uint32_t end_time = time_us_32();
     _EI();
+
     printf("pi = %.15f\n", pi);
     printf("proc time : %d usec\n", end_time - start_time);
 }
 
+// マンデルブロ集合の描画
 void app_math_mandelbrot(void)
 {
     for (int y = 0; y < HEIGHT; y++)
@@ -220,28 +226,23 @@ void app_math_math_test(void)
     printf("[App Math Test]\n");
     printf("**************************************************************************\n");
 
+    // マンデルブロ集合の描画
+    app_math_mandelbrot();
+
     // tan(355/226)の計算（※期待値:-7497258.185...）
-    _DI();
-    uint32_t start_time = time_us_32();
     result = app_math_calc_accuracy();
-    uint32_t end_time = time_us_32();
-    _EI();
     printf("tan(355/226) = %.3f\n", result);
-    printf("proc time : %d usec\n", end_time - start_time);
 
     // 円周率π
-    app_math_pi_show(MATH_PI_CALC_TIME);
+    pi = app_math_pi_calc(MATH_PI_CALC_TIME);
+    printf("pi = %.15f\n", pi);
 
     // ネイピアe
     napier = app_math_napier_calc();
     printf("e = %.15f\n", napier);
 
     // 黄金比φ
-    _DI();
-    start_time = time_us_32();
     phi = app_math_goldenratio_calc();
-    end_time = time_us_32();
-    _EI();
     printf("phi = %.15f\n", phi);
 
     // フィボナッチ数列

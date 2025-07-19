@@ -34,7 +34,7 @@ void core_0_main(void);
 void core_1_main(void);
 void pico_sdk_version_print(void);
 void i2c_slave_scan(uint8_t i2c_port);
-void measure_execution_time(void (*p_func)(void), const char* p_func_name, ...);
+void proc_exec_time(void (*p_func)(void), const char* p_func_name, ...);
 void trig_functions_test(void);
 void atan2_test(void);
 void tan_355_226_test(void);

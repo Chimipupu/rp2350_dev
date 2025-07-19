@@ -275,25 +275,25 @@ static void cmd_system(void)
 static void cmd_at_test(void)
 {
     // 数学関連テスト
-    measure_execution_time(app_math_math_test, "app_math_math_test");
+    app_math_math_test();
 
     printf("\nInteger Arithmetic Test: @%d\n", TEST_LOOP_CNT);
-    measure_execution_time(int_add_test, "int_add_test");
-    measure_execution_time(int_sub_test, "int_sub_test");
-    measure_execution_time(int_mul_test, "int_mul_test");
-    measure_execution_time(int_div_test, "int_div_test");
+    proc_exec_time(int_add_test, "int_add_test");
+    proc_exec_time(int_sub_test, "int_sub_test");
+    proc_exec_time(int_mul_test, "int_mul_test");
+    proc_exec_time(int_div_test, "int_div_test");
 
     printf("\nFloat Arithmetic Tests: @%d\n", TEST_LOOP_CNT);
-    measure_execution_time(float_add_test, "float_add_test");
-    measure_execution_time(float_sub_test, "float_sub_test");
-    measure_execution_time(float_mul_test, "float_mul_test");
-    measure_execution_time(float_div_test, "float_div_test");
+    proc_exec_time(float_add_test, "float_add_test");
+    proc_exec_time(float_sub_test, "float_sub_test");
+    proc_exec_time(float_mul_test, "float_mul_test");
+    proc_exec_time(float_div_test, "float_div_test");
 
     printf("\nDouble Arithmetic Tests: @%d\n", TEST_LOOP_CNT);
-    measure_execution_time(double_add_test, "double_add_test");
-    measure_execution_time(double_sub_test, "double_sub_test");
-    measure_execution_time(double_mul_test, "double_mul_test");
-    measure_execution_time(double_div_test, "double_div_test");
+    proc_exec_time(double_add_test, "double_add_test");
+    proc_exec_time(double_sub_test, "double_sub_test");
+    proc_exec_time(double_mul_test, "double_mul_test");
+    proc_exec_time(double_div_test, "double_div_test");
 }
 
 static void cmd_pi_calc(const dbg_cmd_args_t* p_args)
@@ -404,14 +404,14 @@ static void cmd_unknown(void)
 static void cmd_trig(void)
 {
     printf("\nTrigonometric Functions Test:\n");
-    measure_execution_time(trig_functions_test, "trig_functions_test");
+    proc_exec_time(trig_functions_test, "trig_functions_test");
     printf("Test completed: sin(45°), cos(45°), tan(45°)\n");
 }
 
 static void cmd_atan2(void)
 {
     printf("\nAtan2 Test:\n");
-    measure_execution_time(atan2_test, "atan2_test");
+    proc_exec_time(atan2_test, "atan2_test");
     printf("Test completed: atan2(1.0, 1.0)\n");
 }
 
@@ -424,13 +424,13 @@ static void cmd_tan355(void)
     printf("Difference: %.5f (%.2f%%)\n",
             result - TAN_355_226_EXPECTED,
            ((result - TAN_355_226_EXPECTED) / TAN_355_226_EXPECTED) * 100.0);
-    measure_execution_time(tan_355_226_test, "tan_355_226_test");
+    proc_exec_time(tan_355_226_test, "tan_355_226_test");
 }
 
 static void cmd_isqrt(void)
 {
     printf("\nInverse Square Root Test:\n");
-    measure_execution_time(inverse_sqrt_test, "inverse_sqrt_test");
+    proc_exec_time(inverse_sqrt_test, "inverse_sqrt_test");
     printf("Test completed: 1/sqrt(x) for x = 2.0, 3.0, 4.0, 5.0\n");
 }
 

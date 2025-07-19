@@ -306,11 +306,18 @@ void i2c_slave_scan(uint8_t port)
  * @param func_name 関数名（表示用）
  * @param ... 関数に渡す引数（可変長）
  */
-void measure_execution_time(void (*func)(void), const char* func_name, ...)
+void proc_exec_time(void (*func)(void), const char* func_name, ...)
 {
+    _DI();
     volatile uint32_t start_time = time_us_32();
+    _EI();
+
     func();
+
+    _DI();
     volatile uint32_t end_time = time_us_32();
+    _EI();
+
     printf("proc time %s: %u us\n", func_name, end_time - start_time);
 }
 

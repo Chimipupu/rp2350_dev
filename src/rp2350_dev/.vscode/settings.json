@@ -59,7 +59,8 @@
         "drv_neopixel.h": "c",
         "mcu_board_def.h": "c",
         "random": "c",
-        "app_math.h": "c"
+        "app_math.h": "c",
+        "functional": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }
