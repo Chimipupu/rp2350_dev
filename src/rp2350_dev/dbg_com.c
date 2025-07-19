@@ -30,15 +30,15 @@ const dbg_cmd_info_t g_cmd_tbl[CMD_TBL_SIZE] = {
     {"ver",       CMD_VER,        "Show F/W version", 0, 0},
     {"sys",       CMD_SYSTEM,     "Show system information", 0, 0},
     {"rst",       CMD_RST,        "Reboot", 0, 0},
-    {"mem_dump",  CMD_MEM_DUMP,   "Dump memory contents (address, length)", 2, 2},
+    {"memd",      CMD_MEM_DUMP,    "Memory Dump Command. args -> (#address, length)", 2, 2},
     {"reg",       CMD_REG,        "Register read/write: reg #addr r|w bits [#val]", 3, 4},
     {"i2c",       CMD_I2C,        "I2C control (port, command)", 2, 2},
     {"gpio",      CMD_GPIO,       "Control GPIO pin (pin, value)", 2, 2},
-    {"neopixel",  CMD_NEOPIXEL,   "Control NeoPixel (command, args)", 1, 2},
-    {"timer",     CMD_TIMER,      "Set timer alarm (seconds)", 0, 1},
+    {"px",        CMD_NEOPIXEL,   "Control NeoPixel (command, args)", 1, 2},
+    {"tm",        CMD_TIMER,      "Set timer alarm (seconds)", 0, 1},
     {"rnd",       CMD_RND,        "Generate true random numbers using TRNG", 0, 1},
     {"sha",       CMD_SHA,        "Calc SHA-256 Hash using H/W Accelerator", 0, 1},
-    {"at",        CMD_AT_TEST,    "int/float/double arithmetic test", 0, 0},
+    {"at",        CMD_AT_TEST,    "int/float/double arithmetic & math test", 0, 0},
     {"pi",        CMD_PI_CALC,    "Calculate pi using Gauss-Legendre", 0, 1},
     {"trig",      CMD_TRIG,       "Run sin,cos,tan functions test", 0, 0},
     {"atan2",     CMD_ATAN2,      "Run atan2 test", 0, 0},
@@ -274,19 +274,22 @@ static void cmd_system(void)
 
 static void cmd_at_test(void)
 {
-    printf("\nInteger Arithmetic Test:\n");
+    // 数学関連テスト
+    measure_execution_time(app_math_math_test, "app_math_math_test");
+
+    printf("\nInteger Arithmetic Test: @%d\n", TEST_LOOP_CNT);
     measure_execution_time(int_add_test, "int_add_test");
     measure_execution_time(int_sub_test, "int_sub_test");
     measure_execution_time(int_mul_test, "int_mul_test");
     measure_execution_time(int_div_test, "int_div_test");
 
-    printf("\nFloat Arithmetic Tests:\n");
+    printf("\nFloat Arithmetic Tests: @%d\n", TEST_LOOP_CNT);
     measure_execution_time(float_add_test, "float_add_test");
     measure_execution_time(float_sub_test, "float_sub_test");
     measure_execution_time(float_mul_test, "float_mul_test");
     measure_execution_time(float_div_test, "float_div_test");
 
-    printf("\nDouble Arithmetic Tests:\n");
+    printf("\nDouble Arithmetic Tests: @%d\n", TEST_LOOP_CNT);
     measure_execution_time(double_add_test, "double_add_test");
     measure_execution_time(double_sub_test, "double_sub_test");
     measure_execution_time(double_mul_test, "double_mul_test");
@@ -544,151 +547,6 @@ static void cmd_gpio(const dbg_cmd_args_t* p_args)
 }
 
 /**
- * @brief コマンドを履歴に追加する関数
- * 
- * @param p_cmd 追加するコマンド
- */
-static void add_to_cmd_history(const char* p_cmd)
-{
-    // 履歴を1つずつ下にずらす
-    for (int32_t i = CMD_HISTORY_MAX - 1; i > 0; i--) {
-        strcpy(s_cmd_history[i], s_cmd_history[i - 1]);
-    }
-
-    // 新しいコマンドを追加
-    strncpy(s_cmd_history[0], p_cmd, DBG_CMD_MAX_LEN - 1);
-    s_cmd_history[0][DBG_CMD_MAX_LEN - 1] = '\0';
-
-    // 履歴数を更新（最大値で制限）
-    if (s_history_count < CMD_HISTORY_MAX) {
-        s_history_count++;
-    }
-
-    // 履歴位置をリセット
-    s_history_pos = -1;
-}
-
-/**
- * @brief デバッグコマンドモニターの初期化
- */
-void dbg_com_init(void)
-{
-    cmd_help();
-}
-
-/**
- * @brief コマンド文字列を解析してコマンド種類を返す
- * 
- * @param p_cmd_str コマンド文字列
- * @param p_args 引数構造体
- * @return dbg_cmd_t コマンド種類
- */
-static dbg_cmd_t dbg_com_parse_cmd(const char* p_cmd_str, dbg_cmd_args_t* p_args)
-{
-    for (uint8_t i = 0; i < CMD_TBL_SIZE; i++)
-    {
-        if (strcmp(p_cmd_str, g_cmd_tbl[i].p_cmd_str) == 0) {
-            // 引数の数をチェック
-            if (p_args->argc - 1 < g_cmd_tbl[i].min_args || p_args->argc - 1 > g_cmd_tbl[i].max_args) {
-                printf("Error: Invalid number of arguments. Expected %d-%d, got %d\n",
-                    g_cmd_tbl[i].min_args, g_cmd_tbl[i].max_args, p_args->argc - 1);
-                return CMD_UNKNOWN;
-            }
-            return g_cmd_tbl[i].cmd_type;
-        }
-    }
-    return CMD_UNKNOWN;
-}
-
-/**
- * @brief コマンドを実行する
- * 
- * @param cmd コマンド種類
- * @param p_args 引数構造体
- */
-static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
-{
-    switch (cmd) {
-        case CMD_HELP:
-            cmd_help();
-            break;
-
-        case CMD_VER:
-            cmd_ver();
-            break;
-
-        case CMD_SYSTEM:
-            cmd_system();
-            break;
-
-        case CMD_AT_TEST:
-            cmd_at_test();
-            break;
-
-        case CMD_PI_CALC:
-            cmd_pi_calc(p_args);
-            break;
-
-        case CMD_TRIG:
-            cmd_trig();
-            break;
-
-        case CMD_ATAN2:
-            cmd_atan2();
-            break;
-
-        case CMD_TAN355:
-            cmd_tan355();
-            break;
-
-        case CMD_ISQRT:
-            cmd_isqrt();
-            break;
-
-        case CMD_TIMER:
-            cmd_timer(p_args);
-            break;
-
-        case CMD_GPIO:
-            cmd_gpio(p_args);
-            break;
-
-        case CMD_MEM_DUMP:
-            cmd_mem_dump(p_args);
-            break;
-
-        case CMD_I2C:
-            cmd_i2c(p_args);
-            break;
-
-        case CMD_RST:
-            cmd_rst();
-            break;
-
-        case CMD_REG:
-            cmd_reg(p_args);
-            break;
-
-        case CMD_RND:
-            cmd_rnd(p_args);
-            break;
-
-        case CMD_SHA:
-            cmd_sha(p_args);
-            break;
-
-        case CMD_NEOPIXEL:
-            cmd_neopixel(p_args);
-            break;
-
-        case CMD_UNKNOWN:
-        default:
-            cmd_unknown();
-            break;
-    }
-}
-
-/**
  * @brief メモリダンプコマンド関数
  * 
  * @param p_args コマンド引数の構造体ポインタ
@@ -873,10 +731,157 @@ static void cmd_neopixel(const dbg_cmd_args_t* p_args)
     }
 }
 
+
+/**
+ * @brief コマンドを履歴に追加する関数
+ * 
+ * @param p_cmd 追加するコマンド
+ */
+static void add_to_cmd_history(const char* p_cmd)
+{
+    // 履歴を1つずつ下にずらす
+    for (int32_t i = CMD_HISTORY_MAX - 1; i > 0; i--) {
+        strcpy(s_cmd_history[i], s_cmd_history[i - 1]);
+    }
+
+    // 新しいコマンドを追加
+    strncpy(s_cmd_history[0], p_cmd, DBG_CMD_MAX_LEN - 1);
+    s_cmd_history[0][DBG_CMD_MAX_LEN - 1] = '\0';
+
+    // 履歴数を更新（最大値で制限）
+    if (s_history_count < CMD_HISTORY_MAX) {
+        s_history_count++;
+    }
+
+    // 履歴位置をリセット
+    s_history_pos = -1;
+}
+
+/**
+ * @brief コマンド文字列を解析してコマンド種類を返す
+ * 
+ * @param p_cmd_str コマンド文字列
+ * @param p_args 引数構造体
+ * @return dbg_cmd_t コマンド種類
+ */
+static dbg_cmd_t dbg_com_parse_cmd(const char* p_cmd_str, dbg_cmd_args_t* p_args)
+{
+    for (uint8_t i = 0; i < CMD_TBL_SIZE; i++)
+    {
+        if (strcmp(p_cmd_str, g_cmd_tbl[i].p_cmd_str) == 0) {
+            // 引数の数をチェック
+            if (p_args->argc - 1 < g_cmd_tbl[i].min_args || p_args->argc - 1 > g_cmd_tbl[i].max_args) {
+                printf("Error: Invalid number of arguments. Expected %d-%d, got %d\n",
+                    g_cmd_tbl[i].min_args, g_cmd_tbl[i].max_args, p_args->argc - 1);
+                return CMD_UNKNOWN;
+            }
+            return g_cmd_tbl[i].cmd_type;
+        }
+    }
+    return CMD_UNKNOWN;
+}
+
+/**
+ * @brief コマンドを実行する
+ * 
+ * @param cmd コマンド種類
+ * @param p_args 引数構造体
+ */
+static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
+{
+    switch (cmd) {
+        case CMD_HELP:
+            cmd_help();
+            break;
+
+        case CMD_VER:
+            cmd_ver();
+            break;
+
+        case CMD_SYSTEM:
+            cmd_system();
+            break;
+
+        case CMD_AT_TEST:
+            cmd_at_test();
+            break;
+
+        case CMD_PI_CALC:
+            cmd_pi_calc(p_args);
+            break;
+
+        case CMD_TRIG:
+            cmd_trig();
+            break;
+
+        case CMD_ATAN2:
+            cmd_atan2();
+            break;
+
+        case CMD_TAN355:
+            cmd_tan355();
+            break;
+
+        case CMD_ISQRT:
+            cmd_isqrt();
+            break;
+
+        case CMD_TIMER:
+            cmd_timer(p_args);
+            break;
+
+        case CMD_GPIO:
+            cmd_gpio(p_args);
+            break;
+
+        case CMD_MEM_DUMP:
+            cmd_mem_dump(p_args);
+            break;
+
+        case CMD_I2C:
+            cmd_i2c(p_args);
+            break;
+
+        case CMD_RST:
+            cmd_rst();
+            break;
+
+        case CMD_REG:
+            cmd_reg(p_args);
+            break;
+
+        case CMD_RND:
+            cmd_rnd(p_args);
+            break;
+
+        case CMD_SHA:
+            cmd_sha(p_args);
+            break;
+
+        case CMD_NEOPIXEL:
+            cmd_neopixel(p_args);
+            break;
+
+        case CMD_UNKNOWN:
+        default:
+            cmd_unknown();
+            break;
+    }
+}
+
+
+/**
+ * @brief デバッグコマンドモニターの初期化
+ */
+void dbg_com_init(void)
+{
+    cmd_help();
+}
+
 /**
  * @brief デバッグコマンドモニターのメイン処理
  */
-void dbg_com_process(void)
+void dbg_com_main(void)
 {
     dbg_cmd_args_t args;
 

@@ -104,6 +104,6 @@ typedef struct {
 
 // 関数プロトタイプ
 void dbg_com_init(void);
-void dbg_com_process(void);
+void dbg_com_main(void);
 
 #endif // DBG_COM_H

@@ -91,15 +91,19 @@ double app_math_pi_calc(uint32_t cnt)
 // フィボナッチ数列の計算
 uint32_t app_math_fibonacci_calc(uint32_t cnt)
 {
-    uint32_t fib = 0;
+    uint32_t val_a, val_b, fib = 0;
 
-    fib = app_math_fibonacci_calc(cnt - 1) + app_math_fibonacci_calc(cnt - 2);
-
-    if (cnt <= 1) {
-        return cnt;
+    if (cnt == 0) {
+        fib = 0;
+    } else if (cnt == 1) {
+        fib = 1;  // ここを1に修正
     } else {
-        return fib;
+        val_a = app_math_fibonacci_calc(cnt - 1);
+        val_b = app_math_fibonacci_calc(cnt - 2);
+        fib = val_a + val_b;
     }
+
+    return fib;
 }
 
 // 黄金比の計算
@@ -137,10 +141,10 @@ float app_math_fast_inv_sqrt(float num)
 
 void app_math_fibonacci(uint32_t n)
 {
-    uint32_t i,fib;
+    uint32_t i, fib = 0;
 
     printf("Fibonacci : ");
-    for(uint8_t i = 1; i < n; i++)
+    for(i = 1; i < n; i++)
     {
         fib = app_math_fibonacci_calc(i);
         printf("%d ", fib);

@@ -57,7 +57,7 @@ void app_core_1_main(void)
         }
         sleep_ms(50);
 #else
-        dbg_com_process();
+        dbg_com_main();
 #endif
         WDT_RST();
     }

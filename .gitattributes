@@ -1,0 +1,39 @@
+# .gitattributes
+# 概要: GitHubの言語認識機能の誤認識を対策するファイル
+# Ver: 0.1 (2025/7/20)
+# Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu) All Rights Reserved.
+
+# C言語
+*.c     linguist-language=C
+*.h     linguist-language=C
+
+# C++
+*.cpp   linguist-language=C++
+*.hpp   linguist-language=C++
+
+# Rust
+*.rs linguist-language=Rust
+
+# アセンブラ
+*.s     linguist-language=Assembly
+*.asm   linguist-language=Assembly
+
+# Verilog HDL
+*.v     linguist-language=Verilog
+
+# SystemVerilog
+# ※VerylはSystemVerilogで認識してもらう
+*.sv    linguist-language=SystemVerilog
+.veryl  linguist-language=SystemVerilog
+
+# Python
+*.py linguist-language=Python
+
+# javascript
+*.js linguist-language=JavaScript
+
+# HTML
+*.html linguist-language=HTML
+
+# CSS
+*.css linguist-language=CSS
