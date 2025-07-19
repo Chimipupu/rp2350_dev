@@ -12,6 +12,7 @@
 #include "app_main.h"
 #include "mcu_util.h"
 #include "mcu_board_def.h"
+#include "app_math.h"
 
 #include "drv_neopixel.h"
 extern neopixel_t s_neopixel;
@@ -304,10 +305,12 @@ static void cmd_pi_calc(const dbg_cmd_args_t* p_args)
             return;
         }
     }
+
     printf("\nCalculating Pi using Gauss-Legendre algorithm (%d iterations):\n", iterations);
-    for (int32_t i = 1; i <= iterations; i++) {
+    for (uint32_t i = 1; i <= iterations; i++)
+    {
         volatile uint32_t start_time = time_us_32();
-        pi = calculate_pi_gauss_legendre(i);
+        pi = app_math_pi_calc(i);
         volatile uint32_t end_time = time_us_32();
         printf("Iteration %d: π ≈ %.15f (proc time: %u us)\n", i, pi, end_time - start_time);
     }

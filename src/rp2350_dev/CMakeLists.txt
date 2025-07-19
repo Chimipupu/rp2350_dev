@@ -41,6 +41,7 @@ add_executable(rp2350_dev
             app_cpu_core_0.c
             app_cpu_core_1.c
             app_main.c
+            app_math.c
             dbg_com.c
             mcu_util.c
             )

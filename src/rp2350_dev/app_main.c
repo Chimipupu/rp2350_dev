@@ -1,7 +1,7 @@
 /**
  * @file app_main.c
  * @author Chimipupu(https://github.com/Chimipupu)
- * @brief アプリメイン
+ * @brief 数学アプリヘッダ
  * @version 0.1
  * @date 2025-06-13
  * 
@@ -252,28 +252,6 @@ void inverse_sqrt_test(void)
     for (int i = 0; i < count; i++) {
         result = 1.0 / sqrt(numbers[i]);
     }
-}
-
-double calculate_pi_gauss_legendre(int iterations)
-{
-    volatile double a = 1.0;
-    volatile double b = 1.0 / sqrt(2.0);
-    volatile double t = 0.25;
-    volatile double p = 1.0;
-
-    for (int i = 0; i < iterations; i++) {
-        double a_next = (a + b) / 2.0;
-        double b_next = sqrt(a * b);
-        double t_next = t - p * (a - a_next) * (a - a_next);
-        double p_next = 2.0 * p;
-
-        a = a_next;
-        b = b_next;
-        t = t_next;
-        p = p_next;
-    }
-
-    return (a + b) * (a + b) / (4.0 * t);
 }
 
 /**

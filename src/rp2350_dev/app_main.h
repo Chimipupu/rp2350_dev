@@ -3,7 +3,7 @@
  * @author Chimipupu(https://github.com/Chimipupu)
  * @brief アプリメインのヘッダ
  * @version 0.1
- * @date 2025-06-13
+ * @date 2025-07-19
  * 
  * @copyright Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
  * 
@@ -35,7 +35,6 @@ void core_1_main(void);
 void pico_sdk_version_print(void);
 void i2c_slave_scan(uint8_t i2c_port);
 void measure_execution_time(void (*p_func)(void), const char* p_func_name, ...);
-double calculate_pi_gauss_legendre(int iterations);
 void trig_functions_test(void);
 void atan2_test(void);
 void tan_355_226_test(void);
