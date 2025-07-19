@@ -21,6 +21,30 @@ static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];
 static uint8_t s_history_count = 0;  // コマンド履歴の数
 static int8_t s_history_pos = -1;    // 現在の履歴位置（-1は最新）
 
+// コマンドテーブル
+#define CMD_TBL_SIZE    18
+const dbg_cmd_info_t g_cmd_tbl[CMD_TBL_SIZE] = {
+//  | コマンド文字列 | コマンド種類 | 説明 | 最小引数数 | 最大引数数 |
+    {"help",      CMD_HELP,       "Show this help message", 0, 0},
+    {"ver",       CMD_VER,        "Show F/W version", 0, 0},
+    {"sys",       CMD_SYSTEM,     "Show system information", 0, 0},
+    {"rst",       CMD_RST,        "Reboot", 0, 0},
+    {"mem_dump",  CMD_MEM_DUMP,   "Dump memory contents (address, length)", 2, 2},
+    {"reg",       CMD_REG,        "Register read/write: reg #addr r|w bits [#val]", 3, 4},
+    {"i2c",       CMD_I2C,        "I2C control (port, command)", 2, 2},
+    {"gpio",      CMD_GPIO,       "Control GPIO pin (pin, value)", 2, 2},
+    {"neopixel",  CMD_NEOPIXEL,   "Control NeoPixel (command, args)", 1, 2},
+    {"timer",     CMD_TIMER,      "Set timer alarm (seconds)", 0, 1},
+    {"rnd",       CMD_RND,        "Generate true random numbers using TRNG", 0, 1},
+    {"sha",       CMD_SHA,        "Calc SHA-256 Hash using H/W Accelerator", 0, 1},
+    {"at",        CMD_AT_TEST,    "int/float/double arithmetic test", 0, 0},
+    {"pi",        CMD_PI_CALC,    "Calculate pi using Gauss-Legendre", 0, 1},
+    {"trig",      CMD_TRIG,       "Run sin,cos,tan functions test", 0, 0},
+    {"atan2",     CMD_ATAN2,      "Run atan2 test", 0, 0},
+    {"tan355",    CMD_TAN355,     "Run tan(355/226) test", 0, 0},
+    {"isqrt",     CMD_ISQRT,      "Run 1/sqrt(x) test", 0, 0},
+};
+
 static void sort_available_orders(void);
 static void dbg_com_init_msg(void);
 static void cmd_help(void);
@@ -42,29 +66,6 @@ static void cmd_mem_dump(const dbg_cmd_args_t* p_args);
 static void cmd_i2c(const dbg_cmd_args_t* p_args);
 static void cmd_reg(const dbg_cmd_args_t* p_args);
 static void cmd_neopixel(const dbg_cmd_args_t* p_args);
-
-// コマンドテーブル
-static const dbg_cmd_info_t s_cmd_table[] = {
-    {"help",    CMD_HELP,       "Show this help message", 0, 0},
-    {"ver",     CMD_VER,        "Show F/W version", 0, 0},
-    {"sys",     CMD_SYSTEM,     "Show system information", 0, 0},
-    {"rst",     CMD_RST,        "Reboot", 0, 0},
-    {"mem_dump", CMD_MEM_DUMP,  "Dump memory contents (address, length)", 2, 2},
-    {"reg",     CMD_REG,        "Register read/write: reg #addr r|w bits [#val]", 3, 4},
-    {"i2c",     CMD_I2C,        "I2C control (port, command)", 2, 2},
-    {"gpio",    CMD_GPIO,       "Control GPIO pin (pin, value)", 2, 2},
-    {"neopixel", CMD_NEOPIXEL,  "Control NeoPixel (command, args)", 1, 2},
-    {"timer",   CMD_TIMER,      "Set timer alarm (seconds)", 0, 1},
-    {"rnd",     CMD_RND,        "Generate true random numbers using TRNG", 0, 1},
-    {"sha",     CMD_SHA,        "Calc SHA-256 Hash using H/W Accelerator", 0, 1},
-    {"at",      CMD_AT_TEST,    "int/float/double arithmetic test", 0, 0},
-    {"pi",      CMD_PI_CALC,    "Calculate pi using Gauss-Legendre", 0, 1},
-    {"trig",    CMD_TRIG,       "Run sin,cos,tan functions test", 0, 0},
-    {"atan2",   CMD_ATAN2,      "Run atan2 test", 0, 0},
-    {"tan355",  CMD_TAN355,     "Run tan(355/226) test", 0, 0},
-    {"isqrt",   CMD_ISQRT,      "Run 1/sqrt(x) test", 0, 0},
-    {NULL,      CMD_UNKNOWN, NULL, 0, 0}
-};
 
 // コマンドバッファ
 static char s_cmd_buffer[DBG_CMD_MAX_LEN];
@@ -191,8 +192,9 @@ static void cmd_help(void)
     dbg_com_init_msg();
 
     printf("\nAvailable commands:\n");
-    for (int32_t i = 0; s_cmd_table[i].p_cmd_str != NULL; i++) {
-        printf("  %-10s - %s\n", s_cmd_table[i].p_cmd_str, s_cmd_table[i].p_description);
+    for (uint8_t i = 0; i < CMD_TBL_SIZE; i++)
+    {
+        printf("  %-10s - %s\n", g_cmd_tbl[i].p_cmd_str, g_cmd_tbl[i].p_description);
     }
 }
 
@@ -580,15 +582,16 @@ void dbg_com_init(void)
  */
 static dbg_cmd_t dbg_com_parse_cmd(const char* p_cmd_str, dbg_cmd_args_t* p_args)
 {
-    for (int32_t i = 0; s_cmd_table[i].p_cmd_str != NULL; i++) {
-        if (strcmp(p_cmd_str, s_cmd_table[i].p_cmd_str) == 0) {
+    for (uint8_t i = 0; i < CMD_TBL_SIZE; i++)
+    {
+        if (strcmp(p_cmd_str, g_cmd_tbl[i].p_cmd_str) == 0) {
             // 引数の数をチェック
-            if (p_args->argc - 1 < s_cmd_table[i].min_args || p_args->argc - 1 > s_cmd_table[i].max_args) {
+            if (p_args->argc - 1 < g_cmd_tbl[i].min_args || p_args->argc - 1 > g_cmd_tbl[i].max_args) {
                 printf("Error: Invalid number of arguments. Expected %d-%d, got %d\n",
-                    s_cmd_table[i].min_args, s_cmd_table[i].max_args, p_args->argc - 1);
+                    g_cmd_tbl[i].min_args, g_cmd_tbl[i].max_args, p_args->argc - 1);
                 return CMD_UNKNOWN;
             }
-            return s_cmd_table[i].cmd_type;
+            return g_cmd_tbl[i].cmd_type;
         }
     }
     return CMD_UNKNOWN;
@@ -676,6 +679,7 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
             break;
 
         case CMD_UNKNOWN:
+        default:
             cmd_unknown();
             break;
     }
@@ -817,8 +821,11 @@ static int get_neopixel_color_from_name(const char* name)
 
 static int parse_hex_color(const char* str, uint8_t *r, uint8_t *g, uint8_t *b)
 {
-    if (str == NULL || strlen(str) != 7 || str[0] != '#') return -1;
-    unsigned int rv, gv, bv;
+    if ((str == NULL) || (strlen(str) != 7) || (str[0] != '#')) {
+        return -1;
+    }
+
+    uint8_t rv, gv, bv = 0;
     if (sscanf(str+1, "%02x%02x%02x", &rv, &gv, &bv) == 3) {
         *r = (uint8_t)rv;
         *g = (uint8_t)gv;

@@ -77,12 +77,15 @@ typedef enum {
 
 // コマンド構造体
 typedef struct {
-    const char* p_cmd_str;     // コマンド文字列
-    dbg_cmd_t cmd_type;        // コマンド種類
-    const char* p_description; // コマンドの説明
-    int32_t min_args;          // 最小引数数
-    int32_t max_args;          // 最大引数数
+    const char* p_cmd_str;           // コマンド文字列
+    dbg_cmd_t cmd_type;              // コマンド種類
+    const char* p_description;       // コマンドの説明
+    int32_t min_args;                // 最小引数数
+    int32_t max_args;                // 最大引数数
 } dbg_cmd_info_t;
+
+#pragma once
+extern const dbg_cmd_info_t g_cmd_tbl[];
 
 // コマンド引数構造体
 typedef struct {
