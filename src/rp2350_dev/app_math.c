@@ -226,9 +226,6 @@ void app_math_math_test(void)
     printf("[App Math Test]\n");
     printf("**************************************************************************\n");
 
-    // マンデルブロ集合の描画
-    app_math_mandelbrot();
-
     // tan(355/226)の計算（※期待値:-7497258.185...）
     result = app_math_calc_accuracy();
     printf("tan(355/226) = %.3f\n", result);
@@ -254,5 +251,9 @@ void app_math_math_test(void)
         invsqrt = app_math_fast_inv_sqrt(i);
         printf("%d's inv sqrt = %.15f\n", i, invsqrt);
     }
+
+    // マンデルブロ集合の描画
+    app_math_mandelbrot();
+
     printf("**************************************************************************\n");
 }

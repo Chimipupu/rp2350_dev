@@ -55,6 +55,9 @@ void cyw43_led_tgl(void);
 #endif // MCU_BOARD_WEACT_RP2350B
 #define MCU_RAM_SIZE      520                       // RP2350のSRAMサイズ (520KB)
 
+// [PIO関連]
+// #define RPI_PIO_USE
+
 // [NeoPixel]
 #define MCU_BOARD_NEOPIXEL
 #ifdef MCU_BOARD_NEOPIXEL

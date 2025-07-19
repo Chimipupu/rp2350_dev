@@ -60,7 +60,8 @@
         "mcu_board_def.h": "c",
         "random": "c",
         "app_math.h": "c",
-        "functional": "c"
+        "functional": "c",
+        "blink.pio.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }

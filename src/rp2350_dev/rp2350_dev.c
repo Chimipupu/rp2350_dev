@@ -26,8 +26,8 @@ void cyw43_led_tgl(void)
 const char src[] = "Hello, world! (from DMA)";
 char dst[count_of(src)];
 
+#ifdef RPI_PIO_USE
 #include "blink.pio.h"
-
 void blink_pin_forever(PIO pio, uint sm, uint offset, uint pin, uint freq)
 {
     blink_program_init(pio, sm, offset, pin);
@@ -39,6 +39,7 @@ void blink_pin_forever(PIO pio, uint sm, uint offset, uint pin, uint freq)
     // input (wait for n + 1; mov; jmp)
     pio->txf[sm] = (125000000 / (2 * freq)) - 3;
 }
+#endif
 
 #ifdef TIMER_ALARM_IRQ_ENABLE
 /**
@@ -113,14 +114,23 @@ int main()
     // DMAで転送
     puts(dst);
 
+#ifdef RPI_PIO_USE
     // PIO初期化
     PIO pio = pio0;
     uint offset = pio_add_program(pio, &blink_program);
     printf("Loaded program at %d\n", offset);
+#endif //RPI_PIO_USE
 
 #if defined(MCU_BOARD_PICO2) || defined(MCU_BOARD_WEACT_RP2350B)
-    // PIOでLチカ
+#ifdef RPI_PIO_USE
+    // マイコンのPIOが並列でLチカ
     blink_pin_forever(pio, 0, offset, MCU_BOARD_LED_PIN, 5);
+#else
+    // マイコンのCPUでGPIOからLチカ
+    gpio_set_function(MCU_BOARD_LED_PIN, GPIO_FUNC_SIO);
+    gpio_set_dir(MCU_BOARD_LED_PIN, GPIO_OUT);
+    gpio_put(MCU_BOARD_LED_PIN, 1);
+#endif // RPI_PIO_USE
 #elif defined(MCU_BOARD_PICO2W)
     // RFモジュールでLED制御
     cyw43_arch_init();
