@@ -24,7 +24,7 @@ void app_core_1_main(void)
 {
     // uint32_t core_num = get_core_num();
 
-    sleep_ms(100); // Core0の初期化待ち
+    sleep_ms(300); // Core0の初期化待ち
 
     // NeoPixel初期化(PIOで並列処理)
     s_neopixel.led_cnt = NEOPIXEL_LED_CNT;

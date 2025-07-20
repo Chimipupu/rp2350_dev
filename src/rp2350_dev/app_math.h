@@ -30,7 +30,10 @@
 #define MATH_E      M_E
 #endif
 
-#define UNKNOWN_VAL 0
+#define UNKNOWN_VAL    0
+
+// 四則演算の回数（整数、float,double）100万回
+#define TEST_LOOP_CNT 1000000
 
 #define MATH_DEG_TO_RAD(deg)    (deg * M_PI) / 180.0f      // 度からラジアン
 #define MATH_RAD_TO_DEG(rad)    ((rad) * 180.0f / M_PI)    // ラジアンから度
@@ -47,5 +50,21 @@ void app_math_fibonacci(uint32_t n);
 void app_math_prime(uint32_t n);
 void app_math_mandelbrot(void);
 void app_math_math_test(void);
+void trig_functions_test(void);
+void atan2_test(void);
+void tan_355_226_test(void);
+void inverse_sqrt_test(void);
+void int_add_test(void);
+void int_sub_test(void);
+void int_mul_test(void);
+void int_div_test(void);
+void float_add_test(void);
+void float_sub_test(void);
+void float_mul_test(void);
+void float_div_test(void);
+void double_add_test(void);
+void double_sub_test(void);
+void double_mul_test(void);
+void double_div_test(void);
 
 #endif // APP_MATH_H

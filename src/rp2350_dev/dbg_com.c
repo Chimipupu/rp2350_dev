@@ -23,8 +23,8 @@ static uint8_t s_history_count = 0;  // コマンド履歴の数
 static int8_t s_history_pos = -1;    // 現在の履歴位置（-1は最新）
 
 // コマンドテーブル
-#define CMD_TBL_SIZE    18
-const dbg_cmd_info_t g_cmd_tbl[CMD_TBL_SIZE] = {
+#define CMD_TBL_SIZE    13
+const dbg_cmd_info_t g_cmd_tbl[] = {
 //  | コマンド文字列 | コマンド種類 | 説明 | 最小引数数 | 最大引数数 |
     {"help",      CMD_HELP,       "Show this help message", 0, 0},
     {"cls",       CMD_CLS,        "Display Clear", 0, 0},
@@ -38,12 +38,7 @@ const dbg_cmd_info_t g_cmd_tbl[CMD_TBL_SIZE] = {
     {"tm",        CMD_TIMER,      "Set timer alarm (seconds)", 0, 1},
     {"rnd",       CMD_RND,        "Generate true random numbers using TRNG", 0, 1},
     {"sha",       CMD_SHA,        "Calc SHA-256 Hash using H/W Accelerator", 0, 1},
-    {"at",        CMD_AT_TEST,    "int/float/double arithmetic & math test", 0, 0},
-    {"pi",        CMD_PI_CALC,    "Calculate pi using Gauss-Legendre", 0, 1},
-    {"trig",      CMD_TRIG,       "Run sin,cos,tan functions test", 0, 0},
-    {"atan2",     CMD_ATAN2,      "Run atan2 test", 0, 0},
-    {"tan355",    CMD_TAN355,     "Run tan(355/226) test", 0, 0},
-    {"isqrt",     CMD_ISQRT,      "Run 1/sqrt(x) test", 0, 0},
+    {"mt",        CMD_MT_TEST,    " math test", 0, 0},
 };
 
 static void sort_available_orders(void);
@@ -51,16 +46,12 @@ static void dbg_com_init_msg(void);
 static void cmd_help(void);
 static void cmd_cls(void);
 static void cmd_system(void);
-static void cmd_at_test(void);
+static void cmd_mt_test(void);
 static void cmd_pi_calc(const dbg_cmd_args_t* p_args);
 static void cmd_rnd(const dbg_cmd_args_t* p_args);
 static void cmd_sha(const dbg_cmd_args_t* p_args);
 static void cmd_rst(void);
 static void cmd_unknown(void);
-static void cmd_trig(void);
-static void cmd_atan2(void);
-static void cmd_tan355(void);
-static void cmd_isqrt(void);
 static void cmd_timer(const dbg_cmd_args_t* p_args);
 static void cmd_gpio(const dbg_cmd_args_t* p_args);
 static void cmd_mem_dump(const dbg_cmd_args_t* p_args);
@@ -237,43 +228,53 @@ static void cmd_system(void)
 #endif
 
     // ROM/RAM
+    printf("[Mem Info]\n");
     printf("RP2350 Flash Size : %d MB\n", MCU_FLASH_SIZE);
     printf("RP2350 RAM Size : %d KB\n", MCU_RAM_SIZE);
 
     // Clock
+    printf("[Clock Info]\n");
     printf("System Clock : %d MHz\n", sys_clock);
     printf("USB Clock : %d MHz\n", usb_clock);
 
     // GPIO
-    printf("GPIO %d :On Board LED Pin\n", MCU_BOARD_LED_PIN);
+    printf("[GPIO Info]\n");
 #if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
     printf("GPIO %d :On Board Button Pin\n", MCU_BOARD_BTN_PIN);
-#endif
+#endif // MCU_BOARD_WEACT_RP2350A_V10
+    printf("GPIO %d : On Board LED Pin\n", MCU_BOARD_LED_PIN);
+#ifdef MCU_BOARD_NEOPIXEL
+    printf("GPIO %d : NeoPixel Data Pin\n", MCU_BOARD_NEOPIXEL_PIN);
+    printf("NeoPixel Count : %d\n", NEOPIXEL_LED_CNT);
+#endif // MCU_BOARD_NEOPIXEL
 
     // I2C
-    printf("[I2C0] Bit Rate %d bps,GPIO %d(SDA), GPIO %d(SCL)\n",
+    printf("[I2C Info]\n");
+    printf("I2C 0 : %d bps, SDA/SCL (GPIO %d/%d)\n",
             I2C_BIT_RATE, I2C_0_SDA, I2C_0_SCL);
-    printf("[I2C1] Bit Rate %d bps,GPIO %d(SDA), GPIO %d(SCL)\n",
+    printf("I2C 1 : %d bps, SDA/SCL (GPIO %d/%d)\n",
             I2C_BIT_RATE, I2C_1_SDA, I2C_1_SCL);
 
     // SPI
-    printf("[SPI0] Bit Rate %d bps,GPIO %d(CS), GPIO %d(SCK), GPIO %d(MISO), GPIO %d(MOSI)\n",
+    printf("[SPI Info]\n");
+    printf("SPI 0 : %d bps, CS/SCK/MISO/MOSI(GPIO %d/%d/%d/%d)\n",
             SPI_BIT_RATE, SPI_0_CS, SPI_0_SCK, SPI_0_MISO, SPI_0_MOSI);
-    printf("[SPI1] Bit Rate %d bps,GPIO %d(CS), GPIO %d(SCK), GPIO %d(MISO), GPIO %d(MOSI)\n",
+    printf("SPI 1 : %d bps, CS/SCK/MISO/MOSI(GPIO %d/%d/%d/%d)\n",
             SPI_BIT_RATE, SPI_1_CS, SPI_1_SCK, SPI_1_MISO, SPI_1_MOSI);
-
     // UART
-    printf("[UART0]Baud Rate %d bps, GPIO %d(TX), GPIO %d(RX)\n",
+    printf("[UART Info]\n");
+    printf("UART 0 : %d bps 8N1, TX/RX (GPIO %d%d)\n",
             UART_BAUD_RATE, UART_0_TX, UART_0_RX);
-    printf("[UART1]Baud Rate %d bps, GPIO %d(TX), GPIO %d(RX)\n",
+    printf("UART 1 : %d bps 8N1, TX/RX (GPIO %d%d)\n",
             UART_BAUD_RATE, UART_1_TX, UART_1_RX);
 }
 
-static void cmd_at_test(void)
+static void cmd_mt_test(void)
 {
     // 数学関連テスト
     app_math_math_test();
 
+    // 四則演算テスト(inr,float,double)
     printf("\nInteger Arithmetic Test: @%d\n", TEST_LOOP_CNT);
     proc_exec_time(int_add_test, "int_add_test");
     proc_exec_time(int_sub_test, "int_sub_test");
@@ -396,39 +397,6 @@ static void cmd_rst(void)
 static void cmd_unknown(void)
 {
     printf("Unknown command. Type 'help' for available commands.\n");
-}
-
-static void cmd_trig(void)
-{
-    printf("\nTrigonometric Functions Test:\n");
-    proc_exec_time(trig_functions_test, "trig_functions_test");
-    printf("Test completed: sin(45°), cos(45°), tan(45°)\n");
-}
-
-static void cmd_atan2(void)
-{
-    printf("\nAtan2 Test:\n");
-    proc_exec_time(atan2_test, "atan2_test");
-    printf("Test completed: atan2(1.0, 1.0)\n");
-}
-
-static void cmd_tan355(void)
-{
-    printf("\nTan(355/226) Test:\n");
-    double result = tan(355.0 / 226.0);
-    printf("Expected: %.5f\n", TAN_355_226_EXPECTED);
-    printf("Calculated: %.5f\n", result);
-    printf("Difference: %.5f (%.2f%%)\n",
-            result - TAN_355_226_EXPECTED,
-           ((result - TAN_355_226_EXPECTED) / TAN_355_226_EXPECTED) * 100.0);
-    proc_exec_time(tan_355_226_test, "tan_355_226_test");
-}
-
-static void cmd_isqrt(void)
-{
-    printf("\nInverse Square Root Test:\n");
-    proc_exec_time(inverse_sqrt_test, "inverse_sqrt_test");
-    printf("Test completed: 1/sqrt(x) for x = 2.0, 3.0, 4.0, 5.0\n");
 }
 
 /**
@@ -799,28 +767,8 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
             cmd_system();
             break;
 
-        case CMD_AT_TEST:
-            cmd_at_test();
-            break;
-
-        case CMD_PI_CALC:
-            cmd_pi_calc(p_args);
-            break;
-
-        case CMD_TRIG:
-            cmd_trig();
-            break;
-
-        case CMD_ATAN2:
-            cmd_atan2();
-            break;
-
-        case CMD_TAN355:
-            cmd_tan355();
-            break;
-
-        case CMD_ISQRT:
-            cmd_isqrt();
+        case CMD_MT_TEST:
+            cmd_mt_test();
             break;
 
         case CMD_TIMER:

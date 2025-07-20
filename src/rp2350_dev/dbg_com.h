@@ -74,12 +74,7 @@ typedef enum {
     CMD_TIMER,      // タイマーコマンド
     CMD_RND,        // 真性乱数をH/WのTRANGで生成
     CMD_SHA,        // H/WでSHA-256のハッシュ値を計算
-    CMD_AT_TEST,    // int/float/double四則演算テスト
-    CMD_PI_CALC,    // 円周率計算
-    CMD_TRIG,       // 三角関数テスト
-    CMD_ATAN2,      // atan2テスト
-    CMD_TAN355,     // tan(355/226)テスト
-    CMD_ISQRT,      // 逆平方根テスト
+    CMD_MT_TEST,    // 論理演算/四則演算/数学アプリのテスト
     CMD_UNKNOWN     // 不明なコマンド
 } dbg_cmd_t;
 

@@ -213,6 +213,183 @@ void app_math_mandelbrot(void)
     }
 }
 
+
+void int_add_test(void)
+{
+    volatile uint32_t val, i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val += 1;
+    }
+}
+
+void int_sub_test(void)
+{
+    volatile uint32_t i = 0;
+    volatile uint32_t val = TEST_LOOP_CNT;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val -= 1;
+    }
+}
+
+void int_mul_test(void)
+{
+    volatile uint32_t i = 0;
+    volatile uint32_t val = 1;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val * 1;
+    }
+}
+
+void int_div_test(void)
+{
+    volatile uint32_t i = 0;
+    volatile uint32_t val = 1;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val / 1;
+    }
+}
+
+void float_add_test(void)
+{
+    volatile float val = 0.0f;
+    volatile float inc = 1.0f;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val + inc;
+    }
+}
+
+void float_sub_test(void)
+{
+    volatile float val = TEST_LOOP_CNT;
+    volatile float dec = 1.0f;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val - dec;
+    }
+}
+
+void float_mul_test(void)
+{
+    volatile float val = 1.0f;
+    volatile float mul = 1.0f;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val * mul;
+    }
+}
+
+void float_div_test(void)
+{
+    volatile float val = 1.0f;
+    volatile float div = 1.0f;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val / div;
+    }
+}
+
+void double_add_test(void)
+{
+    volatile double val = 0.0;
+    volatile double inc = 1.0;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val + inc;
+    }
+}
+
+void double_sub_test(void)
+{
+    volatile double val = TEST_LOOP_CNT;
+    volatile double dec = 1.0;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val - dec;
+    }
+}
+
+void double_mul_test(void)
+{
+    volatile double val = 1.0;
+    volatile double mul = 1.0;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val * mul;
+    }
+}
+
+void double_div_test(void)
+{
+    volatile double val = 1.0;
+    volatile double div = 1.0;
+    volatile uint32_t i = 0;
+
+    for (i = 0; i < TEST_LOOP_CNT; i++)
+    {
+        val = val / div;
+    }
+}
+
+void trig_functions_test(void)
+{
+    volatile double angle = 45.0;  // 45 degrees
+    volatile double rad = angle * M_PI / 180.0;  // convert to radians
+    volatile double sin_val, cos_val, tan_val;
+
+    sin_val = sin(rad);
+    cos_val = cos(rad);
+    tan_val = tan(rad);
+}
+
+void atan2_test(void)
+{
+    volatile double x = 1.0;
+    volatile double y = 1.0;
+    volatile double result;
+
+    result = atan2(y, x);
+}
+
+void tan_355_226_test(void)
+{
+    volatile double result;
+    result = tan(355.0 / 226.0);
+}
+
+void inverse_sqrt_test(void)
+{
+    volatile double numbers[] = {2.0, 3.0, 4.0, 5.0};
+    volatile int count = sizeof(numbers) / sizeof(numbers[0]);
+    volatile double result;
+
+    for (int i = 0; i < count; i++) {
+        result = 1.0 / sqrt(numbers[i]);
+    }
+}
+
 void app_math_math_test(void)
 {
     uint32_t i,fib;
