@@ -1,0 +1,3 @@
+[submodule "picosdk_mapfile_paser_py"]
+	path = picosdk_mapfile_paser_py
+	url = https://github.com/Chimipupu/picosdk_mapfile_paser_py.git
