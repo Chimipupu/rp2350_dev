@@ -27,7 +27,7 @@ static int8_t s_history_pos = -1;    // 現在の履歴位置（-1は最新）
 const dbg_cmd_info_t g_cmd_tbl[CMD_TBL_SIZE] = {
 //  | コマンド文字列 | コマンド種類 | 説明 | 最小引数数 | 最大引数数 |
     {"help",      CMD_HELP,       "Show this help message", 0, 0},
-    {"ver",       CMD_VER,        "Show F/W version", 0, 0},
+    {"cls",       CMD_CLS,        "Display Clear", 0, 0},
     {"sys",       CMD_SYSTEM,     "Show system information", 0, 0},
     {"rst",       CMD_RST,        "Reboot", 0, 0},
     {"memd",      CMD_MEM_DUMP,    "Memory Dump Command. args -> (#address, length)", 2, 2},
@@ -49,7 +49,7 @@ const dbg_cmd_info_t g_cmd_tbl[CMD_TBL_SIZE] = {
 static void sort_available_orders(void);
 static void dbg_com_init_msg(void);
 static void cmd_help(void);
-static void cmd_ver(void);
+static void cmd_cls(void);
 static void cmd_system(void);
 static void cmd_at_test(void);
 static void cmd_pi_calc(const dbg_cmd_args_t* p_args);
@@ -199,12 +199,9 @@ static void cmd_help(void)
     }
 }
 
-static void cmd_ver(void)
+static void cmd_cls(void)
 {
-    printf("F/W : Ver %d.%d.%d\n",
-            FW_VERSION_MAJOR,
-            FW_VERSION_MINOR,
-            FW_VERSION_REVISION);
+    printf(ANSI_ESC_CLS);
 }
 
 static void cmd_system(void)
@@ -794,8 +791,8 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
             cmd_help();
             break;
 
-        case CMD_VER:
-            cmd_ver();
+        case CMD_CLS:
+            cmd_cls();
             break;
 
         case CMD_SYSTEM:
@@ -869,12 +866,12 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
     }
 }
 
-
 /**
  * @brief デバッグコマンドモニターの初期化
  */
 void dbg_com_init(void)
 {
+    printf(ANSI_ESC_CLS);
     cmd_help();
 }
 

@@ -22,15 +22,16 @@ static rgb_color_t s_rgb_buf[NEOPIXEL_LED_CNT] = {0};
  */
 void app_core_1_main(void)
 {
-#if 1
+    // uint32_t core_num = get_core_num();
+
+    sleep_ms(100); // Core0の初期化待ち
+
+    // NeoPixel初期化(PIOで並列処理)
     s_neopixel.led_cnt = NEOPIXEL_LED_CNT;
     s_neopixel.data_pin = MCU_BOARD_NEOPIXEL_PIN;
     memset(s_rgb_buf, 0, sizeof(s_rgb_buf));
     s_neopixel.p_pixel_grb_buf = &s_rgb_buf[0];
     drv_neopixel_init(&s_neopixel);
-#endif // MCU_BOARD_NEOPIXEL
-
-    // uint32_t core_num = get_core_num();
 
     pico_sdk_version_print();
 
@@ -43,22 +44,12 @@ void app_core_1_main(void)
     printf("System Clock:\t%d MHz\n", clock_get_hz(clk_sys) / 1000000);
     printf("USB Clock:\t%d MHz\n", clock_get_hz(clk_usb) / 1000000);
 
+    // デバッグモニタ初期化
     dbg_com_init();
 
     while(1)
     {
-#if 0
-        uint8_t r, g, b;
-        for (uint8_t i = 0; i < s_neopixel.led_cnt; i++)
-        {
-            drv_neopixel_pixel_color_fade(&r, &g, &b);
-            drv_neopixel_set_pixel_rgb(&s_neopixel, i, r, g, b);
-            WDT_RST;
-        }
-        sleep_ms(50);
-#else
         dbg_com_main();
-#endif
         WDT_RST();
     }
 }

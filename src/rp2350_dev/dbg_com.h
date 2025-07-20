@@ -49,13 +49,21 @@
 #define KEY_UP          'A'   // 十字キーの矢印上
 #define KEY_DOWN        'B'   // 十字キーの矢印下
 
-// 【メモリダンプコマンド】
-// 例) mem_dump #00000000 #100
+// ANSI ESC(エスケープシーケンス)
+#define ANSI_ESC_CLS            "\033[2J\033[H" // ANSI ESC 画面クリア
+#define ANSI_TXT_COLOR_RESET    "\e[0m"         // ANSI ESC 文字色 リセット
+#define ANSI_TXT_COLOR_WHITE    "\e[37sm"       // ANSI ESC 文字色 白
+#define ANSI_TXT_COLOR_RED      "\e[31m"        // ANSI ESC 文字色 赤
+#define ANSI_TXT_COLOR_GREEN    "\e[32m"        // ANSI ESC 文字色 緑
+#define ANSI_TXT_COLOR_YELLOW   "\e[33m"        // ANSI ESC 文字色 黄
+#define ANSI_TXT_COLOR_BLUE     "\e[34m"        // ANSI ESC 文字色 青
+#define ANSI_TXT_COLOR_PURPLE   "\e[35m"        // ANSI ESC 文字色 紫
+#define ANSI_TXT_COLOR_MAGENTA  "\e[36m"        // ANSI ESC 文字色 マゼンタ
 
 // コマンドの種類
 typedef enum {
     CMD_HELP,       // ヘルプ表示
-    CMD_VER,        // バージョン表示
+    CMD_CLS,        // 画面クリア
     CMD_SYSTEM,     // システム情報表示
     CMD_RST,        // リセット
     CMD_MEM_DUMP,   // メモリダンプ
