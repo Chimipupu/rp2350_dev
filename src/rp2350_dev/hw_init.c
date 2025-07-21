@@ -15,6 +15,7 @@
 static void hw_clock_init(void);
 static void hw_gpio_init(void);
 static void hw_pio_init(void);
+static void hw_interp_init(void);
 static void hw_pwm_init(void);
 static void hw_uart_init(void);
 static void hw_i2c_init(void);
@@ -101,6 +102,20 @@ static void hw_pio_init(void)
     // RFモジュールでLED制御
     cyw43_arch_init();
 #endif
+}
+
+/**
+ * @brief // 補間器(インターポレータ)初期化
+ * 
+ */
+static void hw_interp_init(void)
+{
+    interp_config cfg = interp_default_config();
+    interp_config_set_cross_result(&cfg, true);
+    // ACCUM0 gets lane 1 result:
+    interp_set_config(interp0, 0, &cfg);
+    // ACCUM1 gets lane 0 result:
+    interp_set_config(interp1, 0, &cfg);
 }
 
 static void hw_pwm_init(void)
@@ -196,7 +211,10 @@ static void hw_dma_init(void)
         count_of(src), // Number of transfers; in this case each is 1 byte.
         true           // Start immediately.
     );
+
+    // DMA転送を待機
     dma_channel_wait_for_finish_blocking(chan);
+
     // DMAで転送
     puts(dst);
 }
@@ -209,6 +227,13 @@ int main()
     // クロック初期化
     hw_clock_init();
 
+    // PIO初期化
+    hw_pio_init();
+
+    // 補間器(インターポレータ)初期化
+    // ※2Dのテクスチャマッピング用
+    hw_interp_init();
+
     // GPIO初期化
     hw_gpio_init();
 
@@ -218,9 +243,6 @@ int main()
     // UART初期化
     hw_uart_init();
 
-    // CPU Core1を起動
-    multicore_launch_core1(core_1_main);
-
     // I2C初期化
     hw_i2c_init();
 
@@ -229,10 +251,6 @@ int main()
 
     // DMA初期化
     hw_dma_init();
-
-    // 割り込み初期化
-    interp_config cfg = interp_default_config();
-    interp_set_config(interp0, 0, &cfg);
 
     // タイマー初期化
     hw_timer_init();
@@ -244,6 +262,9 @@ int main()
 
     printf("System Clock Frequency is %d Hz\n", clock_get_hz(clk_sys));
     printf("USB Clock Frequency is %d Hz\n", clock_get_hz(clk_usb));
+
+    // CPU Core1を起動
+    multicore_launch_core1(core_1_main);
 
     // CPU Core0 アプリメイン
     core_0_main();
