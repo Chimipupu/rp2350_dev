@@ -100,3 +100,16 @@ void hardware_calc_sha256(const uint8_t *p_data_buf, size_t len, uint8_t *p_hash
     sha256_get_result(&result, SHA256_BIG_ENDIAN);
     memcpy(p_hash_buf, result.bytes, 32);
 }
+
+uint32_t get_multicore_fifo(void)
+{
+    uint32_t data = 0;
+    data = multicore_fifo_pop_blocking();
+
+    return data;
+}
+
+void set_multicore_fifo(uint32_t data)
+{
+    multicore_fifo_push_blocking(data);
+}

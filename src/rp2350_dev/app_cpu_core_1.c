@@ -11,10 +11,12 @@
 #include "app_cpu_core_1.h"
 #include "app_main.h"
 #include "dbg_com.h"
+#include "mcu_util.h"
 
 #include "drv_neopixel.h"
 neopixel_t s_neopixel;
 static rgb_color_t s_rgb_buf[NEOPIXEL_LED_CNT] = {0};
+volatile uint32_t g_core_num_core_1 = 0xFF;
 
 /**
  * @brief CPU Core1のアプリメイン関数
@@ -22,9 +24,10 @@ static rgb_color_t s_rgb_buf[NEOPIXEL_LED_CNT] = {0};
  */
 void app_core_1_main(void)
 {
-    // uint32_t core_num = get_core_num();
+    g_core_num_core_1 = get_core_num();
 
-    sleep_ms(300); // Core0の初期化待ち
+     // Core0に起動通知
+    set_multicore_fifo(0x12345678);
 
     // NeoPixel初期化(PIOで並列処理)
     s_neopixel.led_cnt = NEOPIXEL_LED_CNT;

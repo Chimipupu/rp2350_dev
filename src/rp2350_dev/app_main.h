@@ -22,9 +22,9 @@
 #include "pico/stdlib.h"
 #include "hardware/clocks.h"
 
-#define FW_VERSION_MAJOR    0
-#define FW_VERSION_MINOR    1
-#define FW_VERSION_REVISION 0
+#define FW_VERSION_MAJOR        0
+#define FW_VERSION_MINOR        1
+#define FW_VERSION_REVISION     0
 
 void show_mem_dump(uint32_t dump_addr, uint32_t dump_size);
 void core_0_main(void);

@@ -9,9 +9,9 @@
  * 
  */
 #include "dbg_com.h"
-#include "app_main.h"
 #include "mcu_util.h"
 #include "mcu_board_def.h"
+#include "app_main.h"
 #include "app_math.h"
 
 #include "drv_neopixel.h"
@@ -23,7 +23,7 @@ static uint8_t s_history_count = 0;  // コマンド履歴の数
 static int8_t s_history_pos = -1;    // 現在の履歴位置（-1は最新）
 
 // コマンドテーブル
-#define CMD_TBL_SIZE    13
+#define CMD_TBL_SIZE    14
 const dbg_cmd_info_t g_cmd_tbl[] = {
 //  | コマンド文字列 | コマンド種類 | 説明 | 最小引数数 | 最大引数数 |
     {"help",      CMD_HELP,       "Show this help message", 0, 0},
@@ -38,7 +38,8 @@ const dbg_cmd_info_t g_cmd_tbl[] = {
     {"tm",        CMD_TIMER,      "Set timer alarm (seconds)", 0, 1},
     {"rnd",       CMD_RND,        "Generate true random numbers using TRNG", 0, 1},
     {"sha",       CMD_SHA,        "Calc SHA-256 Hash using H/W Accelerator", 0, 1},
-    {"mt",        CMD_MT_TEST,    " math test", 0, 0},
+    {"mt",        CMD_MT_TEST,    "Math test", 0, 0},
+    {"mct",       CMD_MCT,        "Multi Core test", 0, 0},
 };
 
 static void sort_available_orders(void);
@@ -47,6 +48,7 @@ static void cmd_help(void);
 static void cmd_cls(void);
 static void cmd_system(void);
 static void cmd_mt_test(void);
+static void cmd_mct_test(void);
 static void cmd_pi_calc(const dbg_cmd_args_t* p_args);
 static void cmd_rnd(const dbg_cmd_args_t* p_args);
 static void cmd_sha(const dbg_cmd_args_t* p_args);
@@ -285,6 +287,16 @@ static void cmd_mt_test(void)
     proc_exec_time(double_sub_test, "double_sub_test");
     proc_exec_time(double_mul_test, "double_mul_test");
     proc_exec_time(double_div_test, "double_div_test");
+}
+
+static void cmd_mct_test(void)
+{
+    uint32_t data = 0;
+
+    // Core1からCore0にテストデータを投げる
+    data = 0x97654321;
+    set_multicore_fifo(data);
+    printf("[Core 1] TX FIFO Data to Core 0 : 0x%08X\n", data);
 }
 
 static void cmd_pi_calc(const dbg_cmd_args_t* p_args)
@@ -758,6 +770,10 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
 
         case CMD_SYSTEM:
             cmd_system();
+            break;
+
+        case CMD_MCT:
+            cmd_mct_test();
             break;
 
         case CMD_MT_TEST:

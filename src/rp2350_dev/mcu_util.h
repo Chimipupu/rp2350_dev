@@ -17,6 +17,7 @@
 #include <string.h>
 #include "pico/stdlib.h"
 #include "pico/rand.h"
+#include "pico/multicore.h"
 #include "hardware/sha256.h"
 #include "hardware/spi.h"
 #include "hardware/i2c.h"
@@ -73,5 +74,7 @@ static inline void WDT_RST(void)
 void trang_gen_rand_num_u32(uint32_t *p_rand_buf, uint32_t gen_num_cnt);
 void sha256_padding(const uint8_t *p_src_buf, size_t len, uint8_t *p_dst_buf, size_t *p_out_len);
 void hardware_calc_sha256(const uint8_t *p_data_buf, size_t len, uint8_t *p_hash_buf);
+uint32_t get_multicore_fifo(void);
+void set_multicore_fifo(uint32_t data);
 
 #endif // MCU_UTIL_H
