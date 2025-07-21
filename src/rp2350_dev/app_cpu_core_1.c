@@ -27,7 +27,7 @@ void app_core_1_main(void)
     g_core_num_core_1 = get_core_num();
 
      // Core0に起動通知
-    set_multicore_fifo(0x12345678);
+    set_multicore_fifo(CORE_1_WUP_RESULT_DATA);
 
     // NeoPixel初期化(PIOで並列処理)
     s_neopixel.led_cnt = NEOPIXEL_LED_CNT;

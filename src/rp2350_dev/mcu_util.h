@@ -29,6 +29,9 @@
 #include "hardware/clocks.h"
 #include "hardware/uart.h"
 
+#define CORE_1_WUP_RESULT_DATA     0x12345678
+#define MULTI_CORE_TEST_DATA       0x97654321
+
 // レジスタを8/16/32bitでR/Wするマクロ
 #define REG_READ_BYTE(base, offset)         (*(volatile uint8_t  *)((base) + (offset)))
 #define REG_READ_WORD(base, offset)         (*(volatile uint16_t *)((base) + (offset)))

@@ -294,7 +294,7 @@ static void cmd_mct_test(void)
     uint32_t data = 0;
 
     // Core1からCore0にテストデータを投げる
-    data = 0x97654321;
+    data = MULTI_CORE_TEST_DATA;
     set_multicore_fifo(data);
     printf("[Core 1] TX FIFO Data to Core 0 : 0x%08X\n", data);
 }

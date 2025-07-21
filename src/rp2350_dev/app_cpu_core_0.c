@@ -33,7 +33,7 @@ void app_core_0_main(void)
         sleep_ms(1000);
 #else
         s_core_fifo_data = get_multicore_fifo();
-        if (s_core_fifo_data == 0x97654321) {
+        if (s_core_fifo_data == MULTI_CORE_TEST_DATA) {
             printf("[Core 0] RX FIFO Data from Core 1 :  0x%08X\n", s_core_fifo_data);
         }
 
