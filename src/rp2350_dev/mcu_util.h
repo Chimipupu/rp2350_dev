@@ -42,22 +42,22 @@
 #define REG_BIT_TGL(reg, bit)               ((reg) ^=  (1UL << (bit))) // レジスタのビットをトグル
 #define REG_BIT_CHK(reg, bit)               ((reg) &   (1UL << (bit))) // レジスタのビットチェック
 
+// NOP
+__attribute__( ( always_inline ) ) static inline void NOP(void)
+{
+    __asm__ __volatile__("nop");
+}
+
  // 割り込み禁止
-static inline void _DI(void)
+__attribute__( ( always_inline ) ) static inline void _DI(void)
 {
     __asm__ __volatile__("cpsid i");
 }
 
 // 割り込み許可
-static inline void _EI(void)
+__attribute__( ( always_inline ) ) static inline void _EI(void)
 {
     __asm__ __volatile__("cpsie i");
-}
-
-// NOP
-static inline void NOP(void)
-{
-    __asm__ __volatile__("nop");
 }
 
 // WDTをなでるマクロ

@@ -12,16 +12,16 @@
 #include "app_main.h"
 #include "pico/multicore.h"
 
-static void clock_init(void);
-static void gpio_init(void);
-static void pio_init(void);
-static void pwm_init(void);
-static void uart_init(void);
-static void i2c_init(void);
-static void spi_init(void);
-static void timer_init(void);
-static void wdt_init(void);
-static void dma_init(void);
+static void hw_clock_init(void);
+static void hw_gpio_init(void);
+static void hw_pio_init(void);
+static void hw_pwm_init(void);
+static void hw_uart_init(void);
+static void hw_i2c_init(void);
+static void hw_spi_init(void);
+static void hw_timer_init(void);
+static void hw_wdt_init(void);
+static void hw_dma_init(void);
 
 #if defined(MCU_BOARD_PICO2W)
 #include "pico/cyw43_arch.h"
@@ -68,17 +68,17 @@ int64_t alarm_callback(alarm_id_t id, void *p_user_data)
 }
 #endif // TIMER_ALARM_IRQ_ENABLE
 
-static void clock_init(void)
+static void hw_clock_init(void)
 {
     NOP();
 }
 
-static void gpio_init(void)
+static void hw_gpio_init(void)
 {
     NOP();
 }
 
-static void pio_init(void)
+static void hw_pio_init(void)
 {
 #ifdef RPI_PIO_USE
     // PIO初期化
@@ -103,12 +103,12 @@ static void pio_init(void)
 #endif
 }
 
-static void pwm_init(void)
+static void hw_pwm_init(void)
 {
     NOP();
 }
 
-static void i2c_init(void)
+static void hw_i2c_init(void)
 {
     // I2C0初期化
     i2c_init(I2C_0_PORT, I2C_BIT_RATE);
@@ -125,7 +125,7 @@ static void i2c_init(void)
     gpio_pull_up(I2C_1_SCL);
 }
 
-static void spi_init(void)
+static void hw_spi_init(void)
 {
     // SPI0初期化
     spi_init(SPI_0_PORT, SPI_BIT_RATE);
@@ -146,7 +146,7 @@ static void spi_init(void)
     gpio_put(SPI_1_CS, 1);
 }
 
-static void timer_init(void)
+static void hw_timer_init(void)
 {
 #ifdef TIMER_ALARM_IRQ_ENABLE
     // タイマー割り込み @2000ms
@@ -154,7 +154,7 @@ static void timer_init(void)
 #endif // TIMER_ALARM_IRQ_ENABLE
 }
 
-static void uart_init(void)
+static void hw_uart_init(void)
 {
     // UART0初期化(115200bps 8N1)
     uart_init(UART_0_PORT, UART_BAUD_RATE);
@@ -169,17 +169,19 @@ static void uart_init(void)
     uart_puts(UART_1_PORT, "Hello, from UART1!\n");
 }
 
-static void wdt_init(void)
+static void hw_wdt_init(void)
 {
+#ifdef _WDT_ENABLE_
     if (watchdog_caused_reboot()) {
         printf("Rebooted by Watchdog!\n");
     }
 
     watchdog_enable(_WDT_OVF_TIME_MS_, 1);
     WDT_RST();
+#endif
 }
 
-static void dma_init(void)
+static void hw_dma_init(void)
 {
     int chan = dma_claim_unused_channel(true);
     dma_channel_config c = dma_channel_get_default_config(chan);
@@ -205,39 +207,39 @@ int main()
     stdio_init_all();
 
     // クロック初期化
-    clock_init();
+    hw_clock_init();
 
     // GPIO初期化
-    gpio_init();
+    hw_gpio_init();
 
     // PWM初期化
-    pwm_init();
+    hw_pwm_init();
 
     // UART初期化
-    uart_init();
+    hw_uart_init();
 
     // CPU Core1を起動
     multicore_launch_core1(core_1_main);
 
     // I2C初期化
-    i2c_init();
+    hw_i2c_init();
 
     // SPI初期化
-    spi_init();
+    hw_spi_init();
 
     // DMA初期化
-    dma_init();
+    hw_dma_init();
 
     // 割り込み初期化
     interp_config cfg = interp_default_config();
     interp_set_config(interp0, 0, &cfg);
 
     // タイマー初期化
-    timer_init();
+    hw_timer_init();
 
 #ifdef _WDT_ENABLE_
     // WDT初期化
-    wdt_init();
+    hw_wdt_init();
 #endif // _WDT_ENABLE_
 
     printf("System Clock Frequency is %d Hz\n", clock_get_hz(clk_sys));

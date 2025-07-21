@@ -123,7 +123,7 @@
 #endif // MCU_BOARD_NEOPIXEL
 
 // [タイマ関連]
-#define TIMER_ALARM_IRQ_ENABLE
+// #define TIMER_ALARM_IRQ_ENABLE
 
 // [WDT関連]
 // #define _WDT_ENABLE_                             // WDT有効マクロ
