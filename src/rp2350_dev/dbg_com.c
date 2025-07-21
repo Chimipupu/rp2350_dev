@@ -215,30 +215,23 @@ static void cmd_system(void)
     printf("CPU(DualCore) : Arm Cortex-M33\n");
 
     // 基板
-#if defined(MCU_BOARD_PICO2)
-    printf("PCB : Raspberry Pi Pico 2\n");
-#elif defined(MCU_BOARD_PICO2W)
-    printf("PCB : Raspberry Pi Pico 2 W\n");
-#elif defined(MCU_BOARD_WEACT_RP2350B)
-    printf("PCB : WeAct RP2350B\n");
-#elif defined(MCU_BOARD_WEACT_RP2350A_V10)
-    printf("PCB : WeAct RP2350A-20\n");
-#elif defined(MCU_BOARD_WEACT_RP2350A_V20)
-    printf("PCB : WeAct RP2350A-V20\n");
-#endif
+    printf("\n[PCB Info]\n PCB Name : %s\n", MCU_BOARD_NAME);
 
     // ROM/RAM
-    printf("[Mem Info]\n");
+    printf("\n[Mem Info]\n");
     printf("RP2350 Flash Size : %d MB\n", MCU_FLASH_SIZE);
     printf("RP2350 RAM Size : %d KB\n", MCU_RAM_SIZE);
+#if defined(MCU_BOARD_PSRAM_ENABLE)
+    printf("RP2350 PSRAM Size : %d MB\n", MCU_PSRAM_SIZE);
+#endif // MCU_PSRAM_SIZE
 
     // Clock
-    printf("[Clock Info]\n");
+    printf("\n[Clock Info]\n");
     printf("System Clock : %d MHz\n", sys_clock);
     printf("USB Clock : %d MHz\n", usb_clock);
 
     // GPIO
-    printf("[GPIO Info]\n");
+    printf("\n[GPIO Info]\n");
 #if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
     printf("GPIO %d :On Board Button Pin\n", MCU_BOARD_BTN_PIN);
 #endif // MCU_BOARD_WEACT_RP2350A_V10
@@ -249,20 +242,20 @@ static void cmd_system(void)
 #endif // MCU_BOARD_NEOPIXEL
 
     // I2C
-    printf("[I2C Info]\n");
+    printf("\n[I2C Info]\n");
     printf("I2C 0 : %d bps, SDA/SCL (GPIO %d/%d)\n",
             I2C_BIT_RATE, I2C_0_SDA, I2C_0_SCL);
     printf("I2C 1 : %d bps, SDA/SCL (GPIO %d/%d)\n",
             I2C_BIT_RATE, I2C_1_SDA, I2C_1_SCL);
 
     // SPI
-    printf("[SPI Info]\n");
+    printf("\n[SPI Info]\n");
     printf("SPI 0 : %d bps, CS/SCK/MISO/MOSI(GPIO %d/%d/%d/%d)\n",
             SPI_BIT_RATE, SPI_0_CS, SPI_0_SCK, SPI_0_MISO, SPI_0_MOSI);
     printf("SPI 1 : %d bps, CS/SCK/MISO/MOSI(GPIO %d/%d/%d/%d)\n",
             SPI_BIT_RATE, SPI_1_CS, SPI_1_SCK, SPI_1_MISO, SPI_1_MOSI);
     // UART
-    printf("[UART Info]\n");
+    printf("\n[UART Info]\n");
     printf("UART 0 : %d bps 8N1, TX/RX (GPIO %d%d)\n",
             UART_BAUD_RATE, UART_0_TX, UART_0_RX);
     printf("UART 1 : %d bps 8N1, TX/RX (GPIO %d%d)\n",

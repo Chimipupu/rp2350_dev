@@ -28,30 +28,84 @@
 #include "hardware/clocks.h"
 #include "hardware/uart.h"
 
-#define MCU_BOARD_PICO2                             // Raspberry Pi Pico 2
+// [基板定義]
+// #define MCU_BOARD_PICO2                             // Raspberry Pi Pico 2
 // #define MCU_BOARD_PICO2W                            // Raspberry Pi Pico 2 W
 // #define MCU_BOARD_WEACT_RP2350B                     // WeAct RP2350B
 // #define MCU_BOARD_WEACT_RP2350A_V10                 // WeAct RP2350A-V10
 // #define MCU_BOARD_WEACT_RP2350A_V20                 // WeAct RP2350A-V20
+#define MCU_BOARD_RP2350_PIZERO                     // Waveshare RP2350-PiZero
+
+// [基板名]
+#pragma once
+#if defined(MCU_BOARD_PICO2)
+    #define MCU_BOARD_NAME "Pico2"
+#elif defined(MCU_BOARD_PICO2W)
+    #define MCU_BOARD_NAME "Pico2W"
+#elif defined(MCU_BOARD_WEACT_RP2350B)
+    #define MCU_BOARD_NAME "WeAct RP2350B"
+#elif defined(MCU_BOARD_WEACT_RP2350A_V10)
+    #define MCU_BOARD_NAME "WeAct RP2350A-V10"
+#elif defined(MCU_BOARD_WEACT_RP2350A_V20)
+    #define MCU_BOARD_NAME "WeAct RP2350A-V20"
+#elif defined(MCU_BOARD_RP2350_PIZERO)
+    #define MCU_BOARD_NAME "RP2350-PiZero"
+#endif
+
+// 基板を定義してなかっｔらビルドエラーにする
+#if !defined(MCU_BOARD_NAME)
+    #error PCB is not defined. Please define the board type. at mcu_board_def
+#endif // MCU_BOARD_NAME
 
 // [基板固有定義]
+#if defined(MCU_BOARD_RP2350_PIZERO)
+    // USB
+    #define PIO_USB_DP_PIN  28                          // RP2350-PiZeroのPIOUSBのD+ピン
+    #define PIO_USB_DM_PIN  29                          // RP2350-PiZeroのPIOUSBのD-ピン
+
+    // DVI(HDMI)
+    #define DVI_D2P_PIN     32                          // RP2350-PiZeroのDVIのD2+ピン
+    #define DVI_D2N_PIN     33                          // RP2350-PiZeroのDVIのD2+ピン
+    #define DVI_D1P_PIN     34                          // RP2350-PiZeroのDVIのD2+ピン
+    #define DVI_D1N_PIN     35                          // RP2350-PiZeroのDVIのD2+ピン
+    #define DVI_D0P_PIN     36                          // RP2350-PiZeroのDVIのD2+ピン
+    #define DVI_D0N_PIN     37                          // RP2350-PiZeroのDVIのD2+ピン
+    #define DVI_CLK_P_PIN   38                          // RP2350-PiZeroのDVIのCLK+ピン
+    #define DVI_CLK_N_PIN   39                          // RP2350-PiZeroのDVIのCLK-ピン
+    #define DVI_SDA_PIN     44                          // RP2350-PiZeroのDVIのSDAピン
+    #define DVI_SCL_PIN     45                          // RP2350-PiZeroのDVIのSCLピン
+    #define DVI_CEC_PIN     46                          // RP2350-PiZeroのDVIのCECピン
+
+    // SDカード
+    #define SD_SCK_PIN      30                          // RP2350-PiZeroのSDカードのSCKピン
+    #define SD_MOSI_PIN     31                          // RP2350-PiZeroのSDカードのMOSIピン
+    #define SD_MISO_PIN     40                          // RP2350-PiZeroのSDカードのMISOピン
+    #define SD_D1_PIN       41                          // RP2350-PiZeroのSDカードのD1ピン
+    #define SD_D2_PIN       42                          // RP2350-PiZeroのSDカードのD2ピン
+    #define SD_CS_PIN       43                          // RP2350-PiZeroのSDカードのCSピン
+
+    // PSRAM
+    #define PSRAM_CS_PIN    47                          // RP2350-PiZeroのPSRAMのCSピン
+#endif // MCU_BOARD_RP2350_PIZERO
+
 #if defined(MCU_BOARD_PICO2W)
-#define MCU_BOARD_LED_PIN    CYW43_WL_GPIO_LED_PIN   // Raspberry Pi Pico 2 WのLEDピン
-void cyw43_led_tgl(void);
+    #define MCU_BOARD_LED_PIN    CYW43_WL_GPIO_LED_PIN   // Raspberry Pi Pico 2 WのLEDピン
+    void cyw43_led_tgl(void);
 #else
-#define MCU_BOARD_LED_PIN    25   // LEDピン
+    #define MCU_BOARD_LED_PIN    25   // LEDピン
 #endif
 
 #if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
-#define MCU_BOARD_BTN_PIN 23                        // WeAct RP2350A-V10とWeAct RP2350Bのボタンピン
+    #define MCU_BOARD_BTN_PIN 23                        // WeAct RP2350A-V10とWeAct RP2350Bのボタンピン
 #endif // MCU_BOARD_WEACT_RP2350A_V10
 
 // [メモリ関連]
-#if defined(MCU_BOARD_WEACT_RP2350B)
-#define MCU_FLASH_SIZE    16                        // フラッシュサイズ (16MB)
-#define MCU_PSRAM_SIZE    8                         // PSRAMサイズ (8MB)
+#if defined(MCU_BOARD_WEACT_RP2350B) || defined(MCU_BOARD_RP2350_PIZERO)
+    #define MCU_FLASH_SIZE    16                        // フラッシュサイズ (16MB)
+    #define MCU_BOARD_PSRAM_ENABLE
+    #define MCU_PSRAM_SIZE    8                         // PSRAMサイズ (8MB)
 #else
-#define MCU_FLASH_SIZE    4                         // RP2350のフラッシュサイズ (4MB)
+    #define MCU_FLASH_SIZE    4                         // RP2350のフラッシュサイズ (4MB)
 #endif // MCU_BOARD_WEACT_RP2350B
 #define MCU_RAM_SIZE      520                       // RP2350のSRAMサイズ (520KB)
 
@@ -61,11 +115,11 @@ void cyw43_led_tgl(void);
 // [NeoPixel]
 #define MCU_BOARD_NEOPIXEL
 #ifdef MCU_BOARD_NEOPIXEL
-#define NEOPIXEL_LED_CNT         4   // NeoPixelの数
-// #define NEOPIXEL_LED_CNT         8   // NeoPixelの数
-// #define NEOPIXEL_LED_CNT         16  // NeoPixelの数
-// #define NEOPIXEL_LED_CNT         64  // NeoPixelの数
-#define MCU_BOARD_NEOPIXEL_PIN   15  // NeoPixelのデータピン
+    #define NEOPIXEL_LED_CNT         4   // NeoPixelの数
+    // #define NEOPIXEL_LED_CNT         8   // NeoPixelの数
+    // #define NEOPIXEL_LED_CNT         16  // NeoPixelの数
+    // #define NEOPIXEL_LED_CNT         64  // NeoPixelの数
+    #define MCU_BOARD_NEOPIXEL_PIN   15  // NeoPixelのデータピン
 #endif // MCU_BOARD_NEOPIXEL
 
 // [タイマ関連]
@@ -74,7 +128,7 @@ void cyw43_led_tgl(void);
 // [WDT関連]
 // #define _WDT_ENABLE_                             // WDT有効マクロ
 #ifdef _WDT_ENABLE_
-#define _WDT_OVF_TIME_MS_ 3000                      // WDTが鳴く時間(ms)
+    #define _WDT_OVF_TIME_MS_ 3000                      // WDTが鳴く時間(ms)
 #endif // _WDT_ENABLE_
 
 // [I2C関連]
