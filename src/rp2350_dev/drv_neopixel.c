@@ -13,6 +13,7 @@
 static void pio_neopixel_begin(neopixel_t *p_neopixel, PIO pio, uint sm, uint offset,  uint pin);
 static void set_pio_neopixel_show(neopixel_t *p_neopixel);
 
+neopixel_t *s_p_neopixel;
 static PIO s_pio = pio1;
 static uint s_sm = 0;
 static uint s_offset = 0;
@@ -36,6 +37,7 @@ void drv_neopixel_init(neopixel_t *p_neopixel)
 {
     bool ret = false;
 
+    s_p_neopixel = p_neopixel;
     s_offset = pio_add_program(s_pio, &neopixel_program);
     ret = pio_claim_free_sm_and_add_program_for_gpio_range(&neopixel_program, &s_pio, &s_sm, &s_offset, p_neopixel->data_pin, 1, true);
     hard_assert(ret);
@@ -208,21 +210,31 @@ uint32_t drv_neopixel_get_color(neopixel_t *p_neopixel, uint8_t led)
     return color;
 }
 
-void drv_neopixel_pixel_color_fade(uint8_t *p_r, uint8_t *p_g, uint8_t *p_b)
+void drv_neopixel_pixel_color_fade(void)
 {
-    static uint8_t s_r = 0, s_g = 0, s_b = 0;
-    *p_r = s_r;
-    *p_g = s_g;
-    *p_b = s_b;
+    static uint8_t s_idx = 0, s_r = 0, s_g = 0, s_b = 0;
+
     if (s_r < 0xFF) {
         s_r++;
-    } else if (s_b < 0xFF) {
-        s_b++;
     } else if (s_g < 0xFF) {
         s_g++;
+    } else if (s_b < 0xFF) {
+        s_b++;
     } else {
         s_r = 0;
         s_g = 0;
         s_b = 0;
+
+        if (s_idx >= (s_p_neopixel->led_cnt - 1)) {
+            s_idx = 0;
+            drv_neopixel_clear(s_p_neopixel);
+        } else {
+            s_idx++;
+        }
     }
+
+    s_p_neopixel->p_pixel_grb_buf[s_idx].grb_color.grb_bit.red = s_r;
+    s_p_neopixel->p_pixel_grb_buf[s_idx].grb_color.grb_bit.green = s_g;
+    s_p_neopixel->p_pixel_grb_buf[s_idx].grb_color.grb_bit.blue = s_b;
+    drv_neopixel_set_pixel_rgb(s_p_neopixel, s_idx, s_r, s_g, s_b);
 }

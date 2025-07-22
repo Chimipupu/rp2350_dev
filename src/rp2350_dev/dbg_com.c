@@ -678,12 +678,18 @@ static void cmd_neopixel(const dbg_cmd_args_t* p_args)
     uint8_t all_set_flag = 0;
     int color_enum = 0;
 
-    // 全てのNeoPixelを指定された色に設定
     char* p_mode_str = p_args->p_argv[1];
-
+    // 第二引数がcls
     if(strcasecmp(p_mode_str, "cls") == 0) {
         drv_neopixel_init(&s_neopixel);
         printf("All NeoPixel Cleared!\n");
+        return;
+    }
+
+    if(strcasecmp(p_mode_str, "fade") == 0) {
+        // Core 0にLEDフェードを実行要求
+        set_multicore_fifo(PROC_NEOPIXEL_FADE);
+        printf("All NeoPixel Color Fade! at Core 0\n");
         return;
     }
 
@@ -693,6 +699,7 @@ static void cmd_neopixel(const dbg_cmd_args_t* p_args)
         return;
     }
 
+    // 第二引数がall
     if(strcasecmp(p_mode_str, "all") == 0) {
         all_set_flag = 1;
     } else {
@@ -704,6 +711,7 @@ static void cmd_neopixel(const dbg_cmd_args_t* p_args)
         }
     }
 
+    // 第三引数が文字
     uint8_t led_idx = (uint8_t)idx - 1;
     const char* color_str = p_args->p_argv[2];
     color_enum = get_neopixel_color_from_name(color_str);
@@ -725,6 +733,7 @@ static void cmd_neopixel(const dbg_cmd_args_t* p_args)
         }
     }
 
+    // 第三引数が#RRGGBB形式
     if (parse_hex_color(color_str, &r, &g, &b) == 0) {
         if (all_set_flag != 0) {
             // 全てのNeoPixelに同じ色を設定
@@ -738,7 +747,6 @@ static void cmd_neopixel(const dbg_cmd_args_t* p_args)
         }
     }
 }
-
 
 /**
  * @brief コマンドを履歴に追加する関数
