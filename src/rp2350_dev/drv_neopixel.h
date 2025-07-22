@@ -60,9 +60,11 @@ typedef struct {
 void drv_neopixel_init(neopixel_t *p_neopixel);
 void drv_neopixel_set_pixel_rgb(neopixel_t *p_neopixel, uint8_t led, uint8_t red, uint8_t green, uint8_t blue);
 void drv_neopixel_set_pixel_color(neopixel_t *p_neopixel, uint8_t led, uint8_t color);
+void drv_neopixel_get_pixel_color(neopixel_t *p_neopixel, uint8_t led, uint8_t color);
 void drv_neopixel_clear(neopixel_t *p_neopixel);
+void drv_neopixel_show(neopixel_t *p_neopixel);
 void drv_neopixel_set_all_led_color(neopixel_t *p_neopixel, uint8_t red, uint8_t green, uint8_t blue);
-uint32_t drv_neopixel_get_pixel_color(neopixel_t *p_neopixel, uint8_t led);
+uint32_t drv_neopixel_get_color(neopixel_t *p_neopixel, uint8_t led);
 void drv_neopixel_pixel_color_fade(uint8_t *r, uint8_t *g, uint8_t *b);
 
 #endif // DRV_NEOPIXEL_H

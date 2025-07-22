@@ -101,6 +101,77 @@ void drv_neopixel_set_pixel_color(neopixel_t *p_neopixel, uint8_t led, uint8_t c
     }
 }
 
+void drv_neopixel_get_pixel_color(neopixel_t *p_neopixel, uint8_t led, uint8_t color)
+{
+    // 色指定の状態遷移
+    switch (color) {
+        case NEOPIXEL_COLOR_RED:
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.red = 0xFF;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.green = 0;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.blue = 0;
+            break;
+        case NEOPIXEL_COLOR_GREEN:
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.red = 0;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.green = 0xFF;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.blue = 0;
+            break;
+
+        case NEOPIXEL_COLOR_BLUE:
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.red = 0;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.green = 0;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.blue = 0xFF;
+            break;
+
+        case NEOPIXEL_COLOR_YELLOW:
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.red = 0xFF;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.green = 0xFF;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.blue = 0;
+            break;
+
+        case NEOPIXEL_COLOR_CYAN:
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.red = 0;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.green = 0xFF;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.blue = 0xFF;
+            break;
+
+        case NEOPIXEL_COLOR_MAGENTA:
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.red = 0xFF;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.green = 0;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.blue = 0xFF;
+            break;
+
+        case NEOPIXEL_COLOR_ORANGE:
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.red = 0xFF;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.green = 0xA5;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.blue = 0;
+            break;
+
+        case NEOPIXEL_COLOR_PURPLE:
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.red = 0x80;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.green = 0xA5;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.blue = 0x80;
+            break;
+
+        case NEOPIXEL_COLOR_PINK:
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.red = 0xFF;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.green = 0xC0;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.blue = 0xCB;
+            break;
+
+        case NEOPIXEL_COLOR_WHITE:
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.red = 0xFF;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.green = 0xFF;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.blue = 0xFF;
+            break;
+
+        default:
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.red = 0;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.green = 0;
+            p_neopixel->p_pixel_grb_buf[led].grb_color.grb_bit.blue = 0;
+            break;
+    }
+}
+
 void drv_neopixel_clear(neopixel_t *p_neopixel)
 {
     for (uint8_t i = 0; i < p_neopixel->led_cnt; i++)
@@ -111,6 +182,11 @@ void drv_neopixel_clear(neopixel_t *p_neopixel)
         p_neopixel->p_pixel_grb_buf[i].grb_color.grb_bit.green = 0;
         set_pio_neopixel_show(p_neopixel);
     }
+}
+
+void drv_neopixel_show(neopixel_t *p_neopixel)
+{
+    set_pio_neopixel_show(p_neopixel);
 }
 
 void drv_neopixel_set_all_led_color(neopixel_t *p_neopixel, uint8_t red, uint8_t green, uint8_t blue)
@@ -125,7 +201,7 @@ void drv_neopixel_set_all_led_color(neopixel_t *p_neopixel, uint8_t red, uint8_t
     }
 }
 
-uint32_t drv_neopixel_get_pixel_color(neopixel_t *p_neopixel, uint8_t led)
+uint32_t drv_neopixel_get_color(neopixel_t *p_neopixel, uint8_t led)
 {
     uint32_t color = 0;
     color = p_neopixel->p_pixel_grb_buf->grb_color.u32_grb;

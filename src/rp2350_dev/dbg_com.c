@@ -673,31 +673,69 @@ static int parse_hex_color(const char* str, uint8_t *r, uint8_t *g, uint8_t *b)
  */
 static void cmd_neopixel(const dbg_cmd_args_t* p_args)
 {
+    uint8_t r, g, b = 0;
+    int idx = 0;
+    uint8_t all_set_flag = 0;
+    int color_enum = 0;
+
+    // 全てのNeoPixelを指定された色に設定
+    char* p_mode_str = p_args->p_argv[1];
+
+    if(strcasecmp(p_mode_str, "cls") == 0) {
+        drv_neopixel_init(&s_neopixel);
+        printf("All NeoPixel Cleared!\n");
+        return;
+    }
+
+    // コマンド引数チェック
     if (p_args->argc < 3) {
-        printf("Usage: neopixel <index> <color|#RRGGBB>\n");
+        printf("Usage: neopixel <index|mode> <color|#RRGGBB>\n");
         return;
     }
 
-    int idx = atoi(p_args->p_argv[1]);
-    if ((idx < 1) || idx > s_neopixel.led_cnt) {
-        printf("Error: indexは1～%d\n", s_neopixel.led_cnt);
-        return;
+    if(strcasecmp(p_mode_str, "all") == 0) {
+        all_set_flag = 1;
+    } else {
+        idx = atoi(p_args->p_argv[1]);
+        // 指定indexチェック
+        if ((idx < 1) || idx > s_neopixel.led_cnt) {
+            printf("Error: indexは1～%d\n", s_neopixel.led_cnt);
+            return;
+        }
     }
 
-    uint8_t led_idx = (uint8_t)idx;
+    uint8_t led_idx = (uint8_t)idx - 1;
     const char* color_str = p_args->p_argv[2];
-    int color_enum = get_neopixel_color_from_name(color_str);
+    color_enum = get_neopixel_color_from_name(color_str);
     if (color_enum >= 0) {
-        drv_neopixel_set_pixel_color(&s_neopixel, led_idx-1, color_enum);
-        printf("NeoPixel[%d] = %s\n", led_idx, color_str);
-        return;
+        if (all_set_flag != 0) {
+            // 全てのNeoPixelに同じ色を設定
+            for (uint8_t i = 0; i < s_neopixel.led_cnt; i++)
+            {
+                drv_neopixel_get_pixel_color(&s_neopixel, i, color_enum);
+            }
+            drv_neopixel_show(&s_neopixel);
+            printf("All NeoPixels set to %s\n", color_str);
+            return;
+        } else {
+            // 指定されたNeoPixelに色を設定
+            drv_neopixel_set_pixel_color(&s_neopixel, led_idx, color_enum);
+            printf("NeoPixel[%d] = %s\n", led_idx, color_str);
+            return;
+        }
     }
 
-    uint8_t r, g, b;
     if (parse_hex_color(color_str, &r, &g, &b) == 0) {
-        drv_neopixel_set_pixel_rgb(&s_neopixel, led_idx-1, r, g, b);
-        printf("NeoPixel[%d] = #%02X%02X%02X\n", led_idx, r, g, b);
-        return;
+        if (all_set_flag != 0) {
+            // 全てのNeoPixelに同じ色を設定
+            drv_neopixel_set_all_led_color(&s_neopixel, r, g, b);
+            printf("All NeoPixels set to #%02X%02X%02X\n", r, g, b);
+            return;
+        } else {
+            drv_neopixel_set_pixel_rgb(&s_neopixel, led_idx, r, g, b);
+            printf("NeoPixel[%d] = #%02X%02X%02X\n", led_idx, r, g, b);
+            return;
+        }
     }
 }
 

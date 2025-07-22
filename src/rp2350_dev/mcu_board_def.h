@@ -115,8 +115,8 @@
 // [NeoPixel]
 #define MCU_BOARD_NEOPIXEL
 #ifdef MCU_BOARD_NEOPIXEL
-    #define NEOPIXEL_LED_CNT         4   // NeoPixelの数
-    // #define NEOPIXEL_LED_CNT         8   // NeoPixelの数
+    // #define NEOPIXEL_LED_CNT         4   // NeoPixelの数
+    #define NEOPIXEL_LED_CNT         8   // NeoPixelの数
     // #define NEOPIXEL_LED_CNT         16  // NeoPixelの数
     // #define NEOPIXEL_LED_CNT         64  // NeoPixelの数
     #define MCU_BOARD_NEOPIXEL_PIN   15  // NeoPixelのデータピン
