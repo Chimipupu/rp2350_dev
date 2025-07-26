@@ -135,8 +135,8 @@ static int64_t timer_callback(alarm_id_t id, void *user_data)
     for (int i = 0; i < TIMER_MAX_ALARMS; i++)
     {
         if (s_timer_state[i].alarm_id == id) {
-            printf("\nTimer #%d (alarm as #%d) alarm!\n", 
-                i + 1, s_timer_state[i].reg_order);
+            printf("\nTimer #%d Alarm! (Set time : %d)\n", i + 1, s_timer_state[i].req_time_sec);
+
             // 登録順序を再利用可能なリストに戻す
             s_available_orders[s_available_count++] = s_timer_state[i].reg_order;
             sort_available_orders();  // 利用可能な登録順序を昇順にソート
@@ -448,7 +448,8 @@ static void cmd_timer(const dbg_cmd_args_t* p_args)
 
         // 空いているタイマースロットを探す
         int free_slot = -1;
-        for (int i = 0; i < TIMER_MAX_ALARMS; i++) {
+        for (int i = 0; i < TIMER_MAX_ALARMS; i++)
+        {
             if (!s_timer_state[i].is_running) {
                 free_slot = i;
                 break;
@@ -461,6 +462,7 @@ static void cmd_timer(const dbg_cmd_args_t* p_args)
         }
 
         // H/Wでアラームを設定（us単位）
+        s_timer_state[free_slot].req_time_sec = seconds;
         uint64_t delay_us = seconds * 1000000ULL;
         alarm_id_t alarm_id = add_alarm_in_us(delay_us, timer_callback, NULL, true);
         if (alarm_id > 0) {
@@ -475,8 +477,7 @@ static void cmd_timer(const dbg_cmd_args_t* p_args)
                 s_available_orders[i] = s_available_orders[i + 1];
             }
             s_available_count--;
-            printf("Timer #%d (alarm as #%d) set for %d seconds.\n",
-                    free_slot + 1, s_timer_state[free_slot].reg_order, seconds);
+            printf("Timer #%d Alarm Set %d s\n",free_slot + 1, seconds);
         } else {
             printf("Error: Failed to set timer.\n");
         }
@@ -488,7 +489,7 @@ static void cmd_timer(const dbg_cmd_args_t* p_args)
                 uint32_t elapsed = time_us_32() - s_timer_state[i].start_time;
                 uint32_t remaining = (elapsed < s_timer_state[i].duration) ?
                                     (s_timer_state[i].duration - elapsed) : 0;
-                printf("Timer #%d (alarm as #%d): %u seconds remaining.\n",
+                printf("Timer #%d (alarm as #%d) : %u s remaining.\n",
                         i + 1, s_timer_state[i].reg_order,
                        (remaining + 500000) / 1000000);  // 四捨五入
                 any_running = true;

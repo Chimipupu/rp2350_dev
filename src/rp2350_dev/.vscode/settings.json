@@ -64,7 +64,8 @@
         "blink.pio.h": "c",
         "*.inc": "c",
         "atomic": "c",
-        "clocks.h": "c"
+        "clocks.h": "c",
+        "time.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }

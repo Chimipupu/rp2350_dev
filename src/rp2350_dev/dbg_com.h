@@ -40,7 +40,7 @@
 
 // タイマー関連の定数
 #define TIMER_MAX_SECONDS 3600  // 最大1時間
-#define TIMER_MAX_ALARMS 4      // RP2350のH/Wタイマー数
+#define TIMER_MAX_ALARMS      8 // タイマーのアラームは最大8
 
 // キーボードのコード定義
 #define KEY_ESC         27    // ESCキー
@@ -94,16 +94,17 @@ extern const dbg_cmd_info_t g_cmd_tbl[];
 // コマンド引数構造体
 typedef struct {
     int32_t argc;                    // 引数の数
-    char* p_argv[DBG_CMD_MAX_ARGS]; // 引数の配列
+    char* p_argv[DBG_CMD_MAX_ARGS];  // 引数の配列
 } dbg_cmd_args_t;
 
 // タイマー状態
 typedef struct {
-    bool is_running;      // タイマー実行中フラグ
-    uint32_t start_time;  // 開始時間
-    uint32_t duration;    // 設定時間（us）
-    alarm_id_t alarm_id;  // アラームID
-    uint8_t reg_order;    // 登録順序（1から開始）
+    bool is_running;                // タイマー実行中フラグ
+    uint32_t req_time_sec;          // 設定時間 (秒)
+    uint32_t start_time;            // 開始時間
+    uint32_t duration;              // 設定時間（us）
+    alarm_id_t alarm_id;            // アラームID
+    uint8_t reg_order;              // 登録順序（1から開始）
 } timer_state_t;
 
 // 関数プロトタイプ
