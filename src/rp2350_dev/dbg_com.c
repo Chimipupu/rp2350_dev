@@ -234,10 +234,17 @@ static void cmd_system(void)
 
     // GPIO
     printf("\n[GPIO Info]\n");
+#if defined(MCU_BOARD_WEACT_RP2350A_V10)
+    printf("GPIO %d : On Board Green LED Pin\n", MCU_BOARD_LED_PIN);
+    printf("GPIO %d : On Board Blue LED Pin\n", MCU_BOARD_LED_2_PIN);
+#else
+    printf("GPIO %d : On Board LED Pin\n", MCU_BOARD_LED_PIN);
+#endif
+
 #if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
     printf("GPIO %d :On Board Button Pin\n", MCU_BOARD_BTN_PIN);
 #endif // MCU_BOARD_WEACT_RP2350A_V10
-    printf("GPIO %d : On Board LED Pin\n", MCU_BOARD_LED_PIN);
+
 #ifdef MCU_BOARD_NEOPIXEL
     printf("GPIO %d : NeoPixel Data Pin\n", MCU_BOARD_NEOPIXEL_PIN);
     printf("NeoPixel Count : %d\n", NEOPIXEL_LED_CNT);

@@ -76,7 +76,23 @@ static void hw_clock_init(void)
 
 static void hw_gpio_init(void)
 {
-    NOP();
+    // 基板LED
+    gpio_set_function(MCU_BOARD_LED_PIN, GPIO_FUNC_SIO);
+    gpio_set_dir(MCU_BOARD_LED_PIN, GPIO_OUT);
+    gpio_put(MCU_BOARD_LED_PIN, PORT_OFF);
+
+#if defined(MCU_BOARD_WEACT_RP2350A_V10)
+    // 2個目の基板LED
+    gpio_set_function(MCU_BOARD_LED_2_PIN, GPIO_FUNC_SIO);
+    gpio_set_dir(MCU_BOARD_LED_2_PIN, GPIO_OUT);
+    gpio_put(MCU_BOARD_LED_2_PIN, PORT_OFF);
+#endif
+
+    // 基板ボタン
+#if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
+    gpio_set_function(MCU_BOARD_BTN_PIN, GPIO_FUNC_SIO);
+    gpio_set_dir(MCU_BOARD_BTN_PIN, GPIO_IN);
+#endif
 }
 
 static void hw_pio_init(void)
@@ -92,11 +108,6 @@ static void hw_pio_init(void)
     #ifdef RPI_PIO_USE
         // マイコンのPIOが並列でLチカ
         blink_pin_forever(pio, 0, offset, MCU_BOARD_LED_PIN, 5);
-    #else
-        // マイコンのCPUでGPIOからLチカ
-        gpio_set_function(MCU_BOARD_LED_PIN, GPIO_FUNC_SIO);
-        gpio_set_dir(MCU_BOARD_LED_PIN, GPIO_OUT);
-        gpio_put(MCU_BOARD_LED_PIN, 1);
     #endif // RPI_PIO_USE
 #elif defined(MCU_BOARD_PICO2W)
     // RFモジュールでLED制御
@@ -227,6 +238,9 @@ int main()
     // クロック初期化
     hw_clock_init();
 
+    // UART初期化
+    hw_uart_init();
+
     // PIO初期化
     hw_pio_init();
 
@@ -239,9 +253,6 @@ int main()
 
     // PWM初期化
     hw_pwm_init();
-
-    // UART初期化
-    hw_uart_init();
 
     // I2C初期化
     hw_i2c_init();

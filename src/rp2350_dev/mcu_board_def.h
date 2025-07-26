@@ -28,13 +28,16 @@
 #include "hardware/clocks.h"
 #include "hardware/uart.h"
 
+#define PORT_OFF     0x00
+#define PORT_ON      0x01
+
 // [基板定義]
 // #define MCU_BOARD_PICO2                             // Raspberry Pi Pico 2
 // #define MCU_BOARD_PICO2W                            // Raspberry Pi Pico 2 W
 // #define MCU_BOARD_WEACT_RP2350B                     // WeAct RP2350B
-// #define MCU_BOARD_WEACT_RP2350A_V10                 // WeAct RP2350A-V10
+#define MCU_BOARD_WEACT_RP2350A_V10                 // WeAct RP2350A-V10
 // #define MCU_BOARD_WEACT_RP2350A_V20                 // WeAct RP2350A-V20
-#define MCU_BOARD_RP2350_PIZERO                     // Waveshare RP2350-PiZero
+// #define MCU_BOARD_RP2350_PIZERO                     // Waveshare RP2350-PiZero
 
 // [基板名]
 #pragma once
@@ -91,6 +94,9 @@
 #if defined(MCU_BOARD_PICO2W)
     #define MCU_BOARD_LED_PIN    CYW43_WL_GPIO_LED_PIN   // Raspberry Pi Pico 2 WのLEDピン
     void cyw43_led_tgl(void);
+#elif defined(MCU_BOARD_WEACT_RP2350A_V10)
+    #define MCU_BOARD_LED_PIN    25   // LEDピン
+    #define MCU_BOARD_LED_2_PIN  24   // LEDピン
 #else
     #define MCU_BOARD_LED_PIN    25   // LEDピン
 #endif
