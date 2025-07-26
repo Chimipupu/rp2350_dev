@@ -39,8 +39,9 @@
 #define TAN_355_226_EXPECTED -7497258.18532
 
 // タイマー関連の定数
-#define TIMER_MAX_SECONDS 3600  // 最大1時間
-#define TIMER_MAX_ALARMS      8 // タイマーのアラームは最大8
+#define TIMER_MAX_SECONDS 3600   // 最大1時間
+// #define TIMER_MAX_ALARMS      8  // タイマーの最大アラーム数
+#define TIMER_MAX_ALARMS      16 // タイマーの最大アラーム数
 
 // キーボードのコード定義
 #define KEY_ESC         27    // ESCキー
