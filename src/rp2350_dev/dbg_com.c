@@ -199,10 +199,8 @@ static void cmd_cls(void)
 
 static void cmd_system(void)
 {
-    volatile uint32_t sys_clock, usb_clock;
-
-    sys_clock = clock_get_hz(clk_sys) / 1000000;
-    usb_clock = clock_get_hz(clk_usb) / 1000000;
+    uint32_t sys_clock, usb_clock, adc_clock, ref_clock;
+    float cpu_temp;
 
     printf("\n[System Information]\n");
 
@@ -214,7 +212,9 @@ static void cmd_system(void)
 
     // マイコン
     printf("MCU : RP2350\n");
-    printf("CPU(DualCore) : Arm Cortex-M33\n");
+    printf("CPU : Arm Cortex-M33 (DualCore)\n");
+    cpu_temp = get_cpu_temp_from_adc();
+    printf("CPU temp = %.02f℃\n", cpu_temp);
 
     // 基板
     printf("\n[PCB Info]\n PCB Name : %s\n", MCU_BOARD_NAME);
@@ -227,10 +227,27 @@ static void cmd_system(void)
     printf("RP2350 PSRAM Size : %d MB\n", MCU_PSRAM_SIZE);
 #endif // MCU_PSRAM_SIZE
 
-    // Clock
+    // クロック関連
     printf("\n[Clock Info]\n");
-    printf("System Clock : %d MHz\n", sys_clock);
-    printf("USB Clock : %d MHz\n", usb_clock);
+#if 0
+    uint32_t clk_gp0, clk_gp1, clk_gp2, clk_gp3;
+    clk_gp0 = clock_get_hz(clk_gpout0) / 1000000;
+    clk_gp1 = clock_get_hz(clk_gpout1) / 1000000;
+    clk_gp2 = clock_get_hz(clk_gpout2) / 1000000;
+    clk_gp3 = clock_get_hz(clk_gpout3) / 1000000;
+    printf("CLK_GPOUT0 : %d MHz\n", clk_gp0);
+    printf("CLK_GPOUT1 : %d MHz\n", clk_gp1);
+    printf("CLK_GPOUT2 : %d MHz\n", clk_gp2);
+    printf("CLK_GPOUT3 : %d MHz\n", clk_gp3);
+#endif
+    ref_clock = clock_get_hz(clk_ref) / 1000000;
+    sys_clock = clock_get_hz(clk_sys) / 1000000;
+    usb_clock = clock_get_hz(clk_usb) / 1000000;
+    adc_clock = clock_get_hz(clk_adc) / 1000000;
+    printf("CLK_REF : %d MHz\n", ref_clock);
+    printf("CLK_SYS : %d MHz\n", sys_clock);
+    printf("CLK_USB : %d MHz\n", usb_clock);
+    printf("CLK_ADC : %d MHz\n", adc_clock);
 
     // GPIO
     printf("\n[GPIO Info]\n");

@@ -40,6 +40,7 @@ void trang_gen_rand_num_u32(uint32_t *p_rand_buf, uint32_t gen_num_cnt)
  */
 void sha256_padding(const uint8_t *p_src_buf, size_t len, uint8_t *p_dst_buf, size_t *p_out_len)
 {
+    uint8_t i;
     size_t total_len = len + 1 + 8;
     size_t rem = (len + 1 + 8) % 64;
     size_t pad_len = (rem > 0) ? (64 - rem) : 0;
@@ -51,7 +52,7 @@ void sha256_padding(const uint8_t *p_src_buf, size_t len, uint8_t *p_dst_buf, si
     memset(p_dst_buf + len + 1, 0, pad_len);
 
     size_t bit_len_pos = len + 1 + pad_len;
-    for (int i = 0; i < 8; i++)
+    for (i = 0; i < 8; i++)
     {
         p_dst_buf[bit_len_pos + 7 - i] = (uint8_t)(bit_len >> (i * 8));
     }
@@ -132,5 +133,6 @@ float get_cpu_temp_from_adc(void)
     float voltage = (raw_adc * VREF_VOLTAGE) / (1 << 12);
     // データシート(12.4.6 . Temperature Sensor)の計算式
     float cpu_temp = 27.0f - ((voltage - 0.706f) / 0.001721f);
-    printf("[DEBUG] CPU temp = %.02f℃\n", cpu_temp);
+
+    return cpu_temp;
 }

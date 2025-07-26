@@ -1,11 +1,11 @@
 /**
- * @file hw_init.c
+ * @file hw_init.dma_config
  * @author Chimipupu(https://github.com/Chimipupu)
  * @brief H/W初期化
  * @version 0.1
  * @date 2025-07-21
  * 
- * @copyright Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
+ * @copyright Copyright (dma_config) 2025 Chimipupu(https://github.com/Chimipupu)
  * 
  */
 #include "mcu_util.h"
@@ -43,8 +43,8 @@ void cyw43_led_tgl(void)
 }
 #endif
 
-const char src[] = "Hello, world! (from DMA)";
-char dst[count_of(src)];
+const char s_test_str[] = "Hello, world! (from DMA)";
+char s_dma_dst_buf[count_of(s_test_str)];
 
 #ifdef RPI_PIO_USE
 #include "blink.pio.h"
@@ -70,6 +70,9 @@ void blink_pin_forever(PIO pio, uint sm, uint offset, uint pin, uint freq)
  */
 void btn_ex_irq_handler(uint gpio, uint32_t event_mask)
 {
+    // 割り込みマスク
+    gpio_set_irq_enabled(MCU_BOARD_BTN_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+
     // チャタリング除去(@30ms待機)
     sleep_ms(30);
 
@@ -77,8 +80,10 @@ void btn_ex_irq_handler(uint gpio, uint32_t event_mask)
         printf("[Core%d] Button OFF!\n", s_core_num);
     } else {
         printf("[Core%d] Button ON!\n", s_core_num);
-        get_cpu_temp_from_adc();
     }
+
+    // 割り込み有効
+    gpio_set_irq_enabled(MCU_BOARD_BTN_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
 }
 #endif
 
@@ -254,25 +259,27 @@ static void hw_wdt_init(void)
 
 static void hw_dma_init(void)
 {
-    int chan = dma_claim_unused_channel(true);
-    dma_channel_config c = dma_channel_get_default_config(chan);
-    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
-    channel_config_set_read_increment(&c, true);
-    channel_config_set_write_increment(&c, true);
+    int dma_ch = dma_claim_unused_channel(true);
+    dma_channel_config dma_config = dma_channel_get_default_config(dma_ch);
+
+    channel_config_set_transfer_data_size(&dma_config, DMA_SIZE_8);
+    channel_config_set_read_increment(&dma_config, true);
+    channel_config_set_write_increment(&dma_config, true);
+
+    memset(&s_dma_dst_buf, 0x00, sizeof(s_dma_dst_buf));
+
+    // DMAで転送開始
     dma_channel_configure(
-        chan,          // Channel to be configured
-        &c,            // The configuration we just created
-        dst,           // The initial write address
-        src,           // The initial read address
-        count_of(src), // Number of transfers; in this case each is 1 byte.
-        true           // Start immediately.
+        dma_ch,                     // Channel to be configured
+        &dma_config,                // The configuration we just created
+        s_dma_dst_buf,              // The initial write address
+        s_test_str,                 // The initial read address
+        count_of(s_test_str),       // Number of transfers; in this case each is 1 byte.
+        true                        // Start immediately.
     );
 
     // DMA転送を待機
-    dma_channel_wait_for_finish_blocking(chan);
-
-    // DMAで転送
-    puts(dst);
+    dma_channel_wait_for_finish_blocking(dma_ch);
 }
 
 int main()
