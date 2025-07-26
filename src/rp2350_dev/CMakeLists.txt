@@ -100,30 +100,36 @@ target_include_directories(rp2350_dev PRIVATE
 # Add any user requested libraries
 # ※Pico2W以外のRP2350の基板のとき用
 target_link_libraries(rp2350_dev
-            hardware_spi
-            hardware_i2c
-            hardware_dma
-            hardware_pio
-            hardware_interp
-            hardware_timer
-            hardware_watchdog
-            hardware_clocks
-            hardware_adc
-        )
+                        hardware_flash
+                        hardware_xip_cache
+                        hardware_base
+                        hardware_claim
+                        hardware_dcp
+                        hardware_exception
+                        hardware_clocks
+                        hardware_pll
+                        hardware_irq
+                        hardware_interp
+                        hardware_ticks
+                        hardware_timer
+                        hardware_watchdog
+                        hardware_rtc
+                        hardware_i2c
+                        hardware_spi
+                        hardware_uart
+                        hardware_dma
+                        hardware_gpio
+                        hardware_pio
+                        hardware_pwm
+                        hardware_adc
+                        hardware_sha256
+                        hardware_sync
+                        hardware_resets
+                        hardware_powman
+                        )
 
-# ※Pico2Wのとき用
-# target_link_libraries(rp2350_dev 
-            # hardware_spi
-            # hardware_i2c
-            # hardware_dma
-            # hardware_pio
-            # hardware_interp
-            # hardware_timer
-            # hardware_watchdog
-            # hardware_clocks
-            # hardware_adc
+# ※Pico2Wのとき↓を追加すること
             # pico_cyw43_arch_none
-#         )
 
 pico_add_extra_outputs(rp2350_dev)
 

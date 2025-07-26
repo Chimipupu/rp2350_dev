@@ -22,6 +22,21 @@
   - CPU ... `Arm Cortex-M33` x2コア(※デュアルコアCPU)
   - ROM ... 4MB or 16MB
   - RAM ... 520KB
+  - UART ... 2ch
+  - SPI ... 2ch
+  - I2C ... 2ch
+  - GPIO ... 30 or 48本
+  - DMA ... 16本
+  - タイマー
+    - SysTick : 24bit x1本
+    - WDT : 24bit x1本
+    - RTC : なし(N/A)
+    - 64bitタイマー
+      - 汎用 : x2本 (1usカウント)
+        - アラーム : 4つまで
+      - AON Timer : x1本
+        - 常時駆動の64bitタイマ
+        - LPOSCの32.768KHz(精度1%)で@1sカウント
 
 <!-- - I2Cスレーブ
   - `OLED液晶` ... 型番:`SSD1306` ※アドレス:0x3C
