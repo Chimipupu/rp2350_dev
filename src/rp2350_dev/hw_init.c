@@ -53,6 +53,26 @@ void blink_pin_forever(PIO pio, uint sm, uint offset, uint pin, uint freq)
 }
 #endif
 
+#if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
+/**
+ * @brief 基板ボタン外部割り込みハンドラ
+ * 
+ * @param gpio 
+ * @param event_mask 
+ */
+void btn_ex_irq_handler(uint gpio, uint32_t event_mask)
+{
+    // チャタリング除去(@30ms待機)
+    sleep_ms(30);
+
+    if (gpio_get(MCU_BOARD_BTN_PIN) != PORT_OFF) {
+        printf("[DEBUG]Button OFF!\n");
+    } else {
+        printf("[DEBUG]Button ON!\n");
+    }
+}
+#endif
+
 #ifdef TIMER_ALARM_IRQ_ENABLE
 /**
  * @brief タイマー割り込みハンドラ(2000ms)
@@ -76,22 +96,29 @@ static void hw_clock_init(void)
 
 static void hw_gpio_init(void)
 {
-    // 基板LED
+    // [基板LED]
     gpio_set_function(MCU_BOARD_LED_PIN, GPIO_FUNC_SIO);
     gpio_set_dir(MCU_BOARD_LED_PIN, GPIO_OUT);
     gpio_put(MCU_BOARD_LED_PIN, PORT_OFF);
 
 #if defined(MCU_BOARD_WEACT_RP2350A_V10)
-    // 2個目の基板LED
+    // [基板LED(2個目)]
     gpio_set_function(MCU_BOARD_LED_2_PIN, GPIO_FUNC_SIO);
     gpio_set_dir(MCU_BOARD_LED_2_PIN, GPIO_OUT);
     gpio_put(MCU_BOARD_LED_2_PIN, PORT_OFF);
 #endif
 
-    // 基板ボタン
+    // [基板ボタン]
 #if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
-    gpio_set_function(MCU_BOARD_BTN_PIN, GPIO_FUNC_SIO);
+    gpio_init(MCU_BOARD_BTN_PIN);
     gpio_set_dir(MCU_BOARD_BTN_PIN, GPIO_IN);
+
+    // 外部割り込み
+    gpio_set_irq_enabled_with_callback(MCU_BOARD_BTN_PIN,   // GPIOピン
+                                        GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, // 立ち上がり or 立ち下がりエッジでIRQ
+                                        true,              // 割り込み 有効 / 無効
+                                        &btn_ex_irq_handler // 割り込みハンドラ
+                                        );
 #endif
 }
 
