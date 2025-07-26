@@ -55,10 +55,30 @@ pico_generate_pio_header(rp2350_dev
                         ${CMAKE_CURRENT_LIST_DIR}/neopixel.pio
                         )
 
+# =========================================================================
 # 【コンパルオプション】
+# =========================================================================
+# 「最適化」
+# -O0
+# -O1
+# -O2
+# -O3
+# -Os
+# -Ofast
+# -Og
+
+# add_compile_options(-O0)
+add_compile_options(-O3)
+# add_compile_options(-Os)
+# add_compile_options(-Og)
+
+# -------------------------------------------------------------------------
+# 「FPU関連」
 # 浮動小数はH/WのFPUを使用(-mfloat-abi=hard)
 # 浮動小数はS/W(-mfloat-abi=softfp)
+
 add_compile_options(-mfloat-abi=hard)
+# =========================================================================
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(rp2350_dev 0)
@@ -88,6 +108,7 @@ target_link_libraries(rp2350_dev
             hardware_timer
             hardware_watchdog
             hardware_clocks
+            hardware_adc
         )
 
 # ※Pico2Wのとき用
@@ -100,6 +121,7 @@ target_link_libraries(rp2350_dev
             # hardware_timer
             # hardware_watchdog
             # hardware_clocks
+            # hardware_adc
             # pico_cyw43_arch_none
 #         )
 

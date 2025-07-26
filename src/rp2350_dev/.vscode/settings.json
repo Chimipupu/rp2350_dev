@@ -61,7 +61,10 @@
         "random": "c",
         "app_math.h": "c",
         "functional": "c",
-        "blink.pio.h": "c"
+        "blink.pio.h": "c",
+        "*.inc": "c",
+        "atomic": "c",
+        "clocks.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }

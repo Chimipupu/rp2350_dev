@@ -11,6 +11,8 @@
 #include "mcu_util.h"
 #include "mcu_board_def.h"
 
+#include "hardware/adc.h"
+
 /**
  * @brief 真性乱数をH/WのTRANGで生成(u32)
  * 
@@ -117,4 +119,18 @@ uint32_t get_multicore_fifo(void)
 void set_multicore_fifo(uint32_t data)
 {
     multicore_fifo_push_blocking(data);
+}
+
+/**
+ * @brief 内蔵CPU温度センサの取得
+ * 
+ * @return float 内蔵CPU温度センサの温度
+ */
+float get_cpu_temp_from_adc(void)
+{
+    uint16_t raw_adc = adc_read();
+    float voltage = (raw_adc * VREF_VOLTAGE) / (1 << 12);
+    // データシート(12.4.6 . Temperature Sensor)の計算式
+    float cpu_temp = 27.0f - ((voltage - 0.706f) / 0.001721f);
+    printf("[DEBUG] CPU temp = %.02f℃\n", cpu_temp);
 }

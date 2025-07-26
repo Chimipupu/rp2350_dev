@@ -10,7 +10,14 @@
  */
 #include "mcu_util.h"
 #include "app_main.h"
+
 #include "pico/multicore.h"
+#include "hardware/adc.h"
+
+extern volatile uint32_t g_core_num_core_0;
+extern volatile uint32_t g_core_num_core_1;
+
+static uint32_t s_core_num;
 
 static void hw_clock_init(void);
 static void hw_gpio_init(void);
@@ -23,6 +30,7 @@ static void hw_spi_init(void);
 static void hw_timer_init(void);
 static void hw_wdt_init(void);
 static void hw_dma_init(void);
+static void hw_adc_init(void);
 
 #if defined(MCU_BOARD_PICO2W)
 #include "pico/cyw43_arch.h"
@@ -66,9 +74,10 @@ void btn_ex_irq_handler(uint gpio, uint32_t event_mask)
     sleep_ms(30);
 
     if (gpio_get(MCU_BOARD_BTN_PIN) != PORT_OFF) {
-        printf("[DEBUG]Button OFF!\n");
+        printf("[Core%d] Button OFF!\n", s_core_num);
     } else {
-        printf("[DEBUG]Button ON!\n");
+        printf("[Core%d] Button ON!\n", s_core_num);
+        get_cpu_temp_from_adc();
     }
 }
 #endif
@@ -222,6 +231,15 @@ static void hw_uart_init(void)
     uart_puts(UART_1_PORT, "Hello, from UART1!\n");
 }
 
+static void hw_adc_init(void)
+{
+    adc_init();
+
+    // ADC Ch4 (内蔵CPU温度センサ)
+    adc_set_temp_sensor_enabled(true);
+    adc_select_input(ADC_CH_4);
+}
+
 static void hw_wdt_init(void)
 {
 #ifdef _WDT_ENABLE_
@@ -275,6 +293,9 @@ int main()
     // ※2Dのテクスチャマッピング用
     hw_interp_init();
 
+    // ADC初期化
+    hw_adc_init();
+
     // GPIO初期化
     hw_gpio_init();
 
@@ -300,6 +321,8 @@ int main()
 
     printf("System Clock Frequency is %d Hz\n", clock_get_hz(clk_sys));
     printf("USB Clock Frequency is %d Hz\n", clock_get_hz(clk_usb));
+
+    s_core_num = get_core_num();
 
     // CPU Core1を起動
     multicore_launch_core1(core_1_main);

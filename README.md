@@ -31,10 +31,16 @@
 ### S/W
 
 - Pico SDK ... Ver2.1.1
-  - コンパイラ設定
-    - C言語: C11
-    - C++: C++17
-    - 浮動小数点演算: H/Wの倍精度FPU（-mfloat-abi=hard）
+  - コンパイラ
+  - gcc
+    - コンパイルオプション設定
+      - 最適化
+        - `-O0` (最適化なし)
+        - `-O3` (最適化最大)
+        - `-Os` (サイズ優先)
+        - `-Og` (デバッグ)
+      - 浮動小数点
+        - `-mfloat-abi=hard` H/Wの倍精度FPU
   - 標準出力: USB CDC経由でprintf()
   - リンクライブラリ
     - pico_stdlib

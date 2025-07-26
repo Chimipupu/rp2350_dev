@@ -80,5 +80,6 @@ void sha256_padding(const uint8_t *p_src_buf, size_t len, uint8_t *p_dst_buf, si
 void hardware_calc_sha256(const uint8_t *p_data_buf, size_t len, uint8_t *p_hash_buf);
 uint32_t get_multicore_fifo(void);
 void set_multicore_fifo(uint32_t data);
+float get_cpu_temp_from_adc(void);
 
 #endif // MCU_UTIL_H
