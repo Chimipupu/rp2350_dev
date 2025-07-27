@@ -18,7 +18,7 @@
 #include <math.h>
 
 #include "rp2350_util.h"
-#include "mcu_board_def.h"
+#include "pcb_def.h"
 
 #include "pico/version.h"
 #include "hardware/clocks.h"
@@ -36,7 +36,7 @@
 #define CMD_HISTORY_MAX         16 // コマンド履歴の最大数
 
 // GPIOの最大本数
-#if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
+#if defined(PCB_WEACT_RP2350A_V10) || defined(PCB_WEACT_RP2350B)
 // RP2350B (QFN-80)
 #define GPIO_MAX_PIN_NUM        48
 #else

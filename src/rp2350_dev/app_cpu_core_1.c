@@ -31,7 +31,7 @@ void app_core_1_main(void)
 
     // NeoPixel初期化(PIOで並列処理)
     s_neopixel.led_cnt = NEOPIXEL_LED_CNT;
-    s_neopixel.data_pin = MCU_BOARD_NEOPIXEL_PIN;
+    s_neopixel.data_pin = PCB_NEOPIXEL_PIN;
     memset(s_rgb_buf, 0, sizeof(s_rgb_buf));
     s_neopixel.p_pixel_grb_buf = &s_rgb_buf[0];
     drv_neopixel_init(&s_neopixel);

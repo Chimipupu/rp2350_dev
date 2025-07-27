@@ -9,7 +9,7 @@
  * 
  */
 #include "rp2350_util.h"
-#include "mcu_board_def.h"
+#include "pcb_def.h"
 
 #include "hardware/adc.h"
 

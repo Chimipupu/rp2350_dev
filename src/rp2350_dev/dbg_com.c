@@ -10,7 +10,7 @@
  */
 #include "dbg_com.h"
 #include "rp2350_util.h"
-#include "mcu_board_def.h"
+#include "pcb_def.h"
 #include "app_main.h"
 #include "app_math.h"
 #include "rp2350_util.h"
@@ -209,7 +209,7 @@ static void cmd_system(void)
     pico_sdk_version_print();
 
     // 基板
-    printf("\n[PCB Info]\nPCB Name : %s\n", MCU_BOARD_NAME);
+    printf("\n[PCB Info]\nPCB Name : %s\n", PCB_NAME);
 
     // マイコン
     cpu_temp = get_cpu_temp_from_adc();
@@ -226,7 +226,7 @@ static void cmd_system(void)
     printf("\n[Mem Info]\n");
     printf("RP2350 Flash Size : %d MB\n", MCU_FLASH_SIZE);
     printf("RP2350 RAM Size : %d KB\n", MCU_RAM_SIZE);
-#if defined(MCU_BOARD_PSRAM_ENABLE)
+#if defined(PCB_PSRAM_ENABLE)
     printf("RP2350 PSRAM Size : %d MB\n", MCU_PSRAM_SIZE);
 #endif // MCU_PSRAM_SIZE
 
@@ -254,21 +254,21 @@ static void cmd_system(void)
 
     // GPIO
     printf("\n[GPIO Info]\n");
-#if defined(MCU_BOARD_WEACT_RP2350A_V10)
-    printf("GPIO %d : On Board Green LED Pin\n", MCU_BOARD_LED_PIN);
-    printf("GPIO %d : On Board Blue LED Pin\n", MCU_BOARD_LED_2_PIN);
+#if defined(PCB_WEACT_RP2350A_V10)
+    printf("GPIO %d : On Board Green LED Pin\n", PCB_LED_PIN);
+    printf("GPIO %d : On Board Blue LED Pin\n", PCB_LED_2_PIN);
 #else
-    printf("GPIO %d : On Board LED Pin\n", MCU_BOARD_LED_PIN);
+    printf("GPIO %d : On Board LED Pin\n", PCB_LED_PIN);
 #endif
 
-#if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
-    printf("GPIO %d :On Board Button Pin\n", MCU_BOARD_BTN_PIN);
-#endif // MCU_BOARD_WEACT_RP2350A_V10
+#if defined(PCB_WEACT_RP2350A_V10) || defined(PCB_WEACT_RP2350B)
+    printf("GPIO %d :On Board Button Pin\n", PCB_BTN_PIN);
+#endif // PCB_WEACT_RP2350A_V10
 
-#ifdef MCU_BOARD_NEOPIXEL
-    printf("GPIO %d : NeoPixel Data Pin\n", MCU_BOARD_NEOPIXEL_PIN);
+#ifdef PCB_NEOPIXEL
+    printf("GPIO %d : NeoPixel Data Pin\n", PCB_NEOPIXEL_PIN);
     printf("NeoPixel Count : %d\n", NEOPIXEL_LED_CNT);
-#endif // MCU_BOARD_NEOPIXEL
+#endif // PCB_NEOPIXEL
 
     // I2C
     printf("\n[I2C Info]\n");

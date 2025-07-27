@@ -1,15 +1,15 @@
 /**
- * @file mcu_board_def.h
+ * @file pcb_def.h
  * @author Chimipupu(https://github.com/Chimipupu)
  * @brief 基板定義ヘッダ
  * @version 0.1
- * @date 2025-07-08
+ * @date 2025-07-27
  * 
  * @copyright Copyright (c) 2025 Chimipupu All Rights Reserved.
  * 
  */
-#ifndef MCU_BOARD_DEF_H
-#define MCU_BOARD_DEF_H
+#ifndef PCB_DEF_H
+#define PCB_DEF_H
 
 #include "rp2350_util.h"
 #include <stdio.h>
@@ -29,36 +29,36 @@
 #include "hardware/uart.h"
 
 // [基板定義]
-// #define MCU_BOARD_PICO2                             // Raspberry Pi Pico 2
-// #define MCU_BOARD_PICO2W                            // Raspberry Pi Pico 2 W
-// #define MCU_BOARD_WEACT_RP2350B                     // WeAct RP2350B
-#define MCU_BOARD_WEACT_RP2350A_V10                 // WeAct RP2350A-V10
-// #define MCU_BOARD_WEACT_RP2350A_V20                 // WeAct RP2350A-V20
-// #define MCU_BOARD_RP2350_PIZERO                     // Waveshare RP2350-PiZero
+// #define PCB_PICO2                             // Raspberry Pi Pico 2
+// #define PCB_PICO2W                            // Raspberry Pi Pico 2 W
+// #define PCB_WEACT_RP2350B                     // WeAct RP2350B
+#define PCB_WEACT_RP2350A_V10                 // WeAct RP2350A-V10
+// #define PCB_WEACT_RP2350A_V20                 // WeAct RP2350A-V20
+// #define PCB_RP2350_PIZERO                     // Waveshare RP2350-PiZero
 
 // [基板名]
 #pragma once
-#if defined(MCU_BOARD_PICO2)
-    #define MCU_BOARD_NAME "Pico2"
-#elif defined(MCU_BOARD_PICO2W)
-    #define MCU_BOARD_NAME "Pico2W"
-#elif defined(MCU_BOARD_WEACT_RP2350B)
-    #define MCU_BOARD_NAME "WeAct RP2350B"
-#elif defined(MCU_BOARD_WEACT_RP2350A_V10)
-    #define MCU_BOARD_NAME "WeAct RP2350A-V10"
-#elif defined(MCU_BOARD_WEACT_RP2350A_V20)
-    #define MCU_BOARD_NAME "WeAct RP2350A-V20"
-#elif defined(MCU_BOARD_RP2350_PIZERO)
-    #define MCU_BOARD_NAME "RP2350-PiZero"
+#if defined(PCB_PICO2)
+    #define PCB_NAME "Pico2"
+#elif defined(PCB_PICO2W)
+    #define PCB_NAME "Pico2W"
+#elif defined(PCB_WEACT_RP2350B)
+    #define PCB_NAME "WeAct RP2350B"
+#elif defined(PCB_WEACT_RP2350A_V10)
+    #define PCB_NAME "WeAct RP2350A-V10"
+#elif defined(PCB_WEACT_RP2350A_V20)
+    #define PCB_NAME "WeAct RP2350A-V20"
+#elif defined(PCB_RP2350_PIZERO)
+    #define PCB_NAME "RP2350-PiZero"
 #endif
 
 // 基板を定義してなかっｔらビルドエラーにする
-#if !defined(MCU_BOARD_NAME)
+#if !defined(PCB_NAME)
     #error PCB is not defined. Please define the board type. at mcu_board_def
-#endif // MCU_BOARD_NAME
+#endif //PCB_NAME
 
 // [基板固有定義]
-#if defined(MCU_BOARD_RP2350_PIZERO)
+#if defined(PCB_RP2350_PIZERO)
     // USB
     #define PIO_USB_DP_PIN  28                          // RP2350-PiZeroのPIOUSBのD+ピン
     #define PIO_USB_DM_PIN  29                          // RP2350-PiZeroのPIOUSBのD-ピン
@@ -86,44 +86,44 @@
 
     // PSRAM
     #define PSRAM_CS_PIN    47                          // RP2350-PiZeroのPSRAMのCSピン
-#endif // MCU_BOARD_RP2350_PIZERO
+#endif //PCB_RP2350_PIZERO
 
-#if defined(MCU_BOARD_PICO2W)
-    #define MCU_BOARD_LED_PIN    CYW43_WL_GPIO_LED_PIN   // Raspberry Pi Pico 2 WのLEDピン
+#if defined(PCB_PICO2W)
+    #define PCB_LED_PIN    CYW43_WL_GPIO_LED_PIN   // Raspberry Pi Pico 2 WのLEDピン
     void cyw43_led_tgl(void);
-#elif defined(MCU_BOARD_WEACT_RP2350A_V10)
-    #define MCU_BOARD_LED_PIN    25   // LEDピン
-    #define MCU_BOARD_LED_2_PIN  24   // LEDピン
+#elif defined(PCB_WEACT_RP2350A_V10)
+    #define PCB_LED_PIN    25   // LEDピン
+    #define PCB_LED_2_PIN  24   // LEDピン
 #else
-    #define MCU_BOARD_LED_PIN    25   // LEDピン
+    #define PCB_LED_PIN    25   // LEDピン
 #endif
 
-#if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
-    #define MCU_BOARD_BTN_PIN 23                        // WeAct RP2350A-V10とWeAct RP2350Bのボタンピン
-#endif // MCU_BOARD_WEACT_RP2350A_V10
+#if defined(PCB_WEACT_RP2350A_V10) || defined(PCB_WEACT_RP2350B)
+    #define PCB_BTN_PIN 23                        // WeAct RP2350A-V10とWeAct RP2350Bのボタンピン
+#endif //PCB_WEACT_RP2350A_V10
 
 // [メモリ関連]
-#if defined(MCU_BOARD_WEACT_RP2350B) || defined(MCU_BOARD_RP2350_PIZERO)
+#if defined(PCB_WEACT_RP2350B) || defined(PCB_RP2350_PIZERO)
     #define MCU_FLASH_SIZE    16                        // フラッシュサイズ (16MB)
-    #define MCU_BOARD_PSRAM_ENABLE
+    #define PCB_PSRAM_ENABLE
     #define MCU_PSRAM_SIZE    8                         // PSRAMサイズ (8MB)
 #else
     #define MCU_FLASH_SIZE    4                         // RP2350のフラッシュサイズ (4MB)
-#endif // MCU_BOARD_WEACT_RP2350B
+#endif //PCB_WEACT_RP2350B
 #define MCU_RAM_SIZE      520                       // RP2350のSRAMサイズ (520KB)
 
 // [PIO関連]
 // #define RPI_PIO_USE
 
 // [NeoPixel]
-#define MCU_BOARD_NEOPIXEL
-#ifdef MCU_BOARD_NEOPIXEL
+#define PCB_NEOPIXEL
+#ifdef PCB_NEOPIXEL
     // #define NEOPIXEL_LED_CNT         4   // NeoPixelの数
     #define NEOPIXEL_LED_CNT         8   // NeoPixelの数
     // #define NEOPIXEL_LED_CNT         16  // NeoPixelの数
     // #define NEOPIXEL_LED_CNT         64  // NeoPixelの数
-    #define MCU_BOARD_NEOPIXEL_PIN   15  // NeoPixelのデータピン
-#endif // MCU_BOARD_NEOPIXEL
+    #define PCB_NEOPIXEL_PIN   15  // NeoPixelのデータピン
+#endif //PCB_NEOPIXEL
 
 // [タイマ関連]
 // #define TIMER_ALARM_IRQ_ENABLE
@@ -255,4 +255,4 @@
 #define PORT_OFF        0x00
 #define PORT_ON         0x01
 
-#endif // MCU_BOARD_DEF_H
+#endif // PCB_DEF_H

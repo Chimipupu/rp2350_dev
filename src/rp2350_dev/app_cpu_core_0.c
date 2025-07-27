@@ -9,7 +9,7 @@
  * 
  */
 #include "app_cpu_core_0.h"
-#include "mcu_board_def.h"
+#include "pcb_def.h"
 #include "rp2350_util.h"
 #include "drv_neopixel.h"
 
@@ -50,7 +50,7 @@ void app_core_0_main(void)
 
     while(1)
     {
-#if defined(MCU_BOARD_PICO2W)
+#if defined(PCB_PICO2W)
         cyw43_led_tgl();
         sleep_ms(1000);
 #else

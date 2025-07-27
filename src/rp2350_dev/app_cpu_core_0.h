@@ -12,7 +12,7 @@
 #define APP_CPU_CORE_0_H
 
 #include "rp2350_util.h"
-#include "mcu_board_def.h"
+#include "pcb_def.h"
 #include "pico/multicore.h"
 
 void app_core_0_main(void);

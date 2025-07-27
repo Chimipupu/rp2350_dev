@@ -32,7 +32,7 @@ static void hw_wdt_init(void);
 static void hw_dma_init(void);
 static void hw_adc_init(void);
 
-#if defined(MCU_BOARD_PICO2W)
+#if defined(PCB_PICO2W)
 #include "pico/cyw43_arch.h"
 static uint8_t s_led_val = 0;
 
@@ -61,7 +61,7 @@ void blink_pin_forever(PIO pio, uint sm, uint offset, uint pin, uint freq)
 }
 #endif
 
-#if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
+#if defined(PCB_WEACT_RP2350A_V10) || defined(PCB_WEACT_RP2350B)
 /**
  * @brief 基板ボタン外部割り込みハンドラ
  * 
@@ -71,19 +71,19 @@ void blink_pin_forever(PIO pio, uint sm, uint offset, uint pin, uint freq)
 void btn_ex_irq_handler(uint gpio, uint32_t event_mask)
 {
     // 割り込みマスク
-    gpio_set_irq_enabled(MCU_BOARD_BTN_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+    gpio_set_irq_enabled(PCB_BTN_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
 
     // チャタリング除去(@30ms待機)
     sleep_ms(30);
 
-    if (gpio_get(MCU_BOARD_BTN_PIN) != PORT_OFF) {
+    if (gpio_get(PCB_BTN_PIN) != PORT_OFF) {
         printf("[Core%d] Button OFF!\n", s_core_num);
     } else {
         printf("[Core%d] Button ON!\n", s_core_num);
     }
 
     // 割り込み有効
-    gpio_set_irq_enabled(MCU_BOARD_BTN_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+    gpio_set_irq_enabled(PCB_BTN_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
 }
 #endif
 
@@ -111,24 +111,24 @@ static void hw_clock_init(void)
 static void hw_gpio_init(void)
 {
     // [基板LED]
-    gpio_set_function(MCU_BOARD_LED_PIN, GPIO_FUNC_SIO);
-    gpio_set_dir(MCU_BOARD_LED_PIN, GPIO_OUT);
-    gpio_put(MCU_BOARD_LED_PIN, PORT_OFF);
+    gpio_set_function(PCB_LED_PIN, GPIO_FUNC_SIO);
+    gpio_set_dir(PCB_LED_PIN, GPIO_OUT);
+    gpio_put(PCB_LED_PIN, PORT_OFF);
 
-#if defined(MCU_BOARD_WEACT_RP2350A_V10)
+#if defined(PCB_WEACT_RP2350A_V10)
     // [基板LED(2個目)]
-    gpio_set_function(MCU_BOARD_LED_2_PIN, GPIO_FUNC_SIO);
-    gpio_set_dir(MCU_BOARD_LED_2_PIN, GPIO_OUT);
-    gpio_put(MCU_BOARD_LED_2_PIN, PORT_OFF);
+    gpio_set_function(PCB_LED_2_PIN, GPIO_FUNC_SIO);
+    gpio_set_dir(PCB_LED_2_PIN, GPIO_OUT);
+    gpio_put(PCB_LED_2_PIN, PORT_OFF);
 #endif
 
     // [基板ボタン]
-#if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
-    gpio_init(MCU_BOARD_BTN_PIN);
-    gpio_set_dir(MCU_BOARD_BTN_PIN, GPIO_IN);
+#if defined(PCB_WEACT_RP2350A_V10) || defined(PCB_WEACT_RP2350B)
+    gpio_init(PCB_BTN_PIN);
+    gpio_set_dir(PCB_BTN_PIN, GPIO_IN);
 
     // 外部割り込み
-    gpio_set_irq_enabled_with_callback(MCU_BOARD_BTN_PIN,   // GPIOピン
+    gpio_set_irq_enabled_with_callback(PCB_BTN_PIN,   // GPIOピン
                                         GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, // 立ち上がり or 立ち下がりエッジでIRQ
                                         true,              // 割り込み 有効 / 無効
                                         &btn_ex_irq_handler // 割り込みハンドラ
@@ -145,12 +145,12 @@ static void hw_pio_init(void)
     printf("Loaded program at %d\n", offset);
 #endif //RPI_PIO_USE
 
-#if defined(MCU_BOARD_PICO2) || defined(MCU_BOARD_WEACT_RP2350B)
+#if defined(PCB_PICO2) || defined(PCB_WEACT_RP2350B)
     #ifdef RPI_PIO_USE
         // マイコンのPIOが並列でLチカ
-        blink_pin_forever(pio, 0, offset, MCU_BOARD_LED_PIN, 5);
+        blink_pin_forever(pio, 0, offset, PCB_LED_PIN, 5);
     #endif // RPI_PIO_USE
-#elif defined(MCU_BOARD_PICO2W)
+#elif defined(PCB_PICO2W)
     // RFモジュールでLED制御
     cyw43_arch_init();
 #endif
