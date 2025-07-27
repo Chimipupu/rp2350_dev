@@ -32,9 +32,10 @@
 // #define PCB_PICO2                             // Raspberry Pi Pico 2
 // #define PCB_PICO2W                            // Raspberry Pi Pico 2 W
 // #define PCB_WEACT_RP2350B                     // WeAct RP2350B
-#define PCB_WEACT_RP2350A_V10                 // WeAct RP2350A-V10
+// #define PCB_WEACT_RP2350A_V10                 // WeAct RP2350A-V10
 // #define PCB_WEACT_RP2350A_V20                 // WeAct RP2350A-V20
 // #define PCB_RP2350_PIZERO                     // Waveshare RP2350-PiZero
+#define PCB_RP2350_ZERO                       // Waveshare RP2350-Zero
 
 // [基板名]
 #pragma once
@@ -50,6 +51,8 @@
     #define PCB_NAME "WeAct RP2350A-V20"
 #elif defined(PCB_RP2350_PIZERO)
     #define PCB_NAME "RP2350-PiZero"
+#elif defined(PCB_RP2350_ZERO)
+    #define PCB_NAME "RP2350-Zero"
 #endif
 
 // 基板を定義してなかっｔらビルドエラーにする
@@ -122,7 +125,11 @@
     #define NEOPIXEL_LED_CNT         8   // NeoPixelの数
     // #define NEOPIXEL_LED_CNT         16  // NeoPixelの数
     // #define NEOPIXEL_LED_CNT         64  // NeoPixelの数
-    #define PCB_NEOPIXEL_PIN   15  // NeoPixelのデータピン
+#if defined(PCB_RP2350_ZERO)
+    #define PCB_NEOPIXEL_PIN        16  // NeoPixelのデータピン
+#else
+    #define PCB_NEOPIXEL_PIN        15  // NeoPixelのデータピン
+#endif
 #endif //PCB_NEOPIXEL
 
 // [タイマ関連]
