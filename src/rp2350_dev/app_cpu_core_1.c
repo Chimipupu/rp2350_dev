@@ -36,14 +36,7 @@ void app_core_1_main(void)
     s_neopixel.p_pixel_grb_buf = &s_rgb_buf[0];
     drv_neopixel_init(&s_neopixel);
 
-    pico_sdk_version_print();
-
-#if defined(PICO_RP2040) && !defined(PICO_RP2350)
-    printf("MCU:\tRP2040\n");
-#elif !defined(PICO_RP2040) && defined(PICO_RP2350)
     printf("MCU:\tRP2350\n");
-#endif
-
     printf("System Clock:\t%d MHz\n", clock_get_hz(clk_sys) / 1000000);
     printf("USB Clock:\t%d MHz\n", clock_get_hz(clk_usb) / 1000000);
 

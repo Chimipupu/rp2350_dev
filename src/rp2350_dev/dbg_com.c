@@ -13,6 +13,7 @@
 #include "mcu_board_def.h"
 #include "app_main.h"
 #include "app_math.h"
+#include "rp2xxx.h"
 
 #include "drv_neopixel.h"
 extern neopixel_t s_neopixel;
@@ -205,19 +206,21 @@ static void cmd_system(void)
     printf("\n[System Information]\n");
 
     // Pico SDK
-    printf("Pico SDK version: %d.%d.%d\n",
-            PICO_SDK_VERSION_MAJOR,
-            PICO_SDK_VERSION_MINOR,
-            PICO_SDK_VERSION_REVISION);
-
-    // マイコン
-    printf("MCU : RP2350\n");
-    printf("CPU : Arm Cortex-M33 (DualCore)\n");
-    cpu_temp = get_cpu_temp_from_adc();
-    printf("CPU temp = %.02f℃\n", cpu_temp);
+    pico_sdk_version_print();
 
     // 基板
-    printf("\n[PCB Info]\n PCB Name : %s\n", MCU_BOARD_NAME);
+    printf("\n[PCB Info]\nPCB Name : %s\n", MCU_BOARD_NAME);
+
+    // マイコン
+    cpu_temp = get_cpu_temp_from_adc();
+    printf("MCU : RP2350\n");
+    rp2xxx_chip_package_print();    // チップパッケージ
+    rp2xxx_chip_rev_print();        // チップRev
+    printf("CPU : Arm Cortex-M33 (DualCore)\n");
+    printf("CPU temp = %.02f℃\n", cpu_temp);
+
+    // レジスタ表示
+    rp2xxx_reg_info();
 
     // ROM/RAM
     printf("\n[Mem Info]\n");
@@ -518,8 +521,8 @@ static void cmd_gpio(const dbg_cmd_args_t* p_args)
     uint8_t value = atoi(p_args->p_argv[2]);
 
     // GPIOのピン番号チェック
-    if (pin < 0 || pin > GPIO_PIN_NUM_MAX) {
-        printf("Error: Invalid GPIO pin number. Must be between 0 and %d.\n\n", GPIO_PIN_NUM_MAX);
+    if (pin < 0 || pin > GPIO_MAX_PIN_NUM) {
+        printf("Error: Invalid GPIO pin number. Must be between 0 and %d.\n\n", GPIO_MAX_PIN_NUM);
         return;
     }
 

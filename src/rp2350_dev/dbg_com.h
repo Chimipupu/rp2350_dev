@@ -11,12 +11,15 @@
 #ifndef DBG_COM_H
 #define DBG_COM_H
 
-#include "mcu_util.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+
+#include "mcu_util.h"
+#include "mcu_board_def.h"
+
 #include "pico/version.h"
 #include "hardware/clocks.h"
 #include "hardware/watchdog.h"
@@ -28,22 +31,28 @@
 // #define DEBUG_DBG_COM      // デバッグ用
 
 // コマンド関連のマクロ
-#define DBG_CMD_MAX_LEN 32 // コマンドの最大長
-#define DBG_CMD_MAX_ARGS 5 // コマンドの最大引数数
-#define CMD_HISTORY_MAX 16 // コマンド履歴の最大数
+#define DBG_CMD_MAX_LEN         32 // コマンドの最大長
+#define DBG_CMD_MAX_ARGS        5 // コマンドの最大引数数
+#define CMD_HISTORY_MAX         16 // コマンド履歴の最大数
 
-// GPIOの最大ピン番号（RP2350）
-#define GPIO_PIN_NUM_MAX 29
+// GPIOの最大本数
+#if defined(MCU_BOARD_WEACT_RP2350A_V10) || defined(MCU_BOARD_WEACT_RP2350B)
+// RP2350B (QFN-80)
+#define GPIO_MAX_PIN_NUM        48
+#else
+// RP2350A (QFN-60)
+#define GPIO_MAX_PIN_NUM        30
+#endif
 
 // 期待値: tan(355/226)
 #define TAN_355_226_EXPECTED -7497258.18532
 
-// タイマー関連の定数
+// [タイマー関連定義]
 #define TIMER_MAX_SECONDS 3600   // 最大1時間
-// #define TIMER_MAX_ALARMS      8  // タイマーの最大アラーム数
-#define TIMER_MAX_ALARMS      16 // タイマーの最大アラーム数
+// タイマーの最大アラーム数
+#define TIMER_MAX_ALARMS      PICO_TIME_DEFAULT_ALARM_POOL_MAX_TIMERS
 
-// キーボードのコード定義
+// [キーボード関連定義]
 #define KEY_ESC         27    // ESCキー
 #define KEY_BACKSPACE   127   // バックスペースキー
 #define KEY_ANSI_ESC    '['   // ANSIエスケープシーケンス

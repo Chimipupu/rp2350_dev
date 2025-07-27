@@ -44,6 +44,7 @@ add_executable(rp2350_dev
             app_math.c
             dbg_com.c
             mcu_util.c
+            rp2xxx.c
             )
 
 pico_set_program_name(rp2350_dev "rp2350_dev")
@@ -113,7 +114,6 @@ target_link_libraries(rp2350_dev
                         hardware_ticks
                         hardware_timer
                         hardware_watchdog
-                        hardware_rtc
                         hardware_i2c
                         hardware_spi
                         hardware_uart

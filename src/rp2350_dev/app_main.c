@@ -70,14 +70,6 @@ void show_mem_dump(uint32_t dump_addr, uint32_t dump_size)
     }
 }
 
-void pico_sdk_version_print(void)
-{
-    printf("Pico SDK version: %d.%d.%d\n",
-    PICO_SDK_VERSION_MAJOR,
-    PICO_SDK_VERSION_MINOR,
-    PICO_SDK_VERSION_REVISION);
-}
-
 /**
  * @brief i2Cスレーブデバイスのスキャン関数
  * 
