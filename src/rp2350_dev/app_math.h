@@ -5,7 +5,7 @@
  * @version 0.1
  * @date 2024-10-16
  * 
- * @copyright Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
+ * @copyright Copyright (c) 2025 Chimipupu All Rights Reserved.
  * 
  */
 #ifndef APP_MATH_H

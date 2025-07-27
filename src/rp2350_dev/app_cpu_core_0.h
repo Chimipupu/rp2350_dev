@@ -5,13 +5,13 @@
  * @version 0.1
  * @date 2025-06-13
  * 
- * @copyright Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
+ * @copyright Copyright (c) 2025 Chimipupu All Rights Reserved.
  * 
  */
 #ifndef APP_CPU_CORE_0_H
 #define APP_CPU_CORE_0_H
 
-#include "mcu_util.h"
+#include "rp2350_util.h"
 #include "mcu_board_def.h"
 #include "pico/multicore.h"
 

@@ -5,11 +5,11 @@
  * @version 0.1
  * @date 2025-07-19
  * 
- * @copyright Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
+ * @copyright Copyright (c) 2025 Chimipupu All Rights Reserved.
  * 
  */
 #include "app_math.h"
-#include "mcu_util.h"
+#include "rp2350_util.h"
 
 #define MATH_PI_CALC_TIME   3
 #define FIBONACCI_N         20

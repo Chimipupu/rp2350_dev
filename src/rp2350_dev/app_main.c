@@ -5,14 +5,14 @@
  * @version 0.1
  * @date 2025-06-13
  * 
- * @copyright Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
+ * @copyright Copyright (c) 2025 Chimipupu All Rights Reserved.
  * 
  */
 #include "app_main.h"
 #include "app_cpu_core_0.h"
 #include "app_cpu_core_1.h"
 #include "dbg_com.h"
-#include "mcu_util.h"
+#include "rp2350_util.h"
 
 /**
  * @brief メモリダンプ(16進HEX & Ascii)

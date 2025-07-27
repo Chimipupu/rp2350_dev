@@ -43,8 +43,7 @@ add_executable(rp2350_dev
             app_main.c
             app_math.c
             dbg_com.c
-            mcu_util.c
-            rp2xxx.c
+            rp2350_util.c
             )
 
 pico_set_program_name(rp2350_dev "rp2350_dev")

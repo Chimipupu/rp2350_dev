@@ -5,15 +5,15 @@
  * @version 0.1
  * @date 2025-06-13
  * 
- * @copyright Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
+ * @copyright Copyright (c) 2025 Chimipupu All Rights Reserved.
  * 
  */
 #include "dbg_com.h"
-#include "mcu_util.h"
+#include "rp2350_util.h"
 #include "mcu_board_def.h"
 #include "app_main.h"
 #include "app_math.h"
-#include "rp2xxx.h"
+#include "rp2350_util.h"
 
 #include "drv_neopixel.h"
 extern neopixel_t s_neopixel;
@@ -175,7 +175,7 @@ static void dbg_com_init_msg(void)
             FW_VERSION_MAJOR,
             FW_VERSION_MINOR,
             FW_VERSION_REVISION);
-    printf("Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)\n");
+    printf("Copyright (c) 2025 Chimipupu All Rights Reserved.\n");
     printf("Type 'help' for available commands\n");
 #ifdef _WDT_ENABLE_
     printf("[INFO] Wanning! WDT Enabled: %dms\n", _WDT_OVF_TIME_MS_);

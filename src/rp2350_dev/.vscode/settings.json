@@ -68,7 +68,8 @@
         "time.h": "c",
         "i2c.h": "c",
         "rp2xxx.h": "c",
-        "rp2350_reg.h": "c"
+        "rp2350_reg.h": "c",
+        "rp2350_util.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }

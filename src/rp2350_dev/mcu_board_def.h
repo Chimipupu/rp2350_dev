@@ -5,13 +5,13 @@
  * @version 0.1
  * @date 2025-07-08
  * 
- * @copyright Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
+ * @copyright Copyright (c) 2025 Chimipupu All Rights Reserved.
  * 
  */
 #ifndef MCU_BOARD_DEF_H
 #define MCU_BOARD_DEF_H
 
-#include "mcu_util.h"
+#include "rp2350_util.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>

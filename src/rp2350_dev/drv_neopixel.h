@@ -5,7 +5,7 @@
  * @version 0.1
  * @date 2025-07-12
  * 
- * @copyright Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
+ * @copyright Copyright (c) 2025 Chimipupu All Rights Reserved.
  * 
  */
 #ifndef DRV_NEOPIXEL_H

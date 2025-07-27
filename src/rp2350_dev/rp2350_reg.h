@@ -5,7 +5,7 @@
  * @version 0.1
  * @date 2025-7-27
  * 
- * @copyright Copyright (c) 2025 Chimipupu
+ * @copyright Copyright (c) 2025 Chimipupu All Rights Reserved.
  * 
  */
 

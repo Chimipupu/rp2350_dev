@@ -5,13 +5,13 @@
  * @version 0.1
  * @date 2025-06-13
  * 
- * @copyright Copyright (c) 2025 Chimipupu(https://github.com/Chimipupu)
+ * @copyright Copyright (c) 2025 Chimipupu All Rights Reserved.
  * 
  */
 #include "app_cpu_core_1.h"
 #include "app_main.h"
 #include "dbg_com.h"
-#include "mcu_util.h"
+#include "rp2350_util.h"
 
 #include "drv_neopixel.h"
 neopixel_t s_neopixel;

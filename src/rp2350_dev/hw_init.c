@@ -5,10 +5,10 @@
  * @version 0.1
  * @date 2025-07-21
  * 
- * @copyright Copyright (dma_config) 2025 Chimipupu(https://github.com/Chimipupu)
+ * @copyright Copyright (c) 2025 Chimipupu All Rights Reserved.
  * 
  */
-#include "mcu_util.h"
+#include "rp2350_util.h"
 #include "app_main.h"
 
 #include "pico/multicore.h"
