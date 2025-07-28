@@ -182,16 +182,32 @@ void pico_sdk_version_print(void)
 }
 
 /**
+ * @brief RP2350のチップパッケージ取得
+ * 
+ * @return uint8_t 0 = QFN80(RP2350B), 1 = QFN60(RP2350A)
+ */
+uint8_t rp2xxx_get_chip_package(void)
+{
+    uint8_t chip_package = CHIP_PACKAGE_QFN60_RP2350A;
+    SYSINFO_PACKAGE_SEL SYSINFO_PACKAGE_SEL_REG;
+
+    SYSINFO_PACKAGE_SEL_REG.DWORD = (*(volatile uint32_t *)SYSINFO_PACKAGE_SEL_REG_ADDR);
+    chip_package = (uint8_t)SYSINFO_PACKAGE_SEL_REG.BIT.PACKAGE;
+
+    return chip_package;
+}
+
+/**
  * @brief RP2350のチップパッケージの表示
  * 
  */
 void rp2xxx_chip_package_print(void)
 {
-    SYSINFO_PACKAGE_SEL SYSINFO_PACKAGE_SEL_REG;    // SYSINFO PACKAGE_SELレジスタ
+    uint8_t chip_package = CHIP_PACKAGE_QFN60_RP2350A;
 
-    SYSINFO_PACKAGE_SEL_REG.DWORD = (*(volatile uint32_t *)SYSINFO_PACKAGE_SEL_REG_ADDR);
+    chip_package = rp2xxx_get_chip_package();
 
-    if(SYSINFO_PACKAGE_SEL_REG.BIT.PACKAGE != CHIP_PACKAGE_QFN80_RP2350B) {
+    if(chip_package != CHIP_PACKAGE_QFN80_RP2350B) {
         printf("Chip Package QFN-60, RP2350A Chip!\n");
     } else {
         printf("Chip Package QFN-80, RP2350B Chip!\n");

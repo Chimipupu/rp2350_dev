@@ -36,7 +36,6 @@
 #define TRNG_VALID_ADDR                          (TRNG_REG_BASE + TRNG_VALID_OFFSET)
 #define TRNG_RND_SOURCE_ENABLE_ADDR              (TRNG_REG_BASE + TRNG_RND_SOURCE_ENABLE_OFFSET)
 
-
 typedef union {
     uint32_t DWORD;
     struct {
@@ -64,7 +63,7 @@ typedef union {
 typedef union {
     uint32_t DWORD;
     struct {
-        uint32_t PACKAGE:1;         // bit[0] (0 = QFN80, 1 = QFN60)
+        uint32_t PACKAGE:1;         // bit[0] 0 = QFN80(RP2350B), 1 = QFN60(RP2350A)
         uint32_t Reserved:31;       // bit[31:1]
     }BIT;
 } SYSINFO_PACKAGE_SEL;

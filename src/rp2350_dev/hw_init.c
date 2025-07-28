@@ -17,7 +17,8 @@
 extern volatile uint32_t g_core_num_core_0;
 extern volatile uint32_t g_core_num_core_1;
 
-static uint32_t s_core_num;
+static uint32_t s_core_num = 0;
+static uint8_t s_chip_package_flg = CHIP_PACKAGE_QFN60_RP2350A;
 
 static void hw_clock_init(void);
 static void hw_gpio_init(void);
@@ -240,9 +241,15 @@ static void hw_adc_init(void)
 {
     adc_init();
 
-    // ADC Ch4 (内蔵CPU温度センサ)
     adc_set_temp_sensor_enabled(true);
-    adc_select_input(ADC_CH_4);
+    if(s_chip_package_flg == CHIP_PACKAGE_QFN60_RP2350A)
+    {
+        // RP2350Aの内蔵CPU温度センサ = ADC Ch4
+        adc_select_input(ADC_CH_4);
+    } else {
+        // RP2350Bの内蔵CPU温度センサ = ADC Ch8
+        adc_select_input(ADC_CH_8);
+    }
 }
 
 static void hw_wdt_init(void)
@@ -292,6 +299,9 @@ int main()
 
     // UART初期化
     hw_uart_init();
+
+    // チップのパッケージ取得
+    s_chip_package_flg = rp2xxx_get_chip_package();
 
     // PIO初期化
     hw_pio_init();

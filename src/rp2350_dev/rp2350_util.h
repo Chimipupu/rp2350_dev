@@ -85,6 +85,7 @@ float get_cpu_temp_from_adc(void);
 uint8_t rp2xxx_read_reg_chip_rev(void);
 uint8_t rp2xxx_get_cpu_core_num(void);
 void pico_sdk_version_print(void);
+uint8_t rp2xxx_get_chip_package(void);
 void rp2xxx_chip_package_print(void);
 void rp2xxx_chip_rev_print(void);
 void rp2xxx_reg_info(void);
