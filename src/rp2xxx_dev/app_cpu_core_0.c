@@ -10,7 +10,7 @@
  */
 #include "app_cpu_core_0.h"
 #include "pcb_def.h"
-#include "rp2350_util.h"
+#include "muc_rpxxx_util.h"
 #include "drv_neopixel.h"
 
 volatile uint32_t g_core_num_core_0 = 0xFF;

@@ -11,7 +11,7 @@
 #ifndef PCB_DEF_H
 #define PCB_DEF_H
 
-#include "rp2350_util.h"
+#include "muc_rpxxx_util.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>

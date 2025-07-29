@@ -70,7 +70,9 @@
         "rp2xxx.h": "c",
         "rp2350_reg.h": "c",
         "rp2350_util.h": "c",
-        "adc.h": "c"
+        "adc.h": "c",
+        "pcb_def.h": "c",
+        "muc_rpxxx_util.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }

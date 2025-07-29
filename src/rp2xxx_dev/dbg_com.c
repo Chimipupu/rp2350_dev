@@ -9,11 +9,11 @@
  * 
  */
 #include "dbg_com.h"
-#include "rp2350_util.h"
+#include "muc_rpxxx_util.h"
 #include "pcb_def.h"
 #include "app_main.h"
 #include "app_math.h"
-#include "rp2350_util.h"
+#include "muc_rpxxx_util.h"
 
 #include "drv_neopixel.h"
 extern neopixel_t s_neopixel;

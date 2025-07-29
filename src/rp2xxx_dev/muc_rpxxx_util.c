@@ -1,14 +1,14 @@
 /**
- * @file rp2350_util.c
+ * @file muc_rpxxx_util.c
  * @author Chimipupu(https://github.com/Chimipupu)
- * @brief RP2040とRP2350固有機能ユーティリティ
+ * @brief マイコン固有(RP2040とRP2350)機能ユーティリティ
  * @version 0.1
  * @date 2025-07-27
  * 
  * @copyright Copyright (c) 2025 Chimipupu All Rights Reserved.
  * 
  */
-#include "rp2350_util.h"
+#include "muc_rpxxx_util.h"
 #include "pcb_def.h"
 
 #include "hardware/adc.h"

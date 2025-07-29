@@ -11,7 +11,7 @@
 #ifndef APP_CPU_CORE_1_H
 #define APP_CPU_CORE_1_H
 
-#include "rp2350_util.h"
+#include "muc_rpxxx_util.h"
 #include "pcb_def.h"
 #include "pico/multicore.h"
 

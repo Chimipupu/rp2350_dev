@@ -1,15 +1,15 @@
 /**
  * @file mcu_util.h
  * @author Chimipupu(https://github.com/Chimipupu)
- * @brief マイコン依存(RP2350)のユーティリティヘッダ
+ * @brief マイコン固有(RP2040とRP2350)機能ユーティリティ
  * @version 0.1
  * @date 2025-06-20
  * 
  * @copyright Copyright (c) 2025 Chimipupu All Rights Reserved.
  * 
  */
-#ifndef MCU_UTIL_H
-#define MCU_UTIL_H
+#ifndef MCU_RP2XXX_UTIL_H
+#define MCU_RP2XXX_UTIL_H
 
 #include "pcb_def.h"
 
@@ -99,4 +99,4 @@ void rp2xxx_chip_package_print(void);
 void rp2xxx_chip_rev_print(void);
 void rp2xxx_reg_info(void);
 
-#endif // MCU_UTIL_H
+#endif // MCU_RP2XXX_UTIL_H

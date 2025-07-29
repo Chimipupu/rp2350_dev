@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2025 Chimipupu All Rights Reserved.
  * 
  */
-#include "rp2350_util.h"
+#include "muc_rpxxx_util.h"
 #include "app_main.h"
 
 #include "pico/multicore.h"

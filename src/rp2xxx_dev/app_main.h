@@ -11,7 +11,7 @@
 #ifndef APP_MAIN_H
 #define APP_MAIN_H
 
-#include "rp2350_util.h"
+#include "muc_rpxxx_util.h"
 #include "pcb_def.h"
 
 #include <stdint.h>

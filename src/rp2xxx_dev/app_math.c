@@ -9,7 +9,7 @@
  * 
  */
 #include "app_math.h"
-#include "rp2350_util.h"
+#include "muc_rpxxx_util.h"
 
 #define MATH_PI_CALC_TIME   3
 #define FIBONACCI_N         20

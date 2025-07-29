@@ -11,7 +11,7 @@
 #include "app_cpu_core_1.h"
 #include "app_main.h"
 #include "dbg_com.h"
-#include "rp2350_util.h"
+#include "muc_rpxxx_util.h"
 
 #include "drv_neopixel.h"
 neopixel_t s_neopixel;

@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "rp2350_util.h"
+#include "muc_rpxxx_util.h"
 #include "pcb_def.h"
 
 #include "pico/version.h"
