@@ -56,6 +56,7 @@ void app_core_0_main(void)
 #else
         s_core_fifo_data = get_multicore_fifo();
         app_multicore_state_machine(s_core_fifo_data);
+
         if (s_fade_pixel_flg != 0) {
             drv_neopixel_pixel_color_fade();
             sleep_ms(1);

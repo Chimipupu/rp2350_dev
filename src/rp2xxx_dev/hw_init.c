@@ -14,6 +14,11 @@
 #include "pico/multicore.h"
 #include "hardware/adc.h"
 
+#if defined(MCU_RP2350)
+#include "pico/aon_timer.h"
+#include <time.h>
+#endif // MCU_RP2350
+
 extern volatile uint32_t g_core_num_core_0;
 extern volatile uint32_t g_core_num_core_1;
 
@@ -220,12 +225,44 @@ static void hw_spi_init(void)
     gpio_put(SPI_1_CS, 1);
 }
 
+#if defined(MCU_RP2350)
+// AONタイマー割り込みハンドラ
+void aon_alarm_handler()
+{
+    // TODO :
+    // printf("AON timer Alarm\n");
+}
+#endif // MCU_RP2350
+
 static void hw_timer_init(void)
 {
 #ifdef TIMER_ALARM_IRQ_ENABLE
     // タイマー割り込み @2000ms
     add_alarm_in_ms(2000, alarm_callback, NULL, false);
 #endif // TIMER_ALARM_IRQ_ENABLE
+
+#if defined(MCU_RP2350)
+    // 64bit AONタイマー スタート
+    struct timespec now;
+    uint8_t ret = 0x00;
+
+    // AONタイマー起動
+    aon_set_time_from_string("2025/01/01 00:00:00");
+
+    if (!aon_timer_get_time(&now)) {
+        printf("Failed to get AON timer time\n");
+        ret = 0xFF;
+    }
+
+#if 0
+    // アラーム設定
+    if (ret != 0xFF) {
+        struct timespec alarm_time = now;
+        alarm_time.tv_sec += 10;
+        aon_timer_enable_alarm(&alarm_time, aon_alarm_handler, true);
+    }
+#endif
+#endif // MCU_RP2350
 }
 
 static void hw_uart_init(void)

@@ -15,8 +15,75 @@
 
 #if defined(MCU_RP2040)
 const char *p_cpu_name_str = "M0PLUS";
-#elif defined(MCU_RP2350)
+#endif
+
+#if defined(MCU_RP2350)
+#include "pico/aon_timer.h"
+#include <time.h>
 const char *p_cpu_name_str = "M33";
+
+/**
+ * @brief AONタイマーに"YYYY/MM/DD HH:MM:SS" 形式の文字列で時刻を設定
+ * @param p_datetime_str 例: "2025/01/01 00:00:00"
+ * @return true 成功
+ * @return false 失敗
+ */
+bool aon_set_time_from_string(const char *p_datetime_str)
+{
+    struct tm tm_info = {0};
+    struct timespec ts = {0};
+
+    if (sscanf(p_datetime_str, "%d/%d/%d %d:%d:%d",
+                &tm_info.tm_year, &tm_info.tm_mon, &tm_info.tm_mday,
+                &tm_info.tm_hour, &tm_info.tm_min, &tm_info.tm_sec) != 6) {
+        printf("Invalid datetime format\n");
+        return false;
+    }
+
+    tm_info.tm_year -= 1900; // 年は1900年からのオフセット
+    tm_info.tm_mon  -= 1;    // 月は0-11
+
+    // UTCで
+    time_t t = mktime(&tm_info);
+    if (t == (time_t)-1) {
+        printf("Failed to convert datetime\n");
+        return false;
+    }
+
+    ts.tv_sec = t;
+    ts.tv_nsec = 0;
+
+    aon_timer_start(&ts);
+    return true;
+}
+
+/**
+ * @brief AONタイマーの現在時刻を "YYYY/MM/DD HH:MM:SS" 形式で表示
+ * 
+ */
+void aon_current_time_print(void)
+{
+    struct timespec now;
+
+    if (aon_timer_get_time(&now)) {
+        time_t t = now.tv_sec;
+        struct tm *tm_info = gmtime(&t);
+        if (tm_info) {
+            printf("AON Timer : %04d/%02d/%02d %02d:%02d:%02d\n",
+                tm_info->tm_year + 1900,
+                tm_info->tm_mon + 1,
+                tm_info->tm_mday,
+                tm_info->tm_hour,
+                tm_info->tm_min,
+                tm_info->tm_sec
+            );
+        } else {
+            printf("Current Time: (invalid)\n");
+        }
+    } else {
+        printf("Failed to get current time\n");
+    }
+}
 
 /**
  * @brief 真性乱数をH/WのTRANGで生成(u32)
@@ -108,7 +175,7 @@ void hardware_calc_sha256(const uint8_t *p_data_buf, size_t len, uint8_t *p_hash
     sha256_get_result(&result, SHA256_BIG_ENDIAN);
     memcpy(p_hash_buf, result.bytes, 32);
 }
-#endif
+#endif // MCU_RP2350
 
 uint32_t get_multicore_fifo(void)
 {

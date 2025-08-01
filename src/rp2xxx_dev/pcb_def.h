@@ -26,8 +26,8 @@
 #include "hardware/uart.h"
 
 // [マイコン選択]
-#define MCU_RP2040
-// #define MCU_RP2350
+// #define MCU_RP2040
+#define MCU_RP2350
 
 // マイコン未定義はビルドエラー
 #if !defined(MCU_RP2040) && !defined(MCU_RP2350)

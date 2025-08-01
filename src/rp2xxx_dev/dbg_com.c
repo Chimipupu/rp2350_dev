@@ -229,6 +229,11 @@ static void cmd_system(void)
 
     printf("\n[System Information]\n");
 
+#if defined(MCU_RP2350)
+    // 時刻表示
+    aon_current_time_print();
+#endif
+
     // Pico SDK
     pico_sdk_version_print();
 
