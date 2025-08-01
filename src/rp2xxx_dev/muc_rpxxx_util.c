@@ -53,7 +53,7 @@ bool aon_set_time_from_string(const char *p_datetime_str)
     ts.tv_sec = t;
     ts.tv_nsec = 0;
 
-    aon_timer_start(&ts);
+    aon_timer_set_time(&ts);
     return true;
 }
 

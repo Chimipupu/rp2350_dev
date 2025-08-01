@@ -82,6 +82,7 @@ typedef enum {
     CMD_I2C,        // I2C制御
     CMD_NEOPIXEL,   // NeoPixel制御
     CMD_TIMER,      // タイマーコマンド
+    CMD_RTC,        // RTCコマンド
 #if defined(MCU_RP2350)
     CMD_RND,        // 真性乱数をH/WのTRANGで生成
     CMD_SHA,        // H/WでSHA-256のハッシュ値を計算

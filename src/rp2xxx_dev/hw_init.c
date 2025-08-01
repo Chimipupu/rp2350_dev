@@ -247,6 +247,7 @@ static void hw_timer_init(void)
     uint8_t ret = 0x00;
 
     // AONタイマー起動
+    aon_timer_start(&now);
     aon_set_time_from_string("2025/01/01 00:00:00");
 
     if (!aon_timer_get_time(&now)) {

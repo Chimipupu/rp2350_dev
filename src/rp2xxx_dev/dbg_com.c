@@ -23,9 +23,8 @@ static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];
 static uint8_t s_history_count = 0;  // コマンド履歴の数
 static int8_t s_history_pos = -1;    // 現在の履歴位置（-1は最新）
 
+
 // コマンドテーブル
-#if defined(MCU_RP2040)
-#define CMD_TBL_SIZE    12
 const dbg_cmd_info_t g_cmd_tbl[] = {
 //  | コマンド文字列 | コマンド種類 | 説明 | 最小引数数 | 最大引数数 |
     {"help",      CMD_HELP,       "Show this help message", 0, 0},
@@ -38,30 +37,15 @@ const dbg_cmd_info_t g_cmd_tbl[] = {
     {"gpio",      CMD_GPIO,       "Control GPIO pin (pin, value)", 2, 2},
     {"px",        CMD_NEOPIXEL,   "Control NeoPixel (command, args)", 1, 2},
     {"tm",        CMD_TIMER,      "Set timer alarm (seconds)", 0, 1},
+#if defined(MCU_RP2350)
+    {"rnd",       CMD_RND,        "Generate true random numbers using TRNG", 0, 1},
+    {"sha",       CMD_SHA,        "Calc SHA-256 Hash using H/W Accelerator", 0, 1},
+#endif
     {"mt",        CMD_MT_TEST,    "Math test", 0, 0},
     {"mct",       CMD_MCT,        "Multi Core test", 0, 0},
 };
 
-#elif defined(MCU_RP2350)
-#define CMD_TBL_SIZE    14
-const dbg_cmd_info_t g_cmd_tbl[] = {
-//  | コマンド文字列 | コマンド種類 | 説明 | 最小引数数 | 最大引数数 |
-    {"help",      CMD_HELP,       "Show this help message", 0, 0},
-    {"cls",       CMD_CLS,        "Display Clear", 0, 0},
-    {"sys",       CMD_SYSTEM,     "Show system information", 0, 0},
-    {"rst",       CMD_RST,        "Reboot", 0, 0},
-    {"memd",      CMD_MEM_DUMP,    "Memory Dump Command. args -> (#address, length)", 2, 2},
-    {"reg",       CMD_REG,        "Register read/write: reg #addr r|w bits [#val]", 3, 4},
-    {"i2c",       CMD_I2C,        "I2C control (port, command)", 2, 2},
-    {"gpio",      CMD_GPIO,       "Control GPIO pin (pin, value)", 2, 2},
-    {"px",        CMD_NEOPIXEL,   "Control NeoPixel (command, args)", 1, 2},
-    {"tm",        CMD_TIMER,      "Set timer alarm (seconds)", 0, 1},
-    {"rnd",       CMD_RND,        "Generate true random numbers using TRNG", 0, 1},
-    {"sha",       CMD_SHA,        "Calc SHA-256 Hash using H/W Accelerator", 0, 1},
-    {"mt",        CMD_MT_TEST,    "Math test", 0, 0},
-    {"mct",       CMD_MCT,        "Multi Core test", 0, 0},
-};
-#endif
+const size_t g_cmd_tbl_size = sizeof(g_cmd_tbl) / sizeof(g_cmd_tbl[0]);
 
 static void sort_available_orders(void);
 static void dbg_com_init_msg(void);
@@ -210,8 +194,8 @@ static void cmd_help(void)
 {
     dbg_com_init_msg();
 
-    printf("\nAvailable commands:\n");
-    for (uint8_t i = 0; i < CMD_TBL_SIZE; i++)
+    printf("\nAvailable %d commands:\n", g_cmd_tbl_size);
+    for (uint8_t i = 0; i < g_cmd_tbl_size; i++)
     {
         printf("  %-10s - %s\n", g_cmd_tbl[i].p_cmd_str, g_cmd_tbl[i].p_description);
     }
@@ -229,13 +213,13 @@ static void cmd_system(void)
 
     printf("\n[System Information]\n");
 
+    // Pico SDK
+    pico_sdk_version_print();
+
 #if defined(MCU_RP2350)
     // 時刻表示
     aon_current_time_print();
 #endif
-
-    // Pico SDK
-    pico_sdk_version_print();
 
     // 基板
     printf("\n[PCB Info]\nPCB Name : %s\n", PCB_NAME);
@@ -845,7 +829,7 @@ static void add_to_cmd_history(const char* p_cmd)
  */
 static dbg_cmd_t dbg_com_parse_cmd(const char* p_cmd_str, dbg_cmd_args_t* p_args)
 {
-    for (uint8_t i = 0; i < CMD_TBL_SIZE; i++)
+    for (uint8_t i = 0; i < g_cmd_tbl_size; i++)
     {
         if (strcmp(p_cmd_str, g_cmd_tbl[i].p_cmd_str) == 0) {
             // 引数の数をチェック
