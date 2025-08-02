@@ -9,6 +9,7 @@
  * 
  */
 #include "dbg_com.h"
+#include "ansi_esc.h"
 #include "muc_rpxxx_util.h"
 #include "pcb_def.h"
 #include "app_main.h"
@@ -23,7 +24,6 @@ static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];
 static uint8_t s_history_count = 0;  // コマンド履歴の数
 static int8_t s_history_pos = -1;    // 現在の履歴位置（-1は最新）
 
-
 // コマンドテーブル
 const dbg_cmd_info_t g_cmd_tbl[] = {
 //  | コマンド文字列 | コマンド種類 | 説明 | 最小引数数 | 最大引数数 |
@@ -37,6 +37,7 @@ const dbg_cmd_info_t g_cmd_tbl[] = {
     {"gpio",      CMD_GPIO,       "Control GPIO pin (pin, value)", 2, 2},
     {"px",        CMD_NEOPIXEL,   "Control NeoPixel (command, args)", 1, 2},
     {"tm",        CMD_TIMER,      "Set timer alarm (seconds)", 0, 1},
+    {"rtc",       CMD_RTC,        "RTC Cmd (RP2040 ... H/W RTC, RP2350 ... AON Timer)", 0, 1},
 #if defined(MCU_RP2350)
     {"rnd",       CMD_RND,        "Generate true random numbers using TRNG", 0, 1},
     {"sha",       CMD_SHA,        "Calc SHA-256 Hash using H/W Accelerator", 0, 1},
@@ -45,9 +46,9 @@ const dbg_cmd_info_t g_cmd_tbl[] = {
     {"mct",       CMD_MCT,        "Multi Core test", 0, 0},
 };
 
+// コマンドテーブルのコマンド数(const)
 const size_t g_cmd_tbl_size = sizeof(g_cmd_tbl) / sizeof(g_cmd_tbl[0]);
 
-static void sort_available_orders(void);
 static void dbg_com_init_msg(void);
 static void cmd_help(void);
 static void cmd_cls(void);
@@ -64,6 +65,7 @@ static void cmd_sha(const dbg_cmd_args_t* p_args);
 static void cmd_rst(void);
 static void cmd_unknown(void);
 static void cmd_timer(const dbg_cmd_args_t* p_args);
+static void cmd_rtc(const dbg_cmd_args_t* p_args);
 static void cmd_gpio(const dbg_cmd_args_t* p_args);
 static void cmd_mem_dump(const dbg_cmd_args_t* p_args);
 static void cmd_i2c(const dbg_cmd_args_t* p_args);
@@ -75,9 +77,8 @@ static char s_cmd_buffer[DBG_CMD_MAX_LEN];
 static int32_t s_cmd_index = 0;
 
 // タイマー状態
-static timer_state_t s_timer_state[TIMER_MAX_ALARMS] = {0};
-static uint8_t s_available_orders[TIMER_MAX_ALARMS] = {1, 2, 3, 4};  // 利用可能な登録順序
-static uint8_t s_available_count = TIMER_MAX_ALARMS;  // 利用可能な登録順序の数
+static timer_state_t s_timer_alarn_state[TIMER_MAX_ALARMS]; // タイマーアラームのステート
+static uint8_t s_available_tim_cnt = TIMER_MAX_ALARMS;      // 利用可能なタイマーアラームの登録順序の数
 
 static int32_t split_str(char* p_str, dbg_cmd_args_t* p_args);
 
@@ -143,15 +144,13 @@ static int64_t timer_callback(alarm_id_t id, void *user_data)
     // 対応するタイマーを探して状態を更新
     for (int i = 0; i < TIMER_MAX_ALARMS; i++)
     {
-        if (s_timer_state[i].alarm_id == id) {
-            printf("\nTimer #%d Alarm! (Set time : %d)\n", i + 1, s_timer_state[i].req_time_sec);
+        if (s_timer_alarn_state[i].alarm_id == id) {
+            printf("\nTimer #%d Alarm! (Set time : %d)\n", i + 1, s_timer_alarn_state[i].req_time_sec);
 
             // 登録順序を再利用可能なリストに戻す
-            s_available_orders[s_available_count++] = s_timer_state[i].reg_order;
-            sort_available_orders();  // 利用可能な登録順序を昇順にソート
-            s_timer_state[i].is_running = false;
-            s_timer_state[i].alarm_id = 0;
-            s_timer_state[i].reg_order = 0;
+            s_timer_alarn_state[i].is_run = false;
+            s_timer_alarn_state[i].alarm_id = 0;
+            s_timer_alarn_state[i].order = 0;
             break;
         }
     }
@@ -159,22 +158,6 @@ static int64_t timer_callback(alarm_id_t id, void *user_data)
     printf("> ");
 
     return 0;  // 繰り返しなし
-}
-
-// 利用可能な登録順序を昇順にソート
-static void sort_available_orders(void)
-{
-    for (int i = 0; i < s_available_count - 1; i++)
-    {
-        for (int j = 0; j < s_available_count - i - 1; j++)
-        {
-            if (s_available_orders[j] > s_available_orders[j + 1]) {
-                uint8_t temp = s_available_orders[j];
-                s_available_orders[j] = s_available_orders[j + 1];
-                s_available_orders[j + 1] = temp;
-            }
-        }
-    }
 }
 
 static void dbg_com_init_msg(void)
@@ -447,7 +430,7 @@ static void cmd_rst(void)
 
 static void cmd_unknown(void)
 {
-    printf("Unknown command. Type 'help' for available commands.\n");
+    printf(ANSI_ESC_PG_RED "[ERROR] Unknown command. Type 'help' for available commands.\n" ANSI_ESC_PG_RESET);
 }
 
 /**
@@ -460,11 +443,11 @@ static void cmd_timer(const dbg_cmd_args_t* p_args)
     if (p_args->argc > 1) {
         int32_t seconds = atoi(p_args->p_argv[1]);
         if (seconds <= 0) {
-            printf("Error: Invalid timer duration. Must be positive.\n");
+            printf("Error: Invalid timer set_time_us. Must be positive.\n");
             return;
         }
         if (seconds > TIMER_MAX_SECONDS) {
-            printf("Error: Timer duration exceeds maximum of %d seconds.\n", TIMER_MAX_SECONDS);
+            printf("Error: Timer set_time_us exceeds maximum of %d seconds.\n", TIMER_MAX_SECONDS);
             return;
         }
 
@@ -472,7 +455,7 @@ static void cmd_timer(const dbg_cmd_args_t* p_args)
         int free_slot = -1;
         for (int i = 0; i < TIMER_MAX_ALARMS; i++)
         {
-            if (!s_timer_state[i].is_running) {
+            if (!s_timer_alarn_state[i].is_run) {
                 free_slot = i;
                 break;
             }
@@ -484,21 +467,16 @@ static void cmd_timer(const dbg_cmd_args_t* p_args)
         }
 
         // H/Wでアラームを設定（us単位）
-        s_timer_state[free_slot].req_time_sec = seconds;
+        s_timer_alarn_state[free_slot].req_time_sec = seconds;
         uint64_t delay_us = seconds * 1000000ULL;
         alarm_id_t alarm_id = add_alarm_in_us(delay_us, timer_callback, NULL, true);
         if (alarm_id > 0) {
-            s_timer_state[free_slot].is_running = true;
-            s_timer_state[free_slot].start_time = time_us_32();
-            s_timer_state[free_slot].duration = delay_us;
-            s_timer_state[free_slot].alarm_id = alarm_id;
-            // 利用可能な登録順序から最小のものを使用
-            s_timer_state[free_slot].reg_order = s_available_orders[0];
-            // 使用した登録順序を削除し、残りを前に詰める
-            for (int i = 0; i < s_available_count - 1; i++) {
-                s_available_orders[i] = s_available_orders[i + 1];
-            }
-            s_available_count--;
+            s_timer_alarn_state[free_slot].is_run = true;
+            s_timer_alarn_state[free_slot].start_time = time_us_32();
+            s_timer_alarn_state[free_slot].set_time_us = delay_us;
+            s_timer_alarn_state[free_slot].alarm_id = alarm_id;
+            s_timer_alarn_state[free_slot].order = 0;
+            s_available_tim_cnt--;
             printf("Timer #%d Alarm Set %d s\n",free_slot + 1, seconds);
         } else {
             printf("Error: Failed to set timer.\n");
@@ -507,12 +485,12 @@ static void cmd_timer(const dbg_cmd_args_t* p_args)
         // 引数なしの場合は現在のタイマー状態を表示
         bool any_running = false;
         for (int i = 0; i < TIMER_MAX_ALARMS; i++) {
-            if (s_timer_state[i].is_running) {
-                uint32_t elapsed = time_us_32() - s_timer_state[i].start_time;
-                uint32_t remaining = (elapsed < s_timer_state[i].duration) ?
-                                    (s_timer_state[i].duration - elapsed) : 0;
-                printf("Timer #%d (alarm as #%d) : %u s remaining.\n",
-                        i + 1, s_timer_state[i].reg_order,
+            if (s_timer_alarn_state[i].is_run) {
+                uint32_t elapsed = time_us_32() - s_timer_alarn_state[i].start_time;
+                uint32_t remaining = (elapsed < s_timer_alarn_state[i].set_time_us) ?
+                                    (s_timer_alarn_state[i].set_time_us - elapsed) : 0;
+                printf("Timer alarm #%d = %u s remaining.\n",
+                        i + 1,
                        (remaining + 500000) / 1000000);  // 四捨五入
                 any_running = true;
             }
@@ -521,6 +499,22 @@ static void cmd_timer(const dbg_cmd_args_t* p_args)
             printf("No timers are running.\n");
         }
     }
+}
+
+/**
+ * @brief RTCコマンド（リソース ... RP2040 = H/W RTC, RP2350 = AON Timer）
+ * 
+ * @param p_args コマンド引数の構造体ポインタ
+ */
+static void cmd_rtc(const dbg_cmd_args_t* p_args)
+{
+    if (p_args->argc > 1) {
+#if defined(MCU_RP2350)
+    aon_current_time_print();
+#endif
+    }
+
+
 }
 
 /**
@@ -877,6 +871,10 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
             cmd_timer(p_args);
             break;
 
+        case CMD_RTC:
+            cmd_rtc(p_args);
+            break;
+
         case CMD_GPIO:
             cmd_gpio(p_args);
             break;
@@ -896,6 +894,7 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
         case CMD_REG:
             cmd_reg(p_args);
             break;
+
 #if defined(MCU_RP2350)
         case CMD_RND:
             cmd_rnd(p_args);

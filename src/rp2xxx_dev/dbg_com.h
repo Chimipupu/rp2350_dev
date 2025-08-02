@@ -112,12 +112,12 @@ typedef struct {
 
 // タイマー状態
 typedef struct {
-    bool is_running;                // タイマー実行中フラグ
-    uint32_t req_time_sec;          // 設定時間 (秒)
-    uint32_t start_time;            // 開始時間
-    uint32_t duration;              // 設定時間（us）
-    alarm_id_t alarm_id;            // アラームID
-    uint8_t reg_order;              // 登録順序（1から開始）
+    bool is_run;                     // タイマー実行中フラグ
+    alarm_id_t alarm_id;             // アラームID
+    uint32_t req_time_sec;           // 設定時間 (秒)
+    uint32_t start_time;             // 開始時間
+    uint32_t set_time_us;            // 設定時間（us）
+    uint8_t order;                   // 登録順序
 } timer_state_t;
 
 // 関数プロトタイプ
