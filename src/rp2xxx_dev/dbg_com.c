@@ -19,58 +19,52 @@
 #include "drv_neopixel.h"
 extern neopixel_t s_neopixel;
 
+#define KEY_LEFT    'D'    // 左矢印キー（ESC[D）
+#define KEY_RIGHT   'C'    // 右矢印キー（ESC[C）
+#define KEY_DELETE  0x7F   // Deleteキー
+
 // コマンド履歴
 static char s_cmd_history[CMD_HISTORY_MAX][DBG_CMD_MAX_LEN];
 static uint8_t s_history_count = 0;  // コマンド履歴の数
 static int8_t s_history_pos = -1;    // 現在の履歴位置（-1は最新）
+static int32_t s_cursor_pos = 0;  // カーソル位置（0からs_cmd_indexの範囲）
 
-// コマンドテーブル
-const dbg_cmd_info_t g_cmd_tbl[] = {
-//  | コマンド文字列 | コマンド種類 | 説明 | 最小引数数 | 最大引数数 |
-    {"help",      CMD_HELP,       "Show this help message", 0, 0},
-    {"cls",       CMD_CLS,        "Display Clear", 0, 0},
-    {"sys",       CMD_SYSTEM,     "Show system information", 0, 0},
-    {"rst",       CMD_RST,        "Reboot", 0, 0},
-    {"memd",      CMD_MEM_DUMP,    "Memory Dump Command. args -> (#address, length)", 2, 2},
-    {"reg",       CMD_REG,        "Register read/write: reg #addr r|w bits [#val]", 3, 4},
-    {"i2c",       CMD_I2C,        "I2C control (port, command)", 2, 2},
-    {"gpio",      CMD_GPIO,       "Control GPIO pin (pin, value)", 2, 2},
-    {"px",        CMD_NEOPIXEL,   "Control NeoPixel (command, args)", 1, 2},
-    {"tm",        CMD_TIMER,      "Set timer alarm (seconds)", 0, 1},
-    {"rtc",       CMD_RTC,        "RTC Cmd (RP2040 ... H/W RTC, RP2350 ... AON Timer)", 0, 1},
+static void dbg_com_init_msg(dbg_cmd_args_t *p_args);
+static void dbg_com_execute_cmd(dbg_cmd_t cmd, dbg_cmd_args_t *p_args);
+
+static void cmd_help(dbg_cmd_args_t *p_args);
+static void cmd_cls(dbg_cmd_args_t *p_args);
+static void cmd_system(dbg_cmd_args_t *p_args);
+static void cmd_mt_test(dbg_cmd_args_t *p_args);
+static void cmd_mct_test(dbg_cmd_args_t *p_args);
+static void cmd_pi_calc(dbg_cmd_args_t *p_args);
 #if defined(MCU_RP2350)
-    {"rnd",       CMD_RND,        "Generate true random numbers using TRNG", 0, 1},
-    {"sha",       CMD_SHA,        "Calc SHA-256 Hash using H/W Accelerator", 0, 1},
+static void cmd_rnd(dbg_cmd_args_t *p_args);
+static void cmd_sha(dbg_cmd_args_t *p_args);
 #endif
-    {"mt",        CMD_MT_TEST,    "Math test", 0, 0},
-    {"mct",       CMD_MCT,        "Multi Core test", 0, 0},
-};
+static void cmd_rst(dbg_cmd_args_t *p_args);
+static void cmd_timer(dbg_cmd_args_t *p_args);
+static void cmd_rtc(dbg_cmd_args_t *p_args);
+static void cmd_gpio(dbg_cmd_args_t *p_args);
+static void cmd_mem_dump(dbg_cmd_args_t *p_args);
+static void cmd_i2c(dbg_cmd_args_t *p_args);
+static void cmd_reg(dbg_cmd_args_t *p_args);
+static void cmd_neopixel(dbg_cmd_args_t *p_args);
+static void cmd_unknown(dbg_cmd_args_t *p_args);
 
-// コマンドテーブルのコマンド数(const)
-const size_t g_cmd_tbl_size = sizeof(g_cmd_tbl) / sizeof(g_cmd_tbl[0]);
+static void move_cursor_left(void);
+static void move_cursor_right(void);
+static void insert_char_at_cursor(char c);
+static void delete_char_at_cursor(void);
+static void backspace_at_cursor(void);
+static void redraw_command_line(void);
+static void clear_command_line(void);
+static void overwrite_char_at_cursor(char c);
 
-static void dbg_com_init_msg(void);
-static void cmd_help(void);
-static void cmd_cls(void);
-static void cmd_system(void);
-static void cmd_mt_test(void);
-static void cmd_mct_test(void);
-static void cmd_pi_calc(const dbg_cmd_args_t* p_args);
+static int32_t split_str(char* p_str, dbg_cmd_args_t *p_args);
 
-#if defined(MCU_RP2350)
-static void cmd_rnd(const dbg_cmd_args_t* p_args);
-static void cmd_sha(const dbg_cmd_args_t* p_args);
-#endif
-
-static void cmd_rst(void);
-static void cmd_unknown(void);
-static void cmd_timer(const dbg_cmd_args_t* p_args);
-static void cmd_rtc(const dbg_cmd_args_t* p_args);
-static void cmd_gpio(const dbg_cmd_args_t* p_args);
-static void cmd_mem_dump(const dbg_cmd_args_t* p_args);
-static void cmd_i2c(const dbg_cmd_args_t* p_args);
-static void cmd_reg(const dbg_cmd_args_t* p_args);
-static void cmd_neopixel(const dbg_cmd_args_t* p_args);
+static int get_neopixel_color_from_name(const char* name);
+static int parse_hex_color(const char* str, uint8_t *r, uint8_t *g, uint8_t *b);
 
 // コマンドバッファ
 static char s_cmd_buffer[DBG_CMD_MAX_LEN];
@@ -80,13 +74,194 @@ static int32_t s_cmd_index = 0;
 static timer_state_t s_timer_alarn_state[TIMER_MAX_ALARMS]; // タイマーアラームのステート
 static uint8_t s_available_tim_cnt = TIMER_MAX_ALARMS;      // 利用可能なタイマーアラームの登録順序の数
 
-static int32_t split_str(char* p_str, dbg_cmd_args_t* p_args);
+// コマンドテーブル
+const dbg_cmd_info_t g_cmd_tbl[] = {
+//  | コマンド文字列 | コマンド種類 | 説明 | 最小引数数 | 最大引数数 |
+    {"help",    CMD_HELP,       &cmd_help,        "Show this help message", 0, 0},
+    {"cls",     CMD_CLS,        &cmd_cls,         "Display Clear", 0, 0},
+    {"sys",     CMD_SYSTEM,     &cmd_system,      "Show system information", 0, 0},
+    {"rst",     CMD_RST,        &cmd_rst,         "Reboot", 0, 0},
+    {"memd",    CMD_MEM_DUMP,   &cmd_mem_dump,    "Memory Dump Command. args -> (#address, length)", 2, 2},
+    {"reg",     CMD_REG,        &cmd_reg,         "Register read/write: reg #addr r|w bits [#val]", 3, 4},
+    {"i2c",     CMD_I2C,        &cmd_i2c,         "I2C control (port, command)", 2, 2},
+    {"gpio",    CMD_GPIO,       &cmd_gpio,        "Control GPIO pin (pin, value)", 2, 2},
+    {"px",      CMD_NEOPIXEL,   &cmd_neopixel,    "Control NeoPixel (command, args)", 1, 2},
+    {"tm",      CMD_TIMER,      &cmd_timer,       "Set timer alarm (seconds)", 0, 1},
+    {"rtc",     CMD_RTC,        &cmd_rtc,         "RTC Cmd (RP2040 ... H/W RTC, RP2350 ... AON Timer)", 0, 1},
+#if defined(MCU_RP2350)
+    {"rnd",     CMD_RND,        &cmd_rnd,         "Generate true random numbers using TRNG", 0, 1},
+    {"sha",     CMD_SHA,        &cmd_sha,         "Calc SHA-256 Hash using H/W Accelerator", 0, 1},
+#endif
+    {"mt",      CMD_MT_TEST,    &cmd_mt_test,     "Math test", 0, 0},
+    {"mct",     CMD_MCT,        &cmd_mct_test,    "Multi Core test", 0, 0},
+};
 
-static int get_neopixel_color_from_name(const char* name);
-static int parse_hex_color(const char* str, uint8_t *r, uint8_t *g, uint8_t *b);
+// コマンドテーブルのコマンド数(const)
+const size_t g_cmd_tbl_size = sizeof(g_cmd_tbl) / sizeof(g_cmd_tbl[0]);
+
+/**
+ * @brief カーソルを左に移動
+ */
+static void move_cursor_left(void)
+{
+    if (s_cursor_pos > 0) {
+        s_cursor_pos--;
+        printf("\b");  // カーソルを1文字左に移動
+    }
+}
+
+/**
+ * @brief カーソルを右に移動
+ */
+static void move_cursor_right(void)
+{
+    if (s_cursor_pos < s_cmd_index) {
+        printf("%c", s_cmd_buffer[s_cursor_pos]);
+        s_cursor_pos++;
+    }
+}
+
+/**
+ * @brief カーソル位置の文字を書き換え（上書きモード）
+ * 
+ * @param c 書き換える文字
+ */
+static void overwrite_char_at_cursor(char c)
+{
+    // カーソル位置の文字を上書き
+    s_cmd_buffer[s_cursor_pos] = c;
+    
+    // バッファの末尾を超える場合は文字列長を更新
+    if (s_cursor_pos >= s_cmd_index) {
+        s_cmd_index = s_cursor_pos + 1;
+        // バッファサイズチェック
+        if (s_cmd_index >= DBG_CMD_MAX_LEN) {
+            s_cmd_index = DBG_CMD_MAX_LEN - 1;
+            return;
+        }
+    }
+    
+    // 文字を表示してカーソルを進める
+    printf("%c", c);
+    s_cursor_pos++;
+}
+
+/**
+ * @brief カーソル位置の文字を書き換え（上書きモード）
+ * 
+ * @param c 書き換える文字
+ */
+static void insert_char_at_cursor(char c)
+{
+    if (s_cursor_pos >= DBG_CMD_MAX_LEN - 1) {
+        return;  // バッファが満杯
+    }
+
+    // カーソル位置の文字を上書き
+    s_cmd_buffer[s_cursor_pos] = c;
+
+    // バッファの末尾を超える場合は文字列長を更新
+    if (s_cursor_pos >= s_cmd_index) {
+        s_cmd_index = s_cursor_pos + 1;
+    }
+
+    // 文字を表示してカーソルを進める
+    printf("%c", c);
+    s_cursor_pos++;
+}
+
+/**
+ * @brief カーソル位置の文字を削除（Delete機能）
+ */
+static void delete_char_at_cursor(void)
+{
+    if (s_cursor_pos < s_cmd_index) {
+        // カーソル位置以降の文字を左にシフト
+        for (int32_t i = s_cursor_pos; i < s_cmd_index - 1; i++) {
+            s_cmd_buffer[i] = s_cmd_buffer[i + 1];
+        }
+        
+        s_cmd_index--;
+        
+        // カーソル位置以降を再描画
+        for (int32_t i = s_cursor_pos; i < s_cmd_index; i++) {
+            printf("%c", s_cmd_buffer[i]);
+        }
+        printf(" ");  // 最後の文字を消去
+        
+        // カーソルを正しい位置に戻す
+        for (int32_t i = s_cursor_pos; i <= s_cmd_index; i++) {
+            printf("\b");
+        }
+    }
+}
+
+/**
+ * @brief カーソル位置の前の文字を削除（Backspace機能）
+ */
+static void backspace_at_cursor(void)
+{
+    if (s_cursor_pos > 0) {
+        s_cursor_pos--;
+        
+        // カーソル位置以降の文字を左にシフト
+        for (int32_t i = s_cursor_pos; i < s_cmd_index - 1; i++) {
+            s_cmd_buffer[i] = s_cmd_buffer[i + 1];
+        }
+        
+        s_cmd_index--;
+        
+        // カーソルを1文字左に移動してから再描画
+        printf("\b");
+        
+        // カーソル位置以降を再描画
+        for (int32_t i = s_cursor_pos; i < s_cmd_index; i++) {
+            printf("%c", s_cmd_buffer[i]);
+        }
+        printf(" ");  // 最後の文字を消去
+        
+        // カーソルを正しい位置に戻す
+        for (int32_t i = s_cursor_pos; i <= s_cmd_index; i++) {
+            printf("\b");
+        }
+    }
+}
+
+/**
+ * @brief コマンドラインを再描画
+ */
+static void redraw_command_line(void)
+{
+    // 現在の行をクリア
+    printf("\r> ");
+    
+    // コマンドバッファを表示
+    for (int32_t i = 0; i < s_cmd_index; i++) {
+        printf("%c", s_cmd_buffer[i]);
+    }
+    
+    // カーソルを正しい位置に移動
+    for (int32_t i = s_cursor_pos; i < s_cmd_index; i++) {
+        printf("\b");
+    }
+}
+
+/**
+ * @brief コマンドラインをクリア
+ */
+static void clear_command_line(void)
+{
+    // 現在の入力バッファをクリア
+    while (s_cmd_index > 0) {
+        printf("\b \b");
+        s_cmd_index--;
+        WDT_RST();
+    }
+    s_cursor_pos = 0;
+}
 
 // コマンド引数を分割して解析
-static int32_t split_str(char* p_str, dbg_cmd_args_t* p_args)
+static int32_t split_str(char* p_str, dbg_cmd_args_t *p_args)
 {
     char* p_token;
     char* p_next = p_str;
@@ -160,7 +335,7 @@ static int64_t timer_callback(alarm_id_t id, void *user_data)
     return 0;  // 繰り返しなし
 }
 
-static void dbg_com_init_msg(void)
+static void dbg_com_init_msg(dbg_cmd_args_t *p_args)
 {
     printf("\nDebug Command Monitor for %s Ver%d.%d.%d\n",MCU_NAME,
                                                         FW_VERSION_MAJOR,
@@ -173,9 +348,9 @@ static void dbg_com_init_msg(void)
 #endif // _WDT_ENABLE_
 }
 
-static void cmd_help(void)
+static void cmd_help(dbg_cmd_args_t *p_args)
 {
-    dbg_com_init_msg();
+    dbg_com_init_msg(p_args);
 
     printf("\nAvailable %d commands:\n", g_cmd_tbl_size);
     for (uint8_t i = 0; i < g_cmd_tbl_size; i++)
@@ -184,12 +359,12 @@ static void cmd_help(void)
     }
 }
 
-static void cmd_cls(void)
+static void cmd_cls(dbg_cmd_args_t *p_args)
 {
     printf(ANSI_ESC_CLS);
 }
 
-static void cmd_system(void)
+static void cmd_system(dbg_cmd_args_t *p_args)
 {
     uint32_t sys_clock, usb_clock, adc_clock, ref_clock;
     float cpu_temp;
@@ -291,7 +466,7 @@ static void cmd_system(void)
             UART_BAUD_RATE, UART_1_TX, UART_1_RX);
 }
 
-static void cmd_mt_test(void)
+static void cmd_mt_test(dbg_cmd_args_t *p_args)
 {
     // 数学関連テスト
     app_math_math_test();
@@ -316,7 +491,7 @@ static void cmd_mt_test(void)
     proc_exec_time(double_div_test, "double_div_test");
 }
 
-static void cmd_mct_test(void)
+static void cmd_mct_test(dbg_cmd_args_t *p_args)
 {
     uint32_t data = 0;
 
@@ -326,7 +501,7 @@ static void cmd_mct_test(void)
     printf("[Core 1] TX FIFO Data to Core 0 : 0x%08X\n", data);
 }
 
-static void cmd_pi_calc(const dbg_cmd_args_t* p_args)
+static void cmd_pi_calc(dbg_cmd_args_t *p_args)
 {
     int32_t iterations = 3;
     volatile double pi;
@@ -350,7 +525,7 @@ static void cmd_pi_calc(const dbg_cmd_args_t* p_args)
 }
 
 #if defined(MCU_RP2350)
-static void cmd_sha(const dbg_cmd_args_t* p_args)
+static void cmd_sha(dbg_cmd_args_t *p_args)
 {
     uint8_t padding_buf[64 * 2];
     uint8_t hash_buf[64 * 2];
@@ -390,7 +565,7 @@ static void cmd_sha(const dbg_cmd_args_t* p_args)
     show_mem_dump((uint32_t)hash_buf, 64);
 }
 
-static void cmd_rnd(const dbg_cmd_args_t* p_args)
+static void cmd_rnd(dbg_cmd_args_t *p_args)
 {
     int32_t i, count;
 
@@ -422,13 +597,13 @@ static void cmd_rnd(const dbg_cmd_args_t* p_args)
 }
 #endif
 
-static void cmd_rst(void)
+static void cmd_rst(dbg_cmd_args_t *p_args)
 {
     printf("Resetting system...\n");
     watchdog_reboot(0, 0, 0);   // WDTで即時リセット
 }
 
-static void cmd_unknown(void)
+static void cmd_unknown(dbg_cmd_args_t *p_args)
 {
     printf(ANSI_ESC_PG_RED "[ERROR] Unknown command. Type 'help' for available commands.\n" ANSI_ESC_PG_RESET);
 }
@@ -438,7 +613,7 @@ static void cmd_unknown(void)
  * 
  * @param p_args コマンド引数の構造体ポインタ
  */
-static void cmd_timer(const dbg_cmd_args_t* p_args)
+static void cmd_timer(dbg_cmd_args_t *p_args)
 {
     if (p_args->argc > 1) {
         int32_t seconds = atoi(p_args->p_argv[1]);
@@ -506,7 +681,7 @@ static void cmd_timer(const dbg_cmd_args_t* p_args)
  * 
  * @param p_args コマンド引数の構造体ポインタ
  */
-static void cmd_rtc(const dbg_cmd_args_t* p_args)
+static void cmd_rtc(dbg_cmd_args_t *p_args)
 {
 #if defined(MCU_RP2350)
     // 引数が2つ以上
@@ -550,7 +725,7 @@ static void cmd_rtc(const dbg_cmd_args_t* p_args)
  * 
  * @param p_args コマンド引数の構造体ポインタ
  */
-static void cmd_gpio(const dbg_cmd_args_t* p_args)
+static void cmd_gpio(dbg_cmd_args_t *p_args)
 {
     if (p_args->argc != 3) {
         printf("Error: Invalid number of arguments. Usage: gpio <pin> <value>\n\n");
@@ -590,7 +765,7 @@ static void cmd_gpio(const dbg_cmd_args_t* p_args)
  * 
  * @param p_args コマンド引数の構造体ポインタ
  */
-static void cmd_mem_dump(const dbg_cmd_args_t* p_args)
+static void cmd_mem_dump(dbg_cmd_args_t *p_args)
 {
     uint32_t addr;
     uint32_t length;
@@ -623,7 +798,7 @@ static void cmd_mem_dump(const dbg_cmd_args_t* p_args)
  * 
  * @param p_args コマンド引数の構造体ポインタ
  */
-static void cmd_i2c(const dbg_cmd_args_t* p_args)
+static void cmd_i2c(dbg_cmd_args_t *p_args)
 {
     if (p_args->argc != 3) {
         printf("Error: Invalid number of arguments. Usage: i2c <port> <command>\n");
@@ -654,7 +829,7 @@ static void cmd_i2c(const dbg_cmd_args_t* p_args)
  * 
  * @param p_args コマンド引数の構造体ポインタ
  */
-static void cmd_reg(const dbg_cmd_args_t* p_args)
+static void cmd_reg(dbg_cmd_args_t *p_args)
 {
     uint32_t wval = 0;
     uint32_t val = 0;
@@ -740,7 +915,7 @@ static int parse_hex_color(const char* str, uint8_t *r, uint8_t *g, uint8_t *b)
  * 
  * @param p_args 
  */
-static void cmd_neopixel(const dbg_cmd_args_t* p_args)
+static void cmd_neopixel(dbg_cmd_args_t *p_args)
 {
     uint8_t r, g, b = 0;
     int idx = 0;
@@ -825,7 +1000,8 @@ static void cmd_neopixel(const dbg_cmd_args_t* p_args)
 static void add_to_cmd_history(const char* p_cmd)
 {
     // 履歴を1つずつ下にずらす
-    for (int32_t i = CMD_HISTORY_MAX - 1; i > 0; i--) {
+    for (int32_t i = CMD_HISTORY_MAX - 1; i > 0; i--)
+    {
         strcpy(s_cmd_history[i], s_cmd_history[i - 1]);
     }
 
@@ -849,7 +1025,7 @@ static void add_to_cmd_history(const char* p_cmd)
  * @param p_args 引数構造体
  * @return dbg_cmd_t コマンド種類
  */
-static dbg_cmd_t dbg_com_parse_cmd(const char* p_cmd_str, dbg_cmd_args_t* p_args)
+static dbg_cmd_t dbg_com_parse_cmd(const char* p_cmd_str, dbg_cmd_args_t *p_args)
 {
     for (uint8_t i = 0; i < g_cmd_tbl_size; i++)
     {
@@ -872,74 +1048,15 @@ static dbg_cmd_t dbg_com_parse_cmd(const char* p_cmd_str, dbg_cmd_args_t* p_args
  * @param cmd コマンド種類
  * @param p_args 引数構造体
  */
-static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
+static void dbg_com_execute_cmd(dbg_cmd_t cmd, dbg_cmd_args_t *p_args)
 {
-    switch (cmd) {
-        case CMD_HELP:
-            cmd_help();
-            break;
+    uint8_t i;
 
-        case CMD_CLS:
-            cmd_cls();
-            break;
-
-        case CMD_SYSTEM:
-            cmd_system();
-            break;
-
-        case CMD_MCT:
-            cmd_mct_test();
-            break;
-
-        case CMD_MT_TEST:
-            cmd_mt_test();
-            break;
-
-        case CMD_TIMER:
-            cmd_timer(p_args);
-            break;
-
-        case CMD_RTC:
-            cmd_rtc(p_args);
-            break;
-
-        case CMD_GPIO:
-            cmd_gpio(p_args);
-            break;
-
-        case CMD_MEM_DUMP:
-            cmd_mem_dump(p_args);
-            break;
-
-        case CMD_I2C:
-            cmd_i2c(p_args);
-            break;
-
-        case CMD_RST:
-            cmd_rst();
-            break;
-
-        case CMD_REG:
-            cmd_reg(p_args);
-            break;
-
-#if defined(MCU_RP2350)
-        case CMD_RND:
-            cmd_rnd(p_args);
-            break;
-
-        case CMD_SHA:
-            cmd_sha(p_args);
-            break;
-#endif
-        case CMD_NEOPIXEL:
-            cmd_neopixel(p_args);
-            break;
-
-        case CMD_UNKNOWN:
-        default:
-            cmd_unknown();
-            break;
+    for(i = 0; i < g_cmd_tbl_size; i++)
+    {
+        if(g_cmd_tbl[i].cmd_type == cmd) {
+            g_cmd_tbl[i].p_func(p_args);
+        }
     }
 }
 
@@ -948,8 +1065,10 @@ static void dbg_com_execute_cmd(dbg_cmd_t cmd, const dbg_cmd_args_t* p_args)
  */
 void dbg_com_init(void)
 {
+    s_cmd_index = 0;
+    s_cursor_pos = 0;
     printf(ANSI_ESC_CLS);
-    cmd_help();
+    cmd_help(NULL);
 }
 
 /**
@@ -958,12 +1077,15 @@ void dbg_com_init(void)
 void dbg_com_main(void)
 {
     dbg_cmd_args_t args;
+    int32_t c;
 
     if (s_cmd_index >= DBG_CMD_MAX_LEN - 1) {
         s_cmd_index = 0;
+        s_cursor_pos = 0;
     }
 
-    int32_t c = getchar();
+    c = getchar();
+
     // デリミタでCRかLFが来たらコマンドの受付を終わる
     if (c == '\r' || c == '\n') {
         if (s_cmd_index > 0) {
@@ -979,55 +1101,57 @@ void dbg_com_main(void)
                 dbg_com_execute_cmd(cmd, &args);
             }
             s_cmd_index = 0;
+            s_cursor_pos = 0;
             printf("> ");
         } else {
             printf("\n> ");
         }
     } else if (c == '\b' || c == KEY_BACKSPACE) {
-        if (s_cmd_index > 0) {
-            s_cmd_index--;
-            printf("\b \b");
-        }
-    } else if (c == KEY_ESC) {  // ESC
+        // Backspace処理
+        backspace_at_cursor();
+    } else if (c == KEY_DELETE) {
+        // Delete処理
+        delete_char_at_cursor();
+    } else if (c == KEY_ESC) { // ESC
         c = getchar();
-        if (c == KEY_ANSI_ESC) {    // ANSI escape sequence
+        if (c == KEY_ANSI_ESC) { // ANSI escape sequence
             c = getchar();
-            if (c == KEY_UP) {  // キーボードの上矢印
+            if (c == KEY_UP) { // キーボードの上矢印
                 if (s_history_pos < s_history_count - 1) {
                     // 現在の入力バッファをクリア
-                    while (s_cmd_index > 0) {
-                        printf("\b \b");
-                        s_cmd_index--;
-                        WDT_RST();
-                    }
+                    clear_command_line();
+
                     // コマンド履歴を1つ古いものに
                     s_history_pos++;
                     strcpy(s_cmd_buffer, s_cmd_history[s_history_pos]);
                     s_cmd_index = strlen(s_cmd_buffer);
+                    s_cursor_pos = s_cmd_index; // カーソルを末尾に
                     printf("%s", s_cmd_buffer);
                 }
-            } else if (c == KEY_DOWN) {  // キーボードの下矢印
+            } else if (c == KEY_DOWN) { // キーボードの下矢印
                 if (s_history_pos >= 0) {
                     // コマンド履歴の現在の入力バッファをクリア
-                    while (s_cmd_index > 0) {
-                        printf("\b \b");
-                        s_cmd_index--;
-                        WDT_RST();
-                    }
+                    clear_command_line();
+
                     // 履歴を1つ新しいものに
                     s_history_pos--;
                     if (s_history_pos < 0) {
                         s_cmd_index = 0;
+                        s_cursor_pos = 0;
                     } else {
                         strcpy(s_cmd_buffer, s_cmd_history[s_history_pos]);
                         s_cmd_index = strlen(s_cmd_buffer);
+                        s_cursor_pos = s_cmd_index; // カーソルを末尾に
                         printf("%s", s_cmd_buffer);
                     }
                 }
+            } else if (c == KEY_LEFT) { // 左矢印キー
+                move_cursor_left();
+            } else if (c == KEY_RIGHT) { // 右矢印キー
+                move_cursor_right();
             }
         }
     } else if (c >= ' ' && c <= '~') {
-        s_cmd_buffer[s_cmd_index++] = c;
-        putchar(c);
+        insert_char_at_cursor(c);
     }
 }
