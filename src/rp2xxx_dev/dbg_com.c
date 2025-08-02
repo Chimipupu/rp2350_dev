@@ -508,13 +508,41 @@ static void cmd_timer(const dbg_cmd_args_t* p_args)
  */
 static void cmd_rtc(const dbg_cmd_args_t* p_args)
 {
-    if (p_args->argc > 1) {
 #if defined(MCU_RP2350)
-    aon_current_time_print();
-#endif
+    // 引数が2つ以上
+    if (p_args->argc > 1) {
+        // "g"なら現在時刻表示
+        if (strcmp(p_args->p_argv[1], "g") == 0) {
+            aon_current_time_print();
+        }
+        // "s"なら時刻設定
+        else if (strcmp(p_args->p_argv[1], "s") == 0) {
+            if (p_args->argc < 4) {
+                printf("Usage: rtc s YYYY/MM/DD HH:MM:SS\n");
+                printf("Example: rtc s 2025/08/02 15:30:00\n");
+                return;
+            }
+
+            // 日付と時刻を結合して一つの文字列にする
+            char time_str[32];
+            snprintf(time_str, sizeof(time_str), "%s %s", p_args->p_argv[2], p_args->p_argv[3]);
+
+            if (aon_set_time_from_string(time_str)) {
+                printf("AON Timer set to: %s\n", time_str);
+            } else {
+                printf("Failed to set AON Timer (arg = %s). Format: YYYY/MM/DD HH:MM:SS\n", time_str);
+            }
+        } else {
+            printf("Usage: rtc g | rtc s YYYY/MM/DD HH:MM:SS\n");
+            printf("  g - Get current time\n");
+            printf("  s - Set time (format: YYYY/MM/DD HH:MM:SS)\n");
+            printf("Example: rtc s 2025/08/02 15:30:00\n");
+        }
+    } else {
+        // 引数なし = 現在時刻表示
+        aon_current_time_print();
     }
-
-
+#endif // MCU_RP2350
 }
 
 /**
@@ -827,11 +855,11 @@ static dbg_cmd_t dbg_com_parse_cmd(const char* p_cmd_str, dbg_cmd_args_t* p_args
     {
         if (strcmp(p_cmd_str, g_cmd_tbl[i].p_cmd_str) == 0) {
             // 引数の数をチェック
-            if (p_args->argc - 1 < g_cmd_tbl[i].min_args || p_args->argc - 1 > g_cmd_tbl[i].max_args) {
-                printf("Error: Invalid number of arguments. Expected %d-%d, got %d\n",
-                    g_cmd_tbl[i].min_args, g_cmd_tbl[i].max_args, p_args->argc - 1);
-                return CMD_UNKNOWN;
-            }
+            // if (p_args->argc - 1 < g_cmd_tbl[i].min_args || p_args->argc - 1 > g_cmd_tbl[i].max_args) {
+            //     printf("Error: Invalid number of arguments. Expected %d-%d, got %d\n",
+            //         g_cmd_tbl[i].min_args, g_cmd_tbl[i].max_args, p_args->argc - 1);
+            //     return CMD_UNKNOWN;
+            // }
             return g_cmd_tbl[i].cmd_type;
         }
     }
