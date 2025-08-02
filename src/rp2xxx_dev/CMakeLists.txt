@@ -43,6 +43,7 @@ add_executable(rp2xxx_dev
             app_main.c
             app_math.c
             dbg_com.c
+            dbd_com_app.c
             muc_rpxxx_util.c
             )
 
