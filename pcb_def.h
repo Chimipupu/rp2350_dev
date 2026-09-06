@@ -44,7 +44,9 @@
 #endif
 #endif // PCB_RPI_PICO_2
 
+void pcb_info(void);
 void pcb_gpio_init(void);
 void pcb_uart_init(void);
+unsigned int DBG_PRINTF(const char *p_fmt, ...);
 
 #endif // PCB_DEF_HPP

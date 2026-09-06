@@ -22,8 +22,6 @@
 #include <Arduino.h>
 
 // ---------------------------------------------------
-static unsigned int DBG_LOG_PRINT(const char *p_fmt, ...);
-
 #ifdef RGBLED_PIN
 typedef struct {
     char color_num;
@@ -60,26 +58,13 @@ static uint8_t _serial_read_func(void);
 
 const dbg_cmd_config_t g_dbg_cmd_config = {
     .p_serial_read = _serial_read_func,
-    .p_printf = DBG_LOG_PRINT,
+    .p_printf = DBG_PRINTF,
     .p_ext_cmd_tbl = (dbg_cmd_tbl_t *)s_ext_cmd_tbl,
     .ext_cmd_num = sizeof(s_ext_cmd_tbl) / sizeof(s_ext_cmd_tbl[0]),
 };
 
 // ---------------------------------------------------
 // [Static関数]
-static unsigned int DBG_LOG_PRINT(const char *p_fmt, ...)
-{
-    char buf[256];
-    va_list args;
-
-    va_start(args, p_fmt);
-    unsigned int ret = vsnprintf(buf, sizeof(buf), p_fmt, args);
-    Serial.print(buf);
-    va_end(args);
-
-    return ret;
-}
-
 static uint8_t _serial_read_func(void)
 {
     return (uint8_t)Serial.read();
@@ -90,25 +75,29 @@ static E_DBG_CMD_RESULT _cmd_debug(void *p_args)
     static uint8_t s_led_val = 0;
     dbg_cmd_args_t *p_cmd_args;
 
-    DBG_LOG_PRINT("-------------------------------\n");
-    DBG_LOG_PRINT("Debug Cmd\n");
+    DBG_PRINTF("-------------------------------\n");
+    DBG_PRINTF("Debug Cmd\n");
 
     p_cmd_args = (dbg_cmd_args_t *)p_args;
 
     // 引数チェック
-    if(strcmp(p_cmd_args->argv[0], "led") == 0)
+    if(strcmp(p_cmd_args->argv[0], "info") == 0) {
+        DBG_PRINTF("PCB Info Print\n");
+        pcb_info();
+    }
+    else if(strcmp(p_cmd_args->argv[0], "led") == 0)
     {
         digitalWrite(OB_LED_PIN, s_led_val);
         s_led_val = ~s_led_val;
 
         if(s_led_val > 0) {
-            DBG_LOG_PRINT("LED OFF\n");
+            DBG_PRINTF("LED OFF\n");
         } else {
-            DBG_LOG_PRINT("LED ON\n");
+            DBG_PRINTF("LED ON\n");
         }
     }
 
-    DBG_LOG_PRINT("-------------------------------\n");
+    DBG_PRINTF("-------------------------------\n");
 
     return CMD_RESULT_EXEC_OK;
 }
@@ -118,15 +107,15 @@ static E_DBG_CMD_RESULT _cmd_cpu_fifo(void *p_args)
     uint32_t tmp_u32;
     dbg_cmd_args_t *p_cmd_args;
 
-    DBG_LOG_PRINT("-------------------------------\n");
-    DBG_LOG_PRINT("CPU FIFO Debug Cmd\n");
+    DBG_PRINTF("-------------------------------\n");
+    DBG_PRINTF("CPU FIFO Debug Cmd\n");
 
     p_cmd_args = (dbg_cmd_args_t *)p_args;
 
     // 引数チェック
     if(strcmp(p_cmd_args->argv[0], "dump") == 0)
     {
-        DBG_LOG_PRINT("CPU FIFO Buf Dump\n");
+        DBG_PRINTF("CPU FIFO Buf Dump\n");
         dump_cpu_fifo_buf();
     }
     else if (strcmp(p_cmd_args->argv[0], "dbg") == 0)
@@ -140,7 +129,7 @@ static E_DBG_CMD_RESULT _cmd_cpu_fifo(void *p_args)
         set_cpu_core_1_tx_fifo_data(tmp_u32);
     }
 
-    DBG_LOG_PRINT("-------------------------------\n");
+    DBG_PRINTF("-------------------------------\n");
     return CMD_RESULT_EXEC_OK;
 }
 
@@ -151,8 +140,8 @@ static E_DBG_CMD_RESULT _cmd_rgbled(void *p_args)
     char color_num;
     dbg_cmd_args_t *p_cmd_args;
 
-    DBG_LOG_PRINT("-------------------------------\n");
-    DBG_LOG_PRINT("RGBLED Cmd\n");
+    DBG_PRINTF("-------------------------------\n");
+    DBG_PRINTF("RGBLED Cmd\n");
 
     p_cmd_args = (dbg_cmd_args_t *)p_args;
 
@@ -161,7 +150,7 @@ static E_DBG_CMD_RESULT _cmd_rgbled(void *p_args)
     {
         for(i = 0; i < RGBLED_COLOR_ARGS_TBL_CNT; i++)
         {
-            DBG_LOG_PRINT("rgbled color %c -> %s\n",
+            DBG_PRINTF("rgbled color %c -> %s\n",
                         g_rgbled_color_args_tbl[i].color_num,
                         g_rgbled_color_args_tbl[i].p_color_str);
         }
@@ -174,13 +163,13 @@ static E_DBG_CMD_RESULT _cmd_rgbled(void *p_args)
             if(color_num == g_rgbled_color_args_tbl[i].color_num)
             {
                 app_neopixel_set_rgb(0, (led_color_t *) g_rgbled_color_args_tbl[i].p_color);
-                DBG_LOG_PRINT("Set RGBLED Color: %s\n", g_rgbled_color_args_tbl[i].p_color_str);
+                DBG_PRINTF("Set RGBLED Color: %s\n", g_rgbled_color_args_tbl[i].p_color_str);
                 break;
             }
         }
     }
 
-    DBG_LOG_PRINT("-------------------------------\n");
+    DBG_PRINTF("-------------------------------\n");
     return CMD_RESULT_EXEC_OK;
 }
 #endif
