@@ -88,17 +88,24 @@ static uint8_t _serial_read_func(void)
 static E_DBG_CMD_RESULT _cmd_debug(void *p_args)
 {
     static uint8_t s_led_val = 0;
+    dbg_cmd_args_t *p_cmd_args;
 
     DBG_LOG_PRINT("-------------------------------\n");
     DBG_LOG_PRINT("Debug Cmd\n");
 
-    digitalWrite(OB_LED_PIN, s_led_val);
-    s_led_val = ~s_led_val;
+    p_cmd_args = (dbg_cmd_args_t *)p_args;
 
-    if(s_led_val > 0) {
-        DBG_LOG_PRINT("LED ON\n");
-    } else {
-        DBG_LOG_PRINT("LED OFF\n");
+    // 引数チェック
+    if(strcmp(p_cmd_args->argv[0], "led") == 0)
+    {
+        digitalWrite(OB_LED_PIN, s_led_val);
+        s_led_val = ~s_led_val;
+
+        if(s_led_val > 0) {
+            DBG_LOG_PRINT("LED OFF\n");
+        } else {
+            DBG_LOG_PRINT("LED ON\n");
+        }
     }
 
     DBG_LOG_PRINT("-------------------------------\n");
