@@ -6,9 +6,12 @@
  * @date 2026-09-06
  * @copyright Copyright (c) 2026 Chimipupu All Rights Reserved.
  */
-#ifndef APP_NEOPIXEL_HPP
-#define APP_NEOPIXEL_HPP
+#ifndef APP_NEOPIXEL_H
+#define APP_NEOPIXEL_H
 
+#include "pcb_def.h"
+
+#if defined(RGBLED_PIN)
 #include "stdint.h"
 #include <Adafruit_NeoPixel.h>
 
@@ -40,5 +43,6 @@ void app_neopixel_set_rgb(uint8_t led_no, led_color_t *p_rgb);
 void app_neopixel_rgb_illumination(uint8_t led_no);
 void app_neopixel_set_brightness(uint8_t brightness);
 // ---------------------------------------------------
+#endif
 
-#endif /* APP_NEOPIXEL_HPP */
+#endif // APP_NEOPIXEL_H

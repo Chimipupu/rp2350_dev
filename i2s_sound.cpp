@@ -17,6 +17,7 @@
 #define SAMPLE_RATE    16000
 #define AMPLITUDE      500
 
+#if 0
 // 「かえるの合唱」の曲テーブル
 const note_t g_frog_song[] = {
     {NOTE_C4, 300}, {NOTE_D4, 300}, {NOTE_E4, 300}, {NOTE_F4, 300},
@@ -33,6 +34,7 @@ const note_t g_frog_song[] = {
     {NOTE_E4, 300}, {NOTE_D4, 300}, {NOTE_C4, 600}, {NOTE_REST, 1000}
 };
 const uint32_t g_frog_song_note_cnt = sizeof(g_frog_song) / sizeof(g_frog_song[0]);
+#endif
 
 static uint8_t s_dout_pin;
 static uint8_t s_lrclk_pin;
@@ -53,9 +55,10 @@ void i2s_play_tone(uint32_t freq_hz, uint32_t duration_ms)
 
     if (freq_hz == 0) {
         // 休符：無音（0）を出力
-        for (i = 0; i < total_samples; i++) {
-        i2s.write((int16_t)0);
-        i2s.write((int16_t)0);
+        for (i = 0; i < total_samples; i++)
+        {
+            i2s.write((int16_t)0);
+            i2s.write((int16_t)0);
         }
         return;
     }
@@ -66,10 +69,12 @@ void i2s_play_tone(uint32_t freq_hz, uint32_t duration_ms)
         half_wavelength = 1;
     }
 
-    for (i = 0; i < total_samples; i++) {
+    for (i = 0; i < total_samples; i++)
+    {
         if ((i % half_wavelength) == 0) {
-        sample = -sample;
+            sample = -sample;
         }
+
         i2s.write(sample);
         i2s.write(sample);
     }
@@ -88,16 +93,16 @@ void i2s_play_melody(const note_t *p_notes, uint32_t note_count)
     for (i = 0; i < note_count; i++)
     {
         if (p_notes[i].freq_hz != NOTE_REST) {
-            // 音の歯切れ（アーティキュレーション）を良くするため、全体の85%を鳴らし15%を隙間とする
-            tone_ms = (uint32_t)(p_notes[i].duration_ms * 0.85f);
-            gap_ms = p_notes[i].duration_ms - tone_ms;
+                // 音の歯切れ（アーティキュレーション）を良くするため、全体の85%を鳴らし15%を隙間とする
+                tone_ms = (uint32_t)(p_notes[i].duration_ms * 0.85f);
+                gap_ms = p_notes[i].duration_ms - tone_ms;
 
-            i2s_play_tone(p_notes[i].freq_hz, tone_ms);
-            i2s_play_tone(NOTE_REST, gap_ms);
+                i2s_play_tone(p_notes[i].freq_hz, tone_ms);
+                i2s_play_tone(NOTE_REST, gap_ms);
             } else {
-            // 休符の場合はそのまま指定時間無音にする
-            i2s_play_tone(NOTE_REST, p_notes[i].duration_ms);
-            }
+                // 休符の場合はそのまま指定時間無音にする
+                i2s_play_tone(NOTE_REST, p_notes[i].duration_ms);
+        }
     }
 }
 

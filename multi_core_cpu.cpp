@@ -11,7 +11,7 @@
 #include "app_main.h"
 #include <Arduino.h>
 
-#ifdef RGBLED_PIN
+#if defined(RGBLED_PIN)
 #include "app_neopixel.h"
 #endif
 
@@ -51,7 +51,7 @@ static void _cpu_fifo_proc_cpu_core_0(void)
         switch (data_type)
         {
             case CPU_FIFO_DATA_TYPE_RGBLED:
-#ifdef RGBLED_PIN
+#if defined(RGBLED_PIN)
                 led_color_t rgb_val;
                 rgb_val.rgb = (local_fifo_data & CPU_FIFO_DATA_BIT);
                 app_neopixel_set_rgb(0, &rgb_val);
@@ -232,7 +232,7 @@ void cpu_core_0_init(void)
 
     pcb_gpio_init(); // GPIO初期化
 
-#ifdef RGBLED_PIN
+#if defined(RGBLED_PIN)
     // RGBLED 初期化
     app_neopixel_init(RGBLED_PIN, RGBLED_NUM, RGBLED_MAX_BRIGHTNESS);
 #endif
@@ -267,7 +267,7 @@ void cpu_core_1_init(void)
     memset(&s_fifo_cpu_core_1.tx_fifo_buf[0], 0x00, sizeof(CPU_FIFO_BUF_SIZE));
 
     // RGBLED 初期化
-#ifdef RGBLED_PIN
+#if defined(RGBLED_PIN)
     app_neopixel_init(RGBLED_PIN, RGBLED_NUM, RGBLED_MAX_BRIGHTNESS);
 
     for(uint8_t i = 0; i < CPU_FIFO_BUF_SIZE; i++)

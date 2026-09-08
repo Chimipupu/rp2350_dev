@@ -11,8 +11,12 @@
 #include "multi_core_cpu.h"
 #include "dbg_cmd.h"
 
-#ifdef RGBLED_PIN
+#if defined(RGBLED_PIN)
 #include "app_neopixel.h"
+#endif
+
+#if defined(I2S_USE)
+#include "i2s_sound.h"
 #endif
 
 // C Lib
@@ -22,7 +26,7 @@
 #include <Arduino.h>
 
 // ---------------------------------------------------
-#ifdef RGBLED_PIN
+#if defined(RGBLED_PIN)
 typedef struct {
     char color_num;
     led_color_t *p_color;
@@ -50,7 +54,7 @@ static E_DBG_CMD_RESULT _cmd_cpu_fifo(void *p_args);
 static const dbg_cmd_tbl_t s_ext_cmd_tbl[] = {
     {"debug",   "dbg", _cmd_debug},
     {"cpufifo", "cff", _cmd_cpu_fifo},
-#ifdef RGBLED_PIN
+#if defined(RGBLED_PIN)
     {"rgbled",  "rl",  _cmd_rgbled},
 #endif
 };
@@ -95,6 +99,17 @@ static E_DBG_CMD_RESULT _cmd_debug(void *p_args)
         } else {
             DBG_PRINTF("LED ON\n");
         }
+    } else if(strcmp(p_cmd_args->argv[0], "i2s") == 0)
+    {
+        DBG_PRINTF("I2S Test\n");
+        // ドレミファソラシド
+        i2s_play_tone(NOTE_C4, 500);
+        i2s_play_tone(NOTE_D4, 500);
+        i2s_play_tone(NOTE_E4, 500);
+        i2s_play_tone(NOTE_F4, 500);
+        i2s_play_tone(NOTE_G4, 500);
+        i2s_play_tone(NOTE_A4, 500);
+        i2s_play_tone(NOTE_B4, 500);
     }
 
     DBG_PRINTF("-------------------------------\n");
@@ -133,7 +148,7 @@ static E_DBG_CMD_RESULT _cmd_cpu_fifo(void *p_args)
     return CMD_RESULT_EXEC_OK;
 }
 
-#ifdef RGBLED_PIN
+#if defined(RGBLED_PIN)
 static E_DBG_CMD_RESULT _cmd_rgbled(void *p_args)
 {
     uint8_t i;
@@ -198,6 +213,10 @@ void app_main_core_0(void)
  */
 void app_main_core_1_init(void)
 {
+#if defined(I2S_USE)
+    i2s_sound_init(I2S_DOUT_PIN, I2S_LRCLK_PIN, I2S_BCLK_PIN);
+#endif
+
     dbg_cmd_init((dbg_cmd_config_t *) &g_dbg_cmd_config);
 }
 

@@ -9,6 +9,9 @@
 
 #include "app_neopixel.h"
 
+#include "pcb_def.h"
+#if defined(RGBLED_PIN)
+
 // -----------------------------------------------------------
 // RGBLEDカラーテーブル
 const led_color_data_t g_led_color_tbl[] = {
@@ -123,3 +126,4 @@ void app_neopixel_set_brightness(uint8_t brightness)
 }
 
 // ---------------------------------------------------
+#endif // RGBLED_PIN

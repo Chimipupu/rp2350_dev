@@ -19,7 +19,7 @@
     #define OB_LED_PIN               25  // 緑色LED (GPIO 25)
 
     // I2S
-    #define I2S_USE
+    #define I2S_USE                  1
     #if defined(I2S_USE)
     #define I2S_DOUT_PIN             22
     #define I2S_LRCLK_PIN            21
