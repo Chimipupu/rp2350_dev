@@ -17,6 +17,13 @@
 #define SAMPLE_RATE    16000
 #define AMPLITUDE      500
 
+// ドレミファソラシドのテーブル
+const note_t g_play_test_song[] = {
+    {NOTE_C4, 500}, {NOTE_D4, 500}, {NOTE_E4, 500}, {NOTE_F4, 500},
+    {NOTE_G4, 500}, {NOTE_A4, 500}, {NOTE_B4, 500}, {NOTE_C5, 500},
+};
+const uint32_t g_play_test_song_note_cnt = sizeof(g_play_test_song) / sizeof(g_play_test_song[0]);
+
 #if 0
 // 「かえるの合唱」の曲テーブル
 const note_t g_frog_song[] = {
@@ -40,7 +47,7 @@ static uint8_t s_dout_pin;
 static uint8_t s_lrclk_pin;
 static uint8_t s_bclk_pin;
 
-I2S i2s(OUTPUT, I2S_BCLK_PIN, I2S_DOUT_PIN);
+static I2S *s_p_i2s = NULL;
 // --------------------------------------------------------------------------
 
 void i2s_play_tone(uint32_t freq_hz, uint32_t duration_ms)
@@ -57,8 +64,8 @@ void i2s_play_tone(uint32_t freq_hz, uint32_t duration_ms)
         // 休符：無音（0）を出力
         for (i = 0; i < total_samples; i++)
         {
-            i2s.write((int16_t)0);
-            i2s.write((int16_t)0);
+            s_p_i2s->write((int16_t)0);
+            s_p_i2s->write((int16_t)0);
         }
         return;
     }
@@ -75,8 +82,8 @@ void i2s_play_tone(uint32_t freq_hz, uint32_t duration_ms)
             sample = -sample;
         }
 
-        i2s.write(sample);
-        i2s.write(sample);
+        s_p_i2s->write(sample);
+        s_p_i2s->write(sample);
     }
 }
 
@@ -112,7 +119,19 @@ void i2s_sound_init(uint8_t dout_pin, uint8_t lrclk_pin, uint8_t bclk_pin)
     s_lrclk_pin = lrclk_pin;
     s_bclk_pin = bclk_pin;
 
-    i2s.setBitsPerSample(16);
+    if (s_p_i2s != NULL) {
+        s_p_i2s->end();
+        delete s_p_i2s;
+        s_p_i2s = NULL;
+    }
+
+    s_p_i2s = new I2S(OUTPUT, s_bclk_pin, s_dout_pin);
+    if (s_p_i2s == NULL) {
+        return;
+    }
+
+    s_p_i2s->setBitsPerSample(16);
+    s_p_i2s->begin(SAMPLE_RATE);
 }
 // --------------------------------------------------------------------------
 #endif // I2S_USE

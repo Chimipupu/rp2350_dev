@@ -102,14 +102,9 @@ static E_DBG_CMD_RESULT _cmd_debug(void *p_args)
     } else if(strcmp(p_cmd_args->argv[0], "i2s") == 0)
     {
         DBG_PRINTF("I2S Test\n");
+
         // ドレミファソラシド
-        i2s_play_tone(NOTE_C4, 500);
-        i2s_play_tone(NOTE_D4, 500);
-        i2s_play_tone(NOTE_E4, 500);
-        i2s_play_tone(NOTE_F4, 500);
-        i2s_play_tone(NOTE_G4, 500);
-        i2s_play_tone(NOTE_A4, 500);
-        i2s_play_tone(NOTE_B4, 500);
+        i2s_play_melody(g_play_test_song, g_play_test_song_note_cnt);
     }
 
     DBG_PRINTF("-------------------------------\n");

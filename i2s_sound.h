@@ -40,6 +40,9 @@ typedef struct {
     uint32_t duration_ms;
 } note_t;
 
+extern const note_t g_play_test_song[];
+extern const uint32_t g_play_test_song_note_cnt;
+
 #if 0
 extern const note_t g_frog_song[];
 extern const uint32_t g_frog_song_note_cnt;
