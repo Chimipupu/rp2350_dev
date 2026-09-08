@@ -51,11 +51,26 @@ static E_DBG_CMD_RESULT _cmd_rgbled(void *p_args);
 static E_DBG_CMD_RESULT _cmd_debug(void *p_args);
 static E_DBG_CMD_RESULT _cmd_cpu_fifo(void *p_args);
 
+#if defined(I2S_USE)
+// SOSのモールス信号
+const char g_morse_code[] = "... --- ...";
+
+// テスト用モールス信号「"test cw sound"」
+const char g_morse_code_long[] = "- . ... - / -.-. .-- / ... --- ..- -. -..";
+
+static E_DBG_CMD_RESULT _cmd_i2s_sound(void *p_args);
+#endif
+
 static const dbg_cmd_tbl_t s_ext_cmd_tbl[] = {
     {"debug",   "dbg", _cmd_debug},
     {"cpufifo", "cff", _cmd_cpu_fifo},
+
 #if defined(RGBLED_PIN)
     {"rgbled",  "rl",  _cmd_rgbled},
+#endif
+
+#if defined(I2S_USE)
+    {"sound",   "sd", _cmd_i2s_sound},
 #endif
 };
 static uint8_t _serial_read_func(void);
@@ -99,12 +114,6 @@ static E_DBG_CMD_RESULT _cmd_debug(void *p_args)
         } else {
             DBG_PRINTF("LED ON\n");
         }
-    } else if(strcmp(p_cmd_args->argv[0], "i2s") == 0)
-    {
-        DBG_PRINTF("I2S Test\n");
-
-        // ドレミファソラシド
-        i2s_play_melody(g_play_test_song, g_play_test_song_note_cnt);
     }
 
     DBG_PRINTF("-------------------------------\n");
@@ -183,6 +192,44 @@ static E_DBG_CMD_RESULT _cmd_rgbled(void *p_args)
     return CMD_RESULT_EXEC_OK;
 }
 #endif
+
+#if defined(I2S_USE)
+static E_DBG_CMD_RESULT _cmd_i2s_sound(void *p_args)
+{
+    dbg_cmd_args_t *p_cmd_args;
+
+    DBG_PRINTF("-------------------------------\n");
+    DBG_PRINTF("I2S Sound Cmd\n");
+
+    p_cmd_args = (dbg_cmd_args_t *)p_args;
+
+    // 音テスト -> ドレミファソラシド
+    if(strcmp(p_cmd_args->argv[0], "test") == 0)
+    {
+        DBG_PRINTF("I2S Play Test Song\n");
+        i2s_play_melody(g_play_test_song, g_play_test_song_note_cnt);
+    }
+    // 周波数と鳴らす時間を指定して音を鳴らす
+    // NOTE: 例) 「freq 440 500」 -> 440Hzの音を500ms鳴らす
+    else if(strcmp(p_cmd_args->argv[0], "freq") == 0)
+    {
+        uint32_t freq_hz = (uint32_t)strtoul(p_cmd_args->argv[1], NULL, 10);
+        uint32_t duration_ms = (uint32_t)strtoul(p_cmd_args->argv[2], NULL, 10);
+        DBG_PRINTF("I2S Play Tone: Freq = %d Hz, Duration = %d ms\n", freq_hz, duration_ms);
+        i2s_play_tone(freq_hz, duration_ms);
+    }
+    // モールス信号を鳴らす
+    // NOTE: 例) 「cw 440」 -> SOSのモールス
+    else if(strcmp(p_cmd_args->argv[0], "cw") == 0)
+    {
+        uint16_t freq_hz = (uint16_t)strtoul(p_cmd_args->argv[1], NULL, 10);
+        DBG_PRINTF("I2S Play Morse Code Sound: %s (Freq = %d Hz)\n", g_morse_code_long, freq_hz);
+        i2s_play_morse_code_sound(g_morse_code_long, strlen(g_morse_code_long), freq_hz);
+    }
+
+    return CMD_RESULT_EXEC_OK;
+}
+#endif // I2S_USE
 // ---------------------------------------------------
 // ********** [CPU Core 0] ***********
 /**

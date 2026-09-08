@@ -133,5 +133,45 @@ void i2s_sound_init(uint8_t dout_pin, uint8_t lrclk_pin, uint8_t bclk_pin)
     s_p_i2s->setBitsPerSample(16);
     s_p_i2s->begin(SAMPLE_RATE);
 }
+
+void i2s_play_morse_code_sound(const char *p_morse_code, uint32_t morse_code_len, uint16_t freq_hz)
+{
+    uint32_t i;
+    char *p_morse = (char *)p_morse_code;
+
+    for(i = 0; i < morse_code_len; i++, p_morse++)
+    {
+        if(*p_morse == '.') {
+            i2s_play_tone(freq_hz, 100);
+            i2s_play_tone(NOTE_REST, 50);
+        } else if(*p_morse == '-') {
+            i2s_play_tone(freq_hz, 300);
+            i2s_play_tone(NOTE_REST, 50);
+        } else if(*p_morse == ' ') {
+            // 休符
+            i2s_play_tone(NOTE_REST, 300);
+        }
+    }
+}
+
+void i2s_play_warning_sound(void)
+{
+    for(uint8_t i = 0; i < 3; i++)
+    {
+        i2s_play_tone(200, 100);
+        i2s_play_tone(0, 100);
+    }
+}
+
+void i2s_play_success_sound(void)
+{
+    i2s_play_tone(1500, 100);
+}
+
+void i2s_play_fail_sound(void)
+{
+    i2s_play_tone(200, 100);
+}
+
 // --------------------------------------------------------------------------
 #endif // I2S_USE

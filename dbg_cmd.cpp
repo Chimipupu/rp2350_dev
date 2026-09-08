@@ -14,6 +14,12 @@
 #include <stdarg.h>
 #include <Arduino.h>
 
+#if defined(DBG_CMD_SOUND_USE)
+    #include "pcb_def.h"
+    #if defined(I2S_USE)
+        #include "i2s_sound.h"
+    #endif
+#endif
 // --------------------------------------------------------------------------
 #define UART_RX_BUF_SIZE        128
 #define UART_CMD_RX_BUF_SIZE    64
@@ -40,8 +46,24 @@ static const dbg_cmd_tbl_t s_basic_cmd_tbl[] = {
 };
 static const uint8_t BASIC_CMD_NUM = sizeof(s_basic_cmd_tbl) / sizeof(s_basic_cmd_tbl[0]);
 
+#if defined(DBG_CMD_SOUND_USE)
+static void _cmd_match_sound(bool is_match);
+#endif
 // --------------------------------------------------------------------------
 // [Static]
+#if defined(DBG_CMD_SOUND_USE)
+static void _cmd_match_sound(bool is_match)
+{
+#if defined(I2S_USE)
+    uint8_t i;
+    if(is_match != false) {
+        i2s_play_success_sound();
+    } else {
+        i2s_play_fail_sound();
+    }
+#endif
+}
+#endif // DBG_CMD_SOUND_USE
 
 static bool _cmd_ready(uint8_t *p_cmd_buf)
 {
@@ -270,6 +292,10 @@ void dbg_cmd_main(void)
     if(s_is_rx_uart_cmd_flg != false)
     {
         is_ret = _cmd_ready((uint8_t *) &s_rx_cmd_buf[0]);
+
+#if defined(DBG_CMD_SOUND_USE)
+        _cmd_match_sound(is_ret);
+#endif
 
         if(is_ret != false)
         {
