@@ -18,6 +18,14 @@
 #ifdef PCB_RPI_PICO_2
     #define OB_LED_PIN               25  // 緑色LED (GPIO 25)
 
+    // I2S
+    #define I2S_USE
+    #if defined(I2S_USE)
+    #define I2S_DOUT_PIN             22
+    #define I2S_LRCLK_PIN            21
+    #define I2S_BCLK_PIN             20
+    #endif
+
 #if 0
     #define BUTTON_PIN               24  // ボタン (GPIO 24)
 

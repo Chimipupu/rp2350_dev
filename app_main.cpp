@@ -72,7 +72,7 @@ static uint8_t _serial_read_func(void)
 
 static E_DBG_CMD_RESULT _cmd_debug(void *p_args)
 {
-    static uint8_t s_led_val = 0;
+    static uint8_t s_led_val = 0xFF;
     dbg_cmd_args_t *p_cmd_args;
 
     DBG_PRINTF("-------------------------------\n");
