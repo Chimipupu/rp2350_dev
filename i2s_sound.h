@@ -36,8 +36,8 @@
 
 // 音階と長さを管理する構造体
 typedef struct {
-    uint32_t freq_hz;
-    uint32_t duration_ms;
+    uint16_t freq_hz;
+    uint16_t duration_ms;
 } note_t;
 
 extern const note_t g_play_test_song[];
@@ -49,7 +49,7 @@ extern const uint32_t g_frog_song_note_cnt;
 #endif
 
 void i2s_sound_init(uint8_t dout_pin, uint8_t lrclk_pin, uint8_t bclk_pin);
-void i2s_play_tone(uint32_t freq_hz, uint32_t duration_ms);
+void i2s_play_tone(uint16_t freq_hz, uint16_t duration_ms);
 void i2s_play_melody(const note_t *p_notes, uint32_t note_count);
 
 void i2s_play_morse_code_sound(const char *p_morse_code, uint32_t morse_code_len, uint16_t freq_hz);

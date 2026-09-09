@@ -8,6 +8,7 @@
  */
 #include "pcb_def.h"
 #include <Arduino.h>
+#include <Wire.h>
 
 #include "pico/platform.h"
 #include "hardware/clocks.h"
@@ -25,6 +26,13 @@ void pcb_gpio_init(void)
 void pcb_uart_init(void)
 {
     Serial.begin(115200); // UART初期化（115200bps 8N1）
+}
+
+void pcb_i2c_init(void)
+{
+    Wire.setSDA(I2C_SDA_PIN);
+    Wire.setSCL(I2C_SCL_PIN);
+    Wire.begin();
 }
 
 unsigned int DBG_PRINTF(const char *p_fmt, ...)

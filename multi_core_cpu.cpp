@@ -232,6 +232,8 @@ void cpu_core_0_init(void)
 
     pcb_gpio_init(); // GPIO初期化
 
+    pcb_i2c_init(); // I2C初期化
+
 #if defined(RGBLED_PIN)
     // RGBLED 初期化
     app_neopixel_init(RGBLED_PIN, RGBLED_NUM, RGBLED_MAX_BRIGHTNESS);

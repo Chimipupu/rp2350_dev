@@ -50,7 +50,7 @@ static uint8_t s_bclk_pin;
 static I2S *s_p_i2s = NULL;
 // --------------------------------------------------------------------------
 
-void i2s_play_tone(uint32_t freq_hz, uint32_t duration_ms)
+void i2s_play_tone(uint16_t freq_hz, uint16_t duration_ms)
 {
     uint32_t total_samples;
     uint32_t half_wavelength;
@@ -142,14 +142,19 @@ void i2s_play_morse_code_sound(const char *p_morse_code, uint32_t morse_code_len
     for(i = 0; i < morse_code_len; i++, p_morse++)
     {
         if(*p_morse == '.') {
-            i2s_play_tone(freq_hz, 100);
-            i2s_play_tone(NOTE_REST, 50);
+            i2s_play_tone(freq_hz, 100); // '.'の1単位
+            i2s_play_tone(NOTE_REST, 10);
         } else if(*p_morse == '-') {
-            i2s_play_tone(freq_hz, 300);
-            i2s_play_tone(NOTE_REST, 50);
+            i2s_play_tone(freq_hz, 300); // '-'は3単位
+            i2s_play_tone(NOTE_REST, 10);
         } else if(*p_morse == ' ') {
             // 休符
-            i2s_play_tone(NOTE_REST, 300);
+            i2s_play_tone(NOTE_REST, 300); // 文字間の休符は3単位
+        } else if(*p_morse == '/') {
+            // 休符（単語間）
+            i2s_play_tone(NOTE_REST, 700); // 単語間の休符は7単位
+        } else {
+            // 無効な文字は無視
         }
     }
 }
