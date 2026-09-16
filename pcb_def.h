@@ -52,6 +52,7 @@
     #define UART_RX_PIN              13  // UART0 RX
 #endif // PCB_RPI_PICO_2
 
+float get_cpu_temp(void);
 void pcb_info(void);
 void pcb_gpio_init(void);
 void pcb_i2c_init(void);
