@@ -22,16 +22,12 @@
 float get_cpu_temp(void)
 {
     uint8_t i;
-    float cpu_temp[CPU_TEMP_AVE];
-    float cpu_temp_ave;
+    float cpu_temp_ave = 0.0f;
 
     // 移動平均8回で平均化
-    memset(&cpu_temp[0], 0, sizeof(cpu_temp));
-
     for(i = 0; i < CPU_TEMP_AVE; i++)
     {
-        cpu_temp[i] = analogReadTemp();
-        cpu_temp_ave += cpu_temp[i];
+        cpu_temp_ave += analogReadTemp();
         delay(10);
     }
 
