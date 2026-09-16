@@ -19,7 +19,7 @@ void pcb_gpio_init(void)
 {
 #ifdef PCB_RPI_PICO_2
     pinMode(OB_LED_PIN, OUTPUT);
-    digitalWrite(OB_LED_PIN, LOW);
+    digitalWrite(OB_LED_PIN, HIGH);
 #endif
 }
 
@@ -50,15 +50,35 @@ unsigned int DBG_PRINTF(const char *p_fmt, ...)
 
 void pcb_info(void)
 {
+#define CPU_TEMP_AVE    8
+    uint8_t i;
     uint32_t chip_rev;
     uint32_t cpu_freq_Mhz;
     uint32_t core_num;
+    float cpu_temp[CPU_TEMP_AVE];
+    float cpu_temp_ave;
 
+    // CPUアーキテクチャ
     DBG_PRINTF("RP2350: ARM Cortex-M33 x2 Core\n");
 
+    // クロック
     cpu_freq_Mhz = clock_get_hz(clk_sys) / 1000000;
     DBG_PRINTF("CPU Clock: %dMHz\n", cpu_freq_Mhz);
 
+    // CPU温度
+    // NOTE: 移動平均8回で平均化
+    memset(&cpu_temp[0], 0, sizeof(cpu_temp));
+    for(i = 0; i < CPU_TEMP_AVE; i++)
+    {
+        cpu_temp[i] = analogReadTemp();
+        cpu_temp_ave += cpu_temp[i];
+        DBG_PRINTF("CPU Temp[%d]: %.02f C\n",i, cpu_temp[i]);
+        delay(10);
+    }
+    cpu_temp_ave = cpu_temp_ave / CPU_TEMP_AVE;
+    DBG_PRINTF("CPU Temp Ave: %.02f C\n", cpu_temp_ave);
+
+    // 関数が動作中のCPUコア
     core_num = get_core_num();
     DBG_PRINTF("Running CPU: Core %u\n", core_num);
 
