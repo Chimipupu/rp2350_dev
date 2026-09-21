@@ -6,6 +6,9 @@
 
 ### S/W
 
+- 最適化
+  - `-Os` (サイズ優先)
+
 - 統合開発環境 (IDE)
   - [Arduino IDE v2.3.10🔗](https://github.com/arduino/arduino-ide/releases/tag/2.3.10)
 

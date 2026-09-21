@@ -27,8 +27,8 @@ float get_cpu_temp(void)
     // 移動平均8回で平均化
     for(i = 0; i < CPU_TEMP_AVE; i++)
     {
+        // ADCの変換待ちは不要(analogReadTemp()の中でdelay()してる)
         cpu_temp_ave += analogReadTemp();
-        delay(10);
     }
 
     cpu_temp_ave = cpu_temp_ave / CPU_TEMP_AVE;
