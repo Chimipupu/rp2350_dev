@@ -265,10 +265,6 @@ void cpu_core_0_main(void)
 {
     _cpu_fifo_proc_cpu_core_0(); // CPU FIFO処理
 
-#ifdef BUTTON_PIN
-    btn_polling();
-#endif
-
     app_main_core_0();           // CPU Core 0用アプリ
 }
 

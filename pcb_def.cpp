@@ -24,17 +24,20 @@
 #define ADC_3_PIN           29
 #define ADC_3_VSYS           3
 
+#ifdef PCB_RPI_PICO_2
 static void _adc_3_vsys_init(void);
+#endif
 
 // ---------------------------------------------------
 // [Static関数]
+#ifdef PCB_RPI_PICO_2
 static void _adc_3_vsys_init(void)
 {
     adc_gpio_init(ADC_3_PIN);
     gpio_disable_pulls(ADC_3_PIN);
     adc_select_input(ADC_3_VSYS);
 }
-
+#endif
 // ---------------------------------------------------
 // [API]
 uint32_t get_chip_rev(void)
@@ -50,8 +53,8 @@ float get_cpu_temp(void)
     // 移動平均8回で平均化
     for(i = 0; i < CPU_TEMP_AVE; i++)
     {
-        // ADCの変換待ちは不要(analogReadTemp()の中でdelay()してる)
         cpu_temp_ave += analogReadTemp();
+        sleep_us(5);
     }
 
     cpu_temp_ave = cpu_temp_ave / CPU_TEMP_AVE;
@@ -59,6 +62,7 @@ float get_cpu_temp(void)
     return cpu_temp_ave;
 }
 
+#ifdef PCB_RPI_PICO_2
 float get_vsys_voltage(void)
 {
     uint8_t i;
@@ -91,10 +95,11 @@ float get_vsys_voltage(void)
     //  -> VBUSが5.0Vなら、ショットキーの電圧降下 0.2V を差し引いた 4.7V
     return vsys_ave;
 }
+#endif
 
 void pcb_gpio_init(void)
 {
-#ifdef PCB_RPI_PICO_2
+#ifdef OB_LED_PIN
     pinMode(OB_LED_PIN, OUTPUT);
     digitalWrite(OB_LED_PIN, HIGH);
 #endif
@@ -103,7 +108,10 @@ void pcb_gpio_init(void)
 void pcb_adc_init(void)
 {
     adc_init();
+
+#ifdef PCB_RPI_PICO_2
     _adc_3_vsys_init(); // ADC3初期化
+#endif
 }
 
 void pcb_uart_init(void)
@@ -138,7 +146,6 @@ void pcb_info(void)
     uint32_t cpu_freq_Mhz;
     uint32_t core_num;
     float cpu_temp;
-    float vsys;
 
     // CPUアーキテクチャ
     DBG_PRINTF("RP2350: ARM Cortex-M33 x2 Core\n");
@@ -165,8 +172,11 @@ void pcb_info(void)
         DBG_PRINTF("Chip Rev: Unknown (%d)\n", chip_rev);
     }
 
+#ifdef PCB_RPI_PICO_2
     // 基板 VSYS電圧
+    float vsys;
     vsys = get_vsys_voltage();
     DBG_PRINTF("VSYS: %.03f V\n", vsys);
+#endif
 }
 // ---------------------------------------------------
