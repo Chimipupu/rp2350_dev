@@ -244,6 +244,8 @@ void cpu_core_0_init(void)
 
     pcb_gpio_init(); // GPIO初期化
 
+    pcb_adc_init(); // ADC初期化
+
     pcb_i2c_init(); // I2C初期化
 
 #if defined(RGBLED_PIN)

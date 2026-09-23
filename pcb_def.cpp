@@ -13,12 +13,30 @@
 #include "pico/platform.h"
 #include "hardware/clocks.h"
 #include "hardware/structs/sysinfo.h"
+#include "hardware/gpio.h"
+#include "hardware/adc.h"
 
 // ---------------------------------------------------
-#define CPU_TEMP_AVE    8
+#define CPU_TEMP_AVE         8
+
+// ADC3 VSYS (GPIO 29)
+#define VSYS_ADC_AVE         8
+#define ADC_3_PIN           29
+#define ADC_3_VSYS           3
+
+static void _adc_3_vsys_init(void);
 
 // ---------------------------------------------------
+// [Static関数]
+static void _adc_3_vsys_init(void)
+{
+    adc_gpio_init(ADC_3_PIN);
+    gpio_disable_pulls(ADC_3_PIN);
+    adc_select_input(ADC_3_VSYS);
+}
 
+// ---------------------------------------------------
+// [API]
 float get_cpu_temp(void)
 {
     uint8_t i;
@@ -36,12 +54,44 @@ float get_cpu_temp(void)
     return cpu_temp_ave;
 }
 
+float get_vsys_voltage(void)
+{
+    uint8_t i;
+    uint32_t raw_sum = 0;
+    float vsys_ave = 0.0f;
+
+    _adc_3_vsys_init();
+
+    // 移動平均8回で平均化
+    for (i = 0; i < VSYS_ADC_AVE; i++)
+    {
+        raw_sum += adc_read();
+        sleep_us(5);
+    }
+
+    // ★期待値
+    //  -> VBUSが5.0Vなら、ショットキーの電圧降下 0.2V を差し引いた 4.7V
+    // ★ADC3のVSYS読み取り回路問題
+    //  -> 回路の R5(100k)、R6//R16(50k) にRP2350内部のADCインピーダンス(~50k???)が
+    //  -> 並列接続されると仮定すると、実質的な下側抵抗が25kΩが期待値
+    //  -> なので分圧比は 1/5 で逆算係数として 5.0f を乗算
+    vsys_ave = ((float)raw_sum / (float)VSYS_ADC_AVE) * (3.3f / 4095.0f) * 5.0f;
+
+    return vsys_ave;
+}
+
 void pcb_gpio_init(void)
 {
 #ifdef PCB_RPI_PICO_2
     pinMode(OB_LED_PIN, OUTPUT);
     digitalWrite(OB_LED_PIN, HIGH);
 #endif
+}
+
+void pcb_adc_init(void)
+{
+    adc_init();
+    _adc_3_vsys_init(); // ADC3初期化
 }
 
 void pcb_uart_init(void)
@@ -58,11 +108,12 @@ void pcb_i2c_init(void)
 
 unsigned int DBG_PRINTF(const char *p_fmt, ...)
 {
+    unsigned int ret;
     char buf[256];
     va_list args;
 
     va_start(args, p_fmt);
-    unsigned int ret = vsnprintf(buf, sizeof(buf), p_fmt, args);
+    ret = vsnprintf(buf, sizeof(buf), p_fmt, args);
     Serial.print(buf);
     va_end(args);
 
@@ -75,6 +126,7 @@ void pcb_info(void)
     uint32_t cpu_freq_Mhz;
     uint32_t core_num;
     float cpu_temp;
+    float vsys;
 
     // CPUアーキテクチャ
     DBG_PRINTF("RP2350: ARM Cortex-M33 x2 Core\n");
@@ -85,7 +137,7 @@ void pcb_info(void)
 
     // CPU温度
     cpu_temp = get_cpu_temp();
-    DBG_PRINTF("CPU Temp Ave: %.02f C\n", cpu_temp);
+    DBG_PRINTF("CPU Temp: %.03f C\n", cpu_temp);
 
     // 関数が動作中のCPUコア
     core_num = get_core_num();
@@ -100,5 +152,9 @@ void pcb_info(void)
     } else {
         DBG_PRINTF("Chip Rev: Unknown\n");
     }
+
+    // 基板 VSYS電圧
+    vsys = get_vsys_voltage();
+    DBG_PRINTF("VSYS: %.03f V\n", vsys);
 }
 // ---------------------------------------------------

@@ -53,8 +53,10 @@
 #endif // PCB_RPI_PICO_2
 
 float get_cpu_temp(void);
+float get_vsys_voltage(void);
 void pcb_info(void);
 void pcb_gpio_init(void);
+void pcb_adc_init(void);
 void pcb_i2c_init(void);
 void pcb_uart_init(void);
 unsigned int DBG_PRINTF(const char *p_fmt, ...);
