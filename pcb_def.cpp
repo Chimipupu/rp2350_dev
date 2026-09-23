@@ -37,6 +37,11 @@ static void _adc_3_vsys_init(void)
 
 // ---------------------------------------------------
 // [API]
+uint32_t get_chip_rev(void)
+{
+    return (sysinfo_hw->chip_id & SYSINFO_CHIP_ID_REVISION_BITS) >> SYSINFO_CHIP_ID_REVISION_LSB;
+}
+
 float get_cpu_temp(void)
 {
     uint8_t i;
@@ -61,22 +66,29 @@ float get_vsys_voltage(void)
     float vsys_ave = 0.0f;
 
     _adc_3_vsys_init();
+    sleep_us(100); // ADC Ch切り替え待ち 100us
 
     // 移動平均8回で平均化
     for (i = 0; i < VSYS_ADC_AVE; i++)
     {
         raw_sum += adc_read();
+        sleep_us(5);
     }
 
-    // ★期待値
-    //  -> VBUSが5.0Vなら、ショットキーの電圧降下 0.2V を差し引いた 4.7V
-    // ★ADC3のVSYS読み取り回路問題
-    //  -> RP2350内部のADCインピーダンス(50kオーム)なのが確実！
-    //  Pico2のADC3の回路で R5(100kオーム)、R6//R16(50kオーム)
+#ifdef PCB_RPI_PICO_2_RED_CLONE
+    // ★ 中華互換機の赤色のPico2: 「ADC3のVSYS読み取り回路問題」
+    //  -> 中華の互換機だとRP2350内部のADCインピーダンス(50kオーム)になる？
+    //  互換機Pico2のADC3の回路で R5(100kオーム)、R6//R16(50kオーム)
     //  なのでRP2350の内部ADCのインピーダンスが並列接続されたら分圧抵抗の下側の抵抗値が約25kΩになる
     //  となると分圧比は 1/5 になるから逆算係数として 5.0f を乗算して対策
     vsys_ave = ((float)raw_sum / (float)VSYS_ADC_AVE) * (3.3f / 4095.0f) * 5.0f;
+#else
+    // 純正のPico2
+    vsys_ave = ((float)raw_sum / (float)VSYS_ADC_AVE) * (3.3f / 4095.0f) * 3.0f;
+#endif
 
+    // ★期待値
+    //  -> VBUSが5.0Vなら、ショットキーの電圧降下 0.2V を差し引いた 4.7V
     return vsys_ave;
 }
 
@@ -143,14 +155,14 @@ void pcb_info(void)
     core_num = get_core_num();
     DBG_PRINTF("Running CPU: Core %u\n", core_num);
 
-    // チップリビジョンRP2350: 1=A2, 3=A4、RP204: B0=1, B1=2, B2=3
-    chip_rev = (sysinfo_hw->chip_id & SYSINFO_CHIP_ID_REVISION_BITS) >> SYSINFO_CHIP_ID_REVISION_LSB;
-    if (chip_rev == 1) {
+    // チップリビジョンRP2350: A2 or A4
+    chip_rev = get_chip_rev();
+    if (chip_rev == 2) {
         DBG_PRINTF("Chip Rev: A2\n");
     } else if (chip_rev == 3) {
         DBG_PRINTF("Chip Rev: A4\n");
     } else {
-        DBG_PRINTF("Chip Rev: Unknown\n");
+        DBG_PRINTF("Chip Rev: Unknown (%d)\n", chip_rev);
     }
 
     // 基板 VSYS電圧

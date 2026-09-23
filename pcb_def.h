@@ -12,7 +12,11 @@
 #include <stdint.h>
 #include <string.h>
 
+#define RP2350_CHIP_A2    2
+#define RP2350_CHIP_A4    3
+
 #define PCB_RPI_PICO_2
+// #define PCB_RPI_PICO_2_RED_CLONE // 中華互換機 赤色のPico2
 
 // Raspberry Pi Pico 2
 #ifdef PCB_RPI_PICO_2
@@ -52,6 +56,7 @@
     #define UART_RX_PIN              13  // UART0 RX
 #endif // PCB_RPI_PICO_2
 
+uint32_t get_chip_rev(void);
 float get_cpu_temp(void);
 float get_vsys_voltage(void);
 void pcb_info(void);
