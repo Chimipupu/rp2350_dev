@@ -104,6 +104,8 @@ static E_DBG_CMD_RESULT _cmd_debug(void *p_args)
         DBG_PRINTF("PCB Info Print\n");
         pcb_info();
     }
+
+#ifdef OB_LED_PIN
     else if(strcmp(p_cmd_args->argv[0], "led") == 0)
     {
         digitalWrite(OB_LED_PIN, s_led_val);
@@ -115,6 +117,7 @@ static E_DBG_CMD_RESULT _cmd_debug(void *p_args)
             DBG_PRINTF("LED ON\n");
         }
     }
+#endif
 
     DBG_PRINTF("-------------------------------\n");
 

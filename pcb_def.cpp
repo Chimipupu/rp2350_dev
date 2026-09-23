@@ -38,6 +38,22 @@ static void _adc_3_vsys_init(void)
     adc_select_input(ADC_3_VSYS);
 }
 #endif
+
+// ---------------------------------------------------
+// [割り込みハンドラ]
+#ifdef BUTTON_PIN
+/**
+ * @brief ボタン用割り込みハンドラ
+ */
+void btn_ISR()
+{
+    static uint8_t s_led_val = 0xFF;
+
+    digitalWrite(OB_LED_PIN, s_led_val);
+    s_led_val = ~s_led_val;
+}
+#endif
+
 // ---------------------------------------------------
 // [API]
 uint32_t get_chip_rev(void)
@@ -102,6 +118,13 @@ void pcb_gpio_init(void)
 #ifdef OB_LED_PIN
     pinMode(OB_LED_PIN, OUTPUT);
     digitalWrite(OB_LED_PIN, HIGH);
+#endif
+
+#ifdef BUTTON_PIN
+    pinMode(BUTTON_PIN, INPUT); // 基板ボタン
+    attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), // IRQ
+                    btn_ISR,                           // 割り込みハンドラ
+                    FALLING);                          // Lowで割り込み
 #endif
 }
 
